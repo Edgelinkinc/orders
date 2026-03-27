@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edgelink Inc. — Accessory Order Form</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700;800&display=swap');
+  :root {
+    --magenta:#E20074;--magenta-dark:#b3005b;--magenta-light:#fce8f3;
+    --purple:#5C2D91;--purple-dark:#3e1d6e;--purple-light:#ede7f6;
+    --white:#fff;--gray-light:#f5f5f5;--gray-mid:#e0e0e0;--gray-text:#666;--border:#e0e0e0;--text:#1a1a1a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#f0f0f0;color:var(--text);font-family:'Montserrat',sans-serif;font-size:13px;min-height:100vh;}
+  .header{background:linear-gradient(90deg,var(--purple),var(--magenta));padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:68px;}
+  .logo-area{display:flex;align-items:center;gap:14px;}
+  .logo-box{background:white;border-radius:5px;padding:5px 13px;}
+  .logo-text{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;background:linear-gradient(90deg,var(--purple),var(--magenta));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .header-title{color:white;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;}
+  .order-badge{background:rgba(255,255,255,0.2);color:white;font-size:11px;font-weight:700;letter-spacing:1.5px;padding:5px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.4);}
+  .steps-nav{background:white;border-bottom:2px solid var(--border);display:flex;overflow-x:auto;padding:0 28px;}
+  .step-tab{padding:14px 18px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray-text);cursor:pointer;border-bottom:3px solid transparent;transition:all 0.2s;white-space:nowrap;display:flex;align-items:center;gap:7px;margin-bottom:-2px;}
+  .step-tab:hover{color:var(--purple);}
+  .step-tab.active{color:var(--purple);border-bottom-color:var(--purple);}
+  .step-tab.completed{color:var(--magenta);border-bottom-color:var(--magenta);}
+  .step-dot{width:20px;height:20px;border-radius:50%;background:var(--gray-mid);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#999;}
+  .step-tab.active .step-dot{background:var(--purple);color:white;}
+  .step-tab.completed .step-dot{background:var(--magenta);color:white;}
+  .content{padding:24px 28px;max-width:1100px;margin:0 auto;}
+  .page{display:none;}.page.active{display:block;}
+  .section-label{font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--purple);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--purple-light);}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:28px;}
+  .field-group{display:flex;flex-direction:column;gap:5px;}
+  .field-group label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gray-text);}
+  .field-group input,.field-group select{background:white;border:1.5px solid var(--border);border-radius:6px;padding:9px 12px;color:var(--text);font-family:'Montserrat',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s;}
+  .field-group input:focus,.field-group select:focus{border-color:var(--purple);}
+  .device-section{background:white;border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+  .device-header{background:var(--gray-light);padding:11px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;border-bottom:1.5px solid var(--border);user-select:none;}
+  .device-header-left{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;display:flex;align-items:center;gap:10px;}
+  .brand-pill{padding:2px 10px;border-radius:20px;font-size:9px;font-weight:800;letter-spacing:1px;font-family:'Montserrat',sans-serif;}
+  .brand-iphone{background:#fce8f3;color:var(--magenta);border:1.5px solid #f4a8d4;}
+  .brand-samsung{background:var(--purple-light);color:var(--purple);border:1.5px solid #c9a8f4;}
+  .brand-motorola{background:#fff3e0;color:#e65100;border:1.5px solid #ffcc80;}
+  .brand-tmobile{background:#fce8f3;color:var(--magenta);border:1.5px solid #f4a8d4;}
+  .brand-tcl{background:#e8f5e9;color:#2e7d32;border:1.5px solid #a5d6a7;}
+  .chevron{font-size:11px;transition:transform 0.2s;color:#aaa;}
+  .device-section.collapsed .chevron{transform:rotate(-90deg);}
+  .device-section.collapsed .device-body{display:none;}
+  .device-body{padding:14px 18px;}
+  .device-table{width:100%;border-collapse:collapse;}
+  .device-table th{text-align:center;padding:7px 10px;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#aaa;border-bottom:1.5px solid var(--border);}
+  .device-table th.left{text-align:left;}
+  .device-table td{padding:9px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle;text-align:center;}
+  .device-table td.left{text-align:left;}
+  .device-table tr:last-child td{border-bottom:none;}
+  .device-table tr:hover td{background:#fafafa;}
+  .device-name{font-weight:600;font-size:12px;color:var(--text);min-width:130px;}
+  .cb-wrap{display:flex;align-items:center;justify-content:center;}
+  .cb-box{width:22px;height:22px;border:2px solid var(--gray-mid);border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;background:white;flex-shrink:0;}
+  .cb-box:hover{border-color:var(--purple);background:var(--purple-light);}
+  .cb-box.checked{background:linear-gradient(135deg,var(--purple),var(--magenta));border-color:var(--magenta);}
+  .cb-box.checked::after{content:'✓';color:white;font-size:13px;font-weight:800;line-height:1;}
+  .special-input{background:var(--gray-light);border:1.5px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--text);font-family:'Montserrat',sans-serif;font-size:11px;width:100%;outline:none;min-width:110px;}
+  .special-input:focus{border-color:var(--magenta);background:white;}
+  .custom-device-section{margin-top:14px;border-top:1.5px dashed var(--border);padding-top:14px;}
+  .custom-device-label{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--purple);margin-bottom:10px;}
+  .custom-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+  .custom-device-input{background:white;border:1.5px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-family:'Montserrat',sans-serif;font-size:12px;outline:none;flex:1;min-width:140px;}
+  .custom-device-input:focus{border-color:var(--purple);}
+  .custom-check-group{display:flex;align-items:center;gap:6px;}
+  .custom-check-label{font-size:11px;font-weight:600;color:var(--gray-text);}
+  .add-row-btn{background:var(--purple-light);border:1.5px dashed var(--purple);border-radius:6px;color:var(--purple);font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;padding:7px 14px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+  .add-row-btn:hover{background:var(--purple);color:white;}
+  .remove-row-btn{background:none;border:none;color:#ccc;font-size:16px;cursor:pointer;padding:0 4px;transition:color 0.15s;}
+  .remove-row-btn:hover{color:var(--magenta);}
+  .acc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+  .acc-card{background:white;border:1.5px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+  .acc-card-header{background:linear-gradient(90deg,var(--purple),var(--magenta));padding:9px 14px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:white;}
+  .acc-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #f0f0f0;gap:10px;}
+  .acc-item:last-child{border-bottom:none;}
+  .acc-item-name{font-size:12px;color:#333;flex:1;font-weight:500;}
+  .review-section{background:white;border:1.5px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+  .review-header{background:linear-gradient(90deg,var(--purple),var(--magenta));padding:10px 18px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:white;}
+  .review-body{padding:14px 18px;}
+  .review-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f5f5f5;font-size:12px;}
+  .review-row:last-child{border-bottom:none;}
+  .review-row span:first-child{color:var(--gray-text);}
+  .review-check{color:var(--magenta);font-weight:700;}
+  .store-review{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:14px 18px;}
+  .store-review-item label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#aaa;display:block;margin-bottom:3px;font-weight:700;}
+  .store-review-item span{font-size:13px;font-weight:700;color:var(--text);}
+  .notes-area{background:white;border:1.5px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'Montserrat',sans-serif;font-size:13px;width:100%;min-height:80px;outline:none;resize:vertical;margin-top:14px;}
+  .notes-area:focus{border-color:var(--purple);}
+  .btn-row{display:flex;justify-content:flex-end;gap:10px;margin-top:28px;padding-top:18px;border-top:1.5px solid var(--border);}
+  .btn{padding:11px 26px;border:none;border-radius:7px;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+  .btn-ghost{background:white;border:1.5px solid var(--border);color:#777;}
+  .btn-ghost:hover{border-color:#999;color:var(--text);}
+  .btn-primary{background:linear-gradient(90deg,var(--purple),var(--magenta));color:white;}
+  .btn-primary:hover{opacity:0.9;transform:translateY(-1px);}
+  .btn-success{background:var(--magenta);color:white;}
+  .btn-success:hover{background:var(--magenta-dark);transform:translateY(-1px);}
+  .btn-success:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+  .btn-print{background:white;border:1.5px solid var(--purple);color:var(--purple);}
+  .btn-print:hover{background:var(--purple-light);}
+  .success-screen{text-align:center;padding:50px 28px;background:white;border-radius:12px;border:1.5px solid var(--border);}
+  .success-icon{width:72px;height:72px;background:linear-gradient(135deg,var(--purple),var(--magenta));border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;color:white;font-weight:800;}
+  .success-title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;background:linear-gradient(90deg,var(--purple),var(--magenta));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
+  .success-sub{color:var(--gray-text);font-size:14px;margin-bottom:24px;}
+  .order-id-display{display:inline-block;background:var(--gray-light);border:1.5px solid var(--border);padding:8px 22px;border-radius:6px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:#555;margin-bottom:28px;}
+  .total-bar{position:sticky;bottom:0;background:white;border-top:3px solid var(--magenta);padding:10px 28px;display:flex;justify-content:flex-end;gap:24px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#999;}
+  .total-item{display:flex;gap:8px;align-items:center;}
+  .total-item .val{color:var(--magenta);font-size:16px;font-family:'Bebas Neue',sans-serif;}
+  .store-email-display{font-size:11px;color:var(--purple);font-weight:600;margin-top:4px;}
+  optgroup{font-weight:800;font-size:11px;letter-spacing:1px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-area">
+    <div class="logo-box"><span class="logo-text">EDGELINK INC.</span></div>
+    <div class="header-title">Accessory Order Form</div>
+  </div>
+  <div class="order-badge" id="order-id-badge">ORDER #—</div>
+</div>
+
+<div class="steps-nav">
+  <div class="step-tab active" onclick="goTo(0)"><span class="step-dot">1</span> Store Info</div>
+  <div class="step-tab" onclick="goTo(1)"><span class="step-dot">2</span> Handsets</div>
+  <div class="step-tab" onclick="goTo(2)"><span class="step-dot">3</span> Cables & Chargers</div>
+  <div class="step-tab" onclick="goTo(3)"><span class="step-dot">4</span> Audio & Misc</div>
+  <div class="step-tab" onclick="goTo(4)"><span class="step-dot">5</span> Review & Submit</div>
+</div>
+
+<div class="content">
+
+<div class="page active" id="page-0">
+  <div class="section-label">Store Information</div>
+  <div class="info-grid">
+    <div class="field-group">
+      <label>Employee Name</label>
+      <input type="text" id="emp-name" placeholder="Full name">
+    </div>
+    <div class="field-group">
+      <label>Store Location</label>
+      <select id="store-select" onchange="onStoreChange()">
+        <option value="">-- Select Your Store --</option>
+
+        <optgroup label="── ARKANSAS (AR) ──">
+          <option value="AR-COLONEL GLENN|colonelglenn@edgelinkinc.com">AR — COLONEL GLENN</option>
+          <option value="AR-RADIO GEYER|radiogeyer@edgelinkinc.com">AR — RADIO GEYER</option>
+        </optgroup>
+
+        <optgroup label="── CONNECTICUT (CT) ──">
+          <option value="CT-BUCKLAND HILLS MALL|bucklandhillsmall@edgelinkinc.com">CT — BUCKLAND HILLS MALL</option>
+          <option value="CT-NEW LONDON|newlondon@edgelinkinc.com">CT — NEW LONDON</option>
+          <option value="CT-NORWICH|norwich@edgelinkinc.com">CT — NORWICH</option>
+        </optgroup>
+
+        <optgroup label="── MASSACHUSETTS (MA) ──">
+          <option value="MA-CAPE COD MALL|capecodmall@edgelinkinc.com">MA — CAPE COD MALL</option>
+          <option value="MA-COGGESHALL|coggeshall@edgelinkinc.com">MA — COGGESHALL</option>
+          <option value="MA-EXCHANGE ST.|exchangest@edgelinkinc.com">MA — EXCHANGE ST.</option>
+          <option value="MA-FALLRIVER|FallRiver@edgelinkinc.com">MA — FALL RIVER</option>
+          <option value="MA-HOLYOKE|holyoke@edgelinkinc.com">MA — HOLYOKE</option>
+          <option value="MA-KELLEY SQUARE|kelleysquare@edgelinkinc.com">MA — KELLEY SQUARE</option>
+          <option value="MA-LOCUST STREET|locustst@edgelinkinc.com">MA — LOCUST STREET</option>
+          <option value="MA-ROCKDALE|rockdale@edgelinkinc.com">MA — ROCKDALE</option>
+          <option value="MA-SOUTH SHORE MALL|southshoreplaza@edgelinkinc.com">MA — SOUTH SHORE MALL</option>
+          <option value="MA-STATE STREET|statest@edgelinkinc.com">MA — STATE STREET</option>
+          <option value="MA-WESTERN AVE|westernavema@edgelinkinc.com">MA — WESTERN AVE</option>
+        </optgroup>
+
+        <optgroup label="── RHODE ISLAND (RI) ──">
+          <option value="RI-751BROAD|751BroadStreet@edgelinkinc.com">RI — 751 BROAD</option>
+          <option value="RI-BALD HILL|baldhillrd@edgelinkinc.com">RI — BALD HILL</option>
+          <option value="RI-BROAD ST|broadst@edgelinkinc.com">RI — BROAD ST</option>
+          <option value="RI-BROADWAY|broadway@edgelinkinc.com">RI — BROADWAY</option>
+          <option value="RI-COVENTRY|coventry@edgelinkinc.com">RI — COVENTRY</option>
+          <option value="RI-DOUGLAS|DouglasAve@edgelinkinc.com">RI — DOUGLAS</option>
+          <option value="RI-EAST PROVIDENCE|eastprovidence@edgelinkinc.com">RI — EAST PROVIDENCE</option>
+          <option value="RI-HARTFORD AVE|hartfordave@edgelinkinc.com">RI — HARTFORD AVE</option>
+          <option value="RI-NEWPORT AVE|newportave@edgelinkinc.com">RI — NEWPORT AVE</option>
+          <option value="RI-PROVIDENCE PLACE MALL|provplacemall@edgelinkinc.com">RI — PROVIDENCE PLACE MALL</option>
+          <option value="RI-RESERVOIR AVE|ReservoirAve@edgelinkinc.com">RI — RESERVOIR AVE</option>
+        </optgroup>
+
+        <optgroup label="── TENNESSEE (TN) ──">
+          <option value="TN-KEITH ST|keithst@edgelinkinc.com">TN — KEITH ST</option>
+          <option value="TN-MAGNOLIA|magnolia@edgelinkinc.com">TN — MAGNOLIA</option>
+          <option value="TN-MORRISTOWN|morristown@edgelinkinc.com">TN — MORRISTOWN</option>
+          <option value="TN-NORTH BROADWAY|northbroadway@edgelinkinc.com">TN — NORTH BROADWAY</option>
+          <option value="TN-SHALLOWFORD RD|shallowford@edgelinkinc.com">TN — SHALLOWFORD RD</option>
+          <option value="TN-WEST MARKET|westmarket@edgelinkinc.com">TN — WEST MARKET</option>
+          <option value="TN-WESTERN AVE|westernavetn@edgelinkinc.com">TN — WESTERN AVE</option>
+        </optgroup>
+
+      </select>
+      <div class="store-email-display" id="store-email-display"></div>
+    </div>
+    <div class="field-group">
+      <label>Order Date</label>
+      <input type="date" id="order-date">
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="goTo(1)">Next: Handsets →</button>
+  </div>
+</div>
+
+<div class="page" id="page-1">
+  <div class="section-label">Handset Screen Protectors & Cases</div>
+  <div id="handset-sections"></div>
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="goTo(0)">← Back</button>
+    <button class="btn btn-primary" onclick="goTo(2)">Next: Cables & Chargers →</button>
+  </div>
+</div>
+
+<div class="page" id="page-2">
+  <div class="section-label">Cables, Chargers & Power</div>
+  <div class="acc-grid" id="cables-grid"></div>
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="goTo(1)">← Back</button>
+    <button class="btn btn-primary" onclick="goTo(3)">Next: Audio & Misc →</button>
+  </div>
+</div>
+
+<div class="page" id="page-3">
+  <div class="section-label">Headphones, Memory Cards, Speakers & Misc</div>
+  <div class="acc-grid" id="audio-grid"></div>
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="goTo(2)">← Back</button>
+    <button class="btn btn-primary" onclick="goTo(4)">Review Order →</button>
+  </div>
+</div>
+
+<div class="page" id="page-4">
+  <div class="section-label">Review & Submit</div>
+  <div class="review-section">
+    <div class="review-header">Store Information</div>
+    <div class="store-review">
+      <div class="store-review-item"><label>Employee</label><span id="rv-emp">—</span></div>
+      <div class="store-review-item"><label>Store</label><span id="rv-store">—</span></div>
+      <div class="store-review-item"><label>Date</label><span id="rv-date">—</span></div>
+    </div>
+  </div>
+  <div id="review-content"></div>
+  <div class="field-group" style="margin-top:8px">
+    <label>Additional Notes / Special Requests</label>
+    <textarea class="notes-area" id="order-notes" placeholder="Any special instructions..."></textarea>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="goTo(3)">← Back</button>
+    <button class="btn btn-print" onclick="window.print()">Print</button>
+    <button class="btn btn-success" id="submit-btn" onclick="submitOrder()">Submit Order ✓</button>
+  </div>
+</div>
+
+<div class="page" id="page-success">
+  <div class="success-screen">
+    <div class="success-icon">✓</div>
+    <div class="success-title">Order Submitted!</div>
+    <div class="success-sub">Your order has been sent to the Edgelink Inc. inventory team. A copy has been sent to your store email.</div>
+    <div class="order-id-display" id="final-order-id"></div>
+    <div>
+      <button class="btn btn-ghost" onclick="window.print()" style="margin-right:10px">Print Order</button>
+      <button class="btn btn-primary" onclick="resetForm()">+ New Order</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="total-bar" id="total-bar">
+  <div class="total-item">Items Selected: <span class="val" id="total-items">0</span></div>
+  <div class="total-item">Categories: <span class="val" id="total-cats">0</span></div>
+</div>
+
+<script>
+(function(){emailjs.init('-Fi8l0rsS-W5Zh0m7');})();
+const SERVICE_ID='service_a1wynjd';
+const TEMPLATE_ID='template_tr9s2j5';
+const HQ_EMAIL='INVENTORYHELPTEAM@EVOLUTIONWIRELESS.NET';
+
+const handsets=[
+  {brand:"iPhone",pill:"brand-iphone",models:["iPhone 13","iPhone 14","iPhone 15","iPhone 16E","iPhone 17E","iPhone 17","iPhone 17 Pro","iPhone 17 ProMax","iPhone Air","Apple Watch"]},
+  {brand:"Samsung",pill:"brand-samsung",models:["Samsung A16","Samsung A17","Samsung A36","Samsung S24FE","Samsung Tab 9","Samsung Watch"]},
+  {brand:"Motorola",pill:"brand-motorola",models:["Moto G 2026","Moto G Play 2026","Moto Razr","Moto Edge 2025"]},
+  {brand:"T-Mobile REVVL",pill:"brand-tmobile",models:["REVVL 8","REVVL 8 Pro","REVVL Tab 2"]},
+  {brand:"TCL",pill:"brand-tcl",models:["TCL Flip 4","TCL K11","TCL K32"]},
+];
+const cables=[
+  {section:"Cables",items:["USB-C to USB-C 3FT","USB-C to USB-C 6FT","USB-C to USB-C 10FT","USB-C to Lightning 3FT","USB-C to Lightning 6FT"]},
+  {section:"Car Chargers",items:["Single Port Charger","Dual Port Charger"]},
+  {section:"Portable Power",items:["Power Bank 5K","Power Bank 10K","Power Bank 20K"]},
+  {section:"Wall Chargers",items:["C-Type Wall Charger 20W","C-Type Wall Charger 25W","Dual Wall Charger 35W","Dual Wall Charger 45W","Dual Wall Charger 67W"]},
+  {section:"Wireless Chargers",items:["Magnet Charger 15W","3 in 1 Charger"]},
+];
+const audioMisc=[
+  {section:"Headphones",items:["Wireless","Wired","Over the Ear","Around the Neck"]},
+  {section:"Memory Cards",items:["32GB","64GB","128GB"]},
+  {section:"Speakers",items:["Small","Medium","Large"]},
+  {section:"Misc",items:["Pop Sockets","Car Mounts","Liquid Glass","Watch Bands","Lanyards"]},
+];
+
+const checks={};const specials={};let customRows={};
+let currentStoreName='';let currentStoreEmail='';
+
+const orderId='ORD-'+Date.now().toString(36).toUpperCase();
+document.getElementById('order-id-badge').textContent='ORDER #'+orderId.split('-')[1];
+document.getElementById('final-order-id').textContent=orderId;
+document.getElementById('order-date').value=new Date().toISOString().split('T')[0];
+
+function onStoreChange(){
+  const val=document.getElementById('store-select').value;
+  if(val){const p=val.split('|');currentStoreName=p[0];currentStoreEmail=p[1];document.getElementById('store-email-display').textContent=currentStoreEmail;}
+  else{currentStoreName='';currentStoreEmail='';document.getElementById('store-email-display').textContent='';}
+}
+
+function makeCheckbox(key){
+  const box=document.createElement('div');box.className='cb-wrap';
+  const cb=document.createElement('div');cb.className='cb-box';checks[key]=false;
+  cb.addEventListener('click',function(){checks[key]=!checks[key];cb.classList.toggle('checked',checks[key]);updateTotals();});
+  box.appendChild(cb);return box;
+}
+
+function buildHandsets(){
+  const container=document.getElementById('handset-sections');
+  handsets.forEach(brand=>{
+    const sec=document.createElement('div');sec.className='device-section';
+    const header=document.createElement('div');header.className='device-header';
+    header.innerHTML='<div class="device-header-left"><span class="'+brand.pill+' brand-pill">'+brand.brand.toUpperCase()+'</span>'+brand.brand+'</div><span class="chevron">&#9660;</span>';
+    header.addEventListener('click',()=>sec.classList.toggle('collapsed'));
+    const body=document.createElement('div');body.className='device-body';
+    const table=document.createElement('table');table.className='device-table';
+    table.innerHTML='<thead><tr><th class="left">Model</th><th>Glass</th><th>Male Case</th><th>Female Case</th><th class="left">Special Request</th></tr></thead>';
+    const tbody=document.createElement('tbody');
+    brand.models.forEach(m=>{
+      const tr=document.createElement('tr');
+      const nameTd=document.createElement('td');nameTd.className='device-name left';nameTd.textContent=m;
+      const glassTd=document.createElement('td');glassTd.appendChild(makeCheckbox(m+'__glass'));
+      const maleTd=document.createElement('td');maleTd.appendChild(makeCheckbox(m+'__male'));
+      const femaleTd=document.createElement('td');femaleTd.appendChild(makeCheckbox(m+'__female'));
+      const specialTd=document.createElement('td');specialTd.className='left';
+      const sp=document.createElement('input');sp.type='text';sp.className='special-input';sp.placeholder='Notes...';
+      sp.addEventListener('input',()=>{specials[m]=sp.value;});
+      specialTd.appendChild(sp);
+      tr.append(nameTd,glassTd,maleTd,femaleTd,specialTd);tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);body.appendChild(table);
+    const customSection=document.createElement('div');customSection.className='custom-device-section';
+    customSection.innerHTML='<div class="custom-device-label">+ Other '+brand.brand+' Devices</div>';
+    customRows[brand.brand]=[];
+    const rowsContainer=document.createElement('div');
+    const addBtn=document.createElement('button');addBtn.type='button';addBtn.className='add-row-btn';addBtn.textContent='+ Add Device';
+    addBtn.addEventListener('click',()=>addCustomRow(brand.brand,rowsContainer));
+    customSection.appendChild(rowsContainer);customSection.appendChild(addBtn);
+    body.appendChild(customSection);sec.appendChild(header);sec.appendChild(body);container.appendChild(sec);
+  });
+}
+
+function addCustomRow(brandName,container){
+  const idx=Date.now();const rowData={device:'',glass:false,male:false,female:false,special:''};
+  customRows[brandName].push({idx,data:rowData});
+  const row=document.createElement('div');row.className='custom-row';
+  const deviceInput=document.createElement('input');deviceInput.type='text';deviceInput.className='custom-device-input';deviceInput.placeholder='Device name (e.g. iPhone 18)';
+  deviceInput.addEventListener('input',()=>{rowData.device=deviceInput.value;updateTotals();});
+  function makeCustomCb(field,label){
+    const wrap=document.createElement('div');wrap.className='custom-check-group';
+    const cb=document.createElement('div');cb.className='cb-box';cb.style.width='20px';cb.style.height='20px';
+    cb.addEventListener('click',()=>{rowData[field]=!rowData[field];cb.classList.toggle('checked',rowData[field]);updateTotals();});
+    const lbl=document.createElement('span');lbl.className='custom-check-label';lbl.textContent=label;
+    wrap.append(cb,lbl);return wrap;
+  }
+  const specialInput=document.createElement('input');specialInput.type='text';specialInput.className='special-input';specialInput.placeholder='Notes...';specialInput.style.minWidth='100px';
+  specialInput.addEventListener('input',()=>{rowData.special=specialInput.value;});
+  const removeBtn=document.createElement('button');removeBtn.type='button';removeBtn.className='remove-row-btn';removeBtn.textContent='✕';
+  removeBtn.addEventListener('click',()=>{row.remove();customRows[brandName]=customRows[brandName].filter(r=>r.idx!==idx);updateTotals();});
+  row.append(deviceInput,makeCustomCb('glass','Glass'),makeCustomCb('male','Male'),makeCustomCb('female','Female'),specialInput,removeBtn);
+  container.appendChild(row);
+}
+
+function buildAccGrid(containerId,data){
+  const container=document.getElementById(containerId);
+  data.forEach(group=>{
+    const card=document.createElement('div');card.className='acc-card';
+    const header=document.createElement('div');header.className='acc-card-header';header.textContent=group.section;
+    card.appendChild(header);
+    group.items.forEach(item=>{
+      const key=group.section+'__'+item;
+      const row=document.createElement('div');row.className='acc-item';
+      const name=document.createElement('span');name.className='acc-item-name';name.textContent=item;
+      row.appendChild(name);row.appendChild(makeCheckbox(key));card.appendChild(row);
+    });
+    container.appendChild(card);
+  });
+}
+
+function updateTotals(){
+  let total=0,cats=new Set();
+  for(const[k,v] of Object.entries(checks)){if(v){total++;cats.add(k.split('__')[0]);}}
+  handsets.forEach(brand=>{customRows[brand.brand].forEach(({data})=>{if(data.device){if(data.glass){total++;cats.add(brand.brand+'_c');}if(data.male){total++;cats.add(brand.brand+'_c');}if(data.female){total++;cats.add(brand.brand+'_c');}}});});
+  document.getElementById('total-items').textContent=total;
+  document.getElementById('total-cats').textContent=cats.size;
+}
+
+function goTo(page){
+  document.querySelectorAll('.page').forEach((p,i)=>p.classList.toggle('active',i===page));
+  document.querySelectorAll('.step-tab').forEach((t,i)=>{t.classList.remove('active','completed');if(i===page)t.classList.add('active');else if(i<page)t.classList.add('completed');});
+  if(page===4)buildReview();window.scrollTo(0,0);
+}
+
+function buildReview(){
+  document.getElementById('rv-emp').textContent=document.getElementById('emp-name').value||'—';
+  document.getElementById('rv-store').textContent=currentStoreName||'—';
+  document.getElementById('rv-date').textContent=document.getElementById('order-date').value||'—';
+  const container=document.getElementById('review-content');container.innerHTML='';
+  let handsetRows='';
+  handsets.forEach(brand=>{
+    brand.models.forEach(m=>{
+      const g=checks[m+'__glass'],ml=checks[m+'__male'],f=checks[m+'__female'],sp=specials[m]||'';
+      if(g||ml||f||sp){
+        const parts=[];if(g)parts.push('<span class="review-check">✓ Glass</span>');if(ml)parts.push('<span class="review-check">✓ Male</span>');if(f)parts.push('<span class="review-check">✓ Female</span>');
+        handsetRows+='<div class="review-row"><span>'+m+'</span><span>'+parts.join(' &nbsp;')+(sp?' &nbsp;📝 '+sp:'')+'</span></div>';
+      }
+    });
+    customRows[brand.brand].forEach(({data})=>{
+      if(data.device){const parts=[];if(data.glass)parts.push('<span class="review-check">✓ Glass</span>');if(data.male)parts.push('<span class="review-check">✓ Male</span>');if(data.female)parts.push('<span class="review-check">✓ Female</span>');
+        if(parts.length||data.special)handsetRows+='<div class="review-row"><span>'+data.device+' <em style="color:#aaa;font-size:10px">(custom)</em></span><span>'+parts.join(' &nbsp;')+(data.special?' &nbsp;📝 '+data.special:'')+'</span></div>';}
+    });
+  });
+  if(handsetRows)container.innerHTML+='<div class="review-section"><div class="review-header">Handsets</div><div class="review-body">'+handsetRows+'</div></div>';
+  [{data:cables,title:'Cables & Chargers'},{data:audioMisc,title:'Audio & Misc'}].forEach(({data,title})=>{
+    let rows='';data.forEach(g=>g.items.forEach(item=>{if(checks[g.section+'__'+item])rows+='<div class="review-row"><span>'+g.section+' — '+item+'</span><span class="review-check">✓ Needed</span></div>';}));
+    if(rows)container.innerHTML+='<div class="review-section"><div class="review-header">'+title+'</div><div class="review-body">'+rows+'</div></div>';
+  });
+}
+
+function buildEmailContent(){
+  let handsetRows='';
+  handsets.forEach(brand=>{
+    brand.models.forEach(m=>{
+      const g=checks[m+'__glass'],ml=checks[m+'__male'],f=checks[m+'__female'],sp=specials[m]||'';
+      if(g||ml||f||sp){
+        handsetRows+='<tr><td style="padding:8px 10px;font-weight:600;border-bottom:1px solid #f8f8f8;">'+m+'</td>'+
+          '<td style="text-align:center;padding:8px 10px;border-bottom:1px solid #f8f8f8;">'+(g?'<span style="color:#E20074;font-weight:900;">✓</span>':'<span style="color:#ddd;">—</span>')+'</td>'+
+          '<td style="text-align:center;padding:8px 10px;border-bottom:1px solid #f8f8f8;">'+(ml?'<span style="color:#E20074;font-weight:900;">✓</span>':'<span style="color:#ddd;">—</span>')+'</td>'+
+          '<td style="text-align:center;padding:8px 10px;border-bottom:1px solid #f8f8f8;">'+(f?'<span style="color:#E20074;font-weight:900;">✓</span>':'<span style="color:#ddd;">—</span>')+'</td>'+
+          '<td style="padding:8px 10px;border-bottom:1px solid #f8f8f8;color:#999;font-size:11px;">'+(sp||'—')+'</td></tr>';
+      }
+    });
+    customRows[brand.brand].forEach(({data})=>{
+      if(data.device&&(data.glass||data.male||data.female)){
+        handsetRows+='<tr><td style="padding:8px 10px;font-weight:600;border-bottom:1px solid #f8f8f8;">'+data.device+' <em style="color:#aaa;font-size:10px">(custom)</em></td>'+
+          '<td style="text-align:center;padding:8px 10px;border-bottom:1px solid #f8f8f8;">'+(data.glass?'<span style="color:#E20074;font-weight:900;">✓</span>':'<span style="color:#ddd;">—</span>')+'</td>'+
+          '<td style="text-align:center;padding:8px 10px;border-bottom:1px solid #f8f8f8;">'+(data.male?'<span style="color:#E20074;font-weight:900;">✓</span>':'<span style="color:#ddd;">—</span>')+'</td>'+
+          '<td style="text-align:center;padding:8px 10px;border-bottom:1px solid #f8f8f8;">'+(data.female?'<span style="color:#E20074;font-weight:900;">✓</span>':'<span style="color:#ddd;">—</span>')+'</td>'+
+          '<td style="padding:8px 10px;border-bottom:1px solid #f8f8f8;color:#999;font-size:11px;">'+(data.special||'—')+'</td></tr>';
+      }
+    });
+  });
+  if(!handsetRows)handsetRows='<tr><td colspan="5" style="padding:10px;color:#aaa;font-size:12px;">No handset items selected</td></tr>';
+  let cableRows='';
+  cables.forEach(g=>g.items.forEach(item=>{if(checks[g.section+'__'+item])cableRows+='<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f8f8f8;font-size:12px;"><span style="color:#999;">'+g.section+'</span><span style="font-weight:600;">'+item+'</span><span style="color:#E20074;font-weight:900;">✓</span></div>';}));
+  if(!cableRows)cableRows='<div style="color:#aaa;font-size:12px;padding:8px 0;">No cable or charger items selected</div>';
+  let audioRows='';
+  audioMisc.forEach(g=>g.items.forEach(item=>{if(checks[g.section+'__'+item])audioRows+='<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f8f8f8;font-size:12px;"><span style="color:#999;">'+g.section+'</span><span style="font-weight:600;">'+item+'</span><span style="color:#E20074;font-weight:900;">✓</span></div>';}));
+  if(!audioRows)audioRows='<div style="color:#aaa;font-size:12px;padding:8px 0;">No audio or misc items selected</div>';
+  return{handsetRows,cableRows,audioRows};
+}
+
+async function submitOrder(){
+  const empName=document.getElementById('emp-name').value.trim();
+  const orderDate=document.getElementById('order-date').value;
+  const notes=document.getElementById('order-notes').value||'None';
+  if(!empName){alert('Please enter your name.');goTo(0);return;}
+  if(!currentStoreName){alert('Please select your store location.');goTo(0);return;}
+  const btn=document.getElementById('submit-btn');btn.disabled=true;btn.textContent='Sending...';
+  const{handsetRows,cableRows,audioRows}=buildEmailContent();
+  const templateParams={order_id:orderId,employee_name:empName,store_name:currentStoreName,store_email:currentStoreEmail,order_date:orderDate,hq_email:HQ_EMAIL,handset_rows:handsetRows,cable_rows:cableRows,audio_rows:audioRows,order_notes:notes,reply_to:currentStoreEmail};
+  try{
+    await emailjs.send(SERVICE_ID,TEMPLATE_ID,templateParams);
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-success').classList.add('active');
+    document.querySelectorAll('.step-tab').forEach(t=>t.classList.add('completed'));
+    document.getElementById('total-bar').style.display='none';
+  }catch(err){
+    console.error(err);alert('There was an error sending the order. Please try again or contact support.');
+    btn.disabled=false;btn.textContent='Submit Order ✓';
+  }
+}
+
+function resetForm(){location.reload();}
+buildHandsets();
+buildAccGrid('cables-grid',cables);
+buildAccGrid('audio-grid',audioMisc);
+</script>
+</body>
+</html>
