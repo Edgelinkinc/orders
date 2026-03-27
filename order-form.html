@@ -452,18 +452,18 @@ function buildPlainText(){
       const g=checks[m+'__glass'],ml=checks[m+'__male'],f=checks[m+'__female'],sp=specials[m]||'';
       if(g||ml||f||sp){
         const parts=[];if(g)parts.push('Glass');if(ml)parts.push('Male');if(f)parts.push('Female');
-        handsetText+=m+': '+parts.join(', ')+(sp?' ('+sp+')')+'\\n';
+        handsetText+=m+': '+parts.join(', ')+(sp?' ('+sp+')')+'\n';
       }
     });
     customRows[brand.brand].forEach(({data})=>{
       if(data.device){const parts=[];if(data.glass)parts.push('Glass');if(data.male)parts.push('Male');if(data.female)parts.push('Female');
-        if(parts.length)handsetText+=data.device+' (custom): '+parts.join(', ')+(data.special?' ('+data.special+')')+'\\n';}
+        if(parts.length)handsetText+=data.device+' (custom): '+parts.join(', ')+(data.special?' ('+data.special+')')+'\n';}
     });
   });
   let cableText='';
-  cables.forEach(g=>g.items.forEach(item=>{if(checks[g.section+'__'+item])cableText+=g.section+': '+item+'\\n';}));
+  cables.forEach(g=>g.items.forEach(item=>{if(checks[g.section+'__'+item])cableText+=g.section+': '+item+'\n';}));
   let audioText='';
-  audioMisc.forEach(g=>g.items.forEach(item=>{if(checks[g.section+'__'+item])audioText+=g.section+': '+item+'\\n';}));
+  audioMisc.forEach(g=>g.items.forEach(item=>{if(checks[g.section+'__'+item])audioText+=g.section+': '+item+'\n';}));
   return{
     handsetText:handsetText||'None',
     cableText:cableText||'None',
