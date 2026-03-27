@@ -291,7 +291,14 @@ async function loadFromSharePoint(){
     });
     if(!r.ok)throw new Error('Flow error: '+r.status);
     const d=await r.json();
-    const items=d.value||d.body||d||[];
+    console.log('Flow response:', JSON.stringify(d).substring(0,500));
+    let items=[];
+    if(Array.isArray(d)) items=d;
+    else if(d.value&&Array.isArray(d.value)) items=d.value;
+    else if(d.body&&Array.isArray(d.body)) items=d.body;
+    else if(d.body&&d.body.value&&Array.isArray(d.body.value)) items=d.body.value;
+    else if(d.body&&d.body.body&&Array.isArray(d.body.body)) items=d.body.body;
+    else{ console.log('Unknown format:', typeof d, Object.keys(d)); items=[]; }
     orders=items.map(function(item){return{
       id:item.Title||item.fields&&item.fields.Title||'',
       employee:item.Employee||item.fields&&item.fields.Employee||'',
