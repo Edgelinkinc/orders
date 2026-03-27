@@ -486,9 +486,21 @@ function viewOrder(id){
     '<div class="admin-field-group"><label>Cost of Order ($)</label><input class="admin-input" type="number" id="edit-cost-'+o.id+'" value="'+(o.cost||'')+'" placeholder="0.00" step="0.01"></div>'+
     '<div class="admin-field-group"><label>Receipt Status</label><select class="admin-select" id="edit-recv-'+o.id+'"><option value="pending_recv" '+(o.received!=='received'?'selected':'')+'>Pending Receipt</option><option value="received" '+(o.received==='received'?'selected':'')+'>Received</option></select></div>'+
     '</div><button class="save-admin-btn" onclick="saveAdminFields(\''+o.id+'\','+o.spId+')">Save Purchasing Details</button></div>';
-  if(o.handsets){html+='<div class="modal-section-title">Handsets</div>';o.handsets.split('\n').filter(l=>l.trim()).forEach(l=>{html+='<div class="modal-row"><span style="color:var(--text);font-weight:500">'+l+'</span></div>';});}
-  if(o.cables){html+='<div class="modal-section-title">Cables & Chargers</div>';o.cables.split('\n').filter(l=>l.trim()).forEach(l=>{html+='<div class="modal-row"><span style="color:var(--text);font-weight:500">'+l+'</span></div>';});}
-  if(o.audio){html+='<div class="modal-section-title">Audio & Misc</div>';o.audio.split('\n').filter(l=>l.trim()).forEach(l=>{html+='<div class="modal-row"><span style="color:var(--text);font-weight:500">'+l+'</span></div>';});}
+  if(o.handsets&&o.handsets!=='None'){
+    html+='<div class="modal-section-title">Handsets</div>';
+    var hItems=o.handsets.split('|').map(function(l){return l.trim();}).filter(function(l){return l;});
+    hItems.forEach(function(l){html+='<div class="modal-row"><span style="color:var(--text);font-weight:500">'+l+'</span></div>';});
+  }
+  if(o.cables&&o.cables!=='None'){
+    html+='<div class="modal-section-title">Cables & Chargers</div>';
+    var cItems=o.cables.split('|').map(function(l){return l.trim();}).filter(function(l){return l;});
+    cItems.forEach(function(l){html+='<div class="modal-row"><span style="color:var(--text);font-weight:500">'+l+'</span></div>';});
+  }
+  if(o.audio&&o.audio!=='None'){
+    html+='<div class="modal-section-title">Audio & Misc</div>';
+    var aItems=o.audio.split('|').map(function(l){return l.trim();}).filter(function(l){return l;});
+    aItems.forEach(function(l){html+='<div class="modal-row"><span style="color:var(--text);font-weight:500">'+l+'</span></div>';});
+  }
   if(o.notes)html+='<div class="modal-section-title">Notes</div><div style="font-size:13px;color:var(--gray-text);padding:8px 0">'+o.notes+'</div>';
   if(o.status==='pending')html+='<div style="margin-top:14px"><button class="fulfill-btn" style="width:100%;padding:10px;font-size:12px;background:var(--green-light);border-color:var(--green-dark);color:var(--green-dark)" onclick="fulfillOrder(\''+o.id+'\');document.getElementById(\'modal-bg\').classList.remove(\'open\')">Mark as Fulfilled ✓</button></div>';
   document.getElementById('modal-body').innerHTML=html;
