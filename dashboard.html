@@ -246,11 +246,8 @@
 <script>
 const ADMIN_USER='admin',ADMIN_PASS='edgelink2026';
 const TODAY=new Date();
-const SP_SITE='https://evolutionwirelessinc.sharepoint.com/sites/INVENTORYHELPTEAM';
-const SP_LIST='Edgelink Orders';
-const SP_CLIENT_ID='4cbd483c-1c2f-4b9a-916d-c0253cbe5f38';
-const SP_CLIENT_SECRET='QnNQOFF+cEV2OUdjU3VMOHRiSXBhaWxkamJyMWVtT250TXNNZWE0TQ==';
-const TENANT='evolutionwirelessinc.onmicrosoft.com';
+const GET_FLOW_URL='https://defaultebc8d7eeee3a4821b739b0b060e735.7f.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6f300915a6274ab0b16663ad08ac390e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=9eteTu96j6ktP-4copF_2RJnBFs588jCMNc8RTJ3XgM';
+const UPDATE_FLOW_URL='https://defaultebc8d7eeee3a4821b739b0b060e735.7f.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/33ae8f735af34dee9dfbae8b557515df/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=4as2Hqnp0ahNu9I8eqi6VmdcMcld9f1qdHA2D2PTMI4';
 
 const ALL_STORES=[
   'AR-COLONEL GLENN','AR-RADIO GEYER',
@@ -261,7 +258,6 @@ const ALL_STORES=[
 ];
 
 let orders=[];
-let spToken='';
 
 function doLogin(){
   const u=document.getElementById('login-user').value.trim();
@@ -283,68 +279,55 @@ function doLogout(){
   orders=[];spToken='';
 }
 
-async function getToken(){
-  try{
-    const r=await fetch('https://accounts.accesscontrol.windows.net/'+TENANT+'/tokens/OAuth/2',{
-      method:'POST',
-      headers:{'Content-Type':'application/x-www-form-urlencoded'},
-      body:'grant_type=client_credentials&client_id='+encodeURIComponent(SP_CLIENT_ID+'@'+TENANT)+'&client_secret='+encodeURIComponent(SP_CLIENT_SECRET)+'&resource='+encodeURIComponent('00000003-0000-0ff1-ce00-000000000000/evolutionwirelessinc.sharepoint.com@'+TENANT)
-    });
-    const d=await r.json();
-    return d.access_token||'';
-  }catch(e){console.error('Token error:',e);return '';}
-}
-
 async function loadFromSharePoint(){
   document.getElementById('sync-status').textContent='Syncing...';
   document.getElementById('sync-status').style.background='var(--amber-light)';
   document.getElementById('sync-status').style.color='var(--amber)';
   try{
-    spToken=await getToken();
-    if(!spToken){throw new Error('No token');}
-    const r=await fetch(SP_SITE+"/_api/web/lists/getbytitle('"+encodeURIComponent(SP_LIST)+"')/items?$top=500&$orderby=Created desc",{
-      headers:{'Authorization':'Bearer '+spToken,'Accept':'application/json;odata=verbose'}
+    const r=await fetch(GET_FLOW_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'get_orders'})
     });
+    if(!r.ok)throw new Error('Flow error: '+r.status);
     const d=await r.json();
-    orders=(d.d&&d.d.results?d.d.results:[]).map(item=>({
-      id:item.Title||'',
-      employee:item.Employee||'',
-      store:item.Store||'',
-      storeEmail:item.StoreEmail||'',
-      date:item.OrderDate||item.Created?.split('T')[0]||'',
-      status:item.Status||'pending',
-      handsets:item.HandsetItems||'',
-      cables:item.CableItems||'',
-      audio:item.AudioItems||'',
-      notes:item.OrderNotes||'',
-      po:item.PurchaseOrder||'',
-      cost:item.Cost||'',
-      received:item.Received||'pending_recv',
-      spId:item.Id
-    }));
+    const items=d.value||d.body||d||[];
+    orders=items.map(function(item){return{
+      id:item.Title||item.fields&&item.fields.Title||'',
+      employee:item.Employee||item.fields&&item.fields.Employee||'',
+      store:item.Store||item.fields&&item.fields.Store||'',
+      storeEmail:item.StoreEmail||item.fields&&item.fields.StoreEmail||'',
+      date:item.OrderDate||item.fields&&item.fields.OrderDate||item.Created&&item.Created.split('T')[0]||'',
+      status:item.Status||item.fields&&item.fields.Status||'pending',
+      handsets:item.HandsetItems||item.fields&&item.fields.HandsetItems||'',
+      cables:item.CableItems||item.fields&&item.fields.CableItems||'',
+      audio:item.AudioItems||item.fields&&item.fields.AudioItems||'',
+      notes:item.OrderNotes||item.fields&&item.fields.OrderNotes||'',
+      po:item.PurchaseOrder||item.fields&&item.fields.PurchaseOrder||'',
+      cost:item.Cost||item.fields&&item.fields.Cost||'',
+      received:item.Received||item.fields&&item.fields.Received||'pending_recv',
+      spId:item.ID||item.Id||item.id||''
+    };});
     document.getElementById('sync-status').textContent='Live — '+orders.length+' orders';
     document.getElementById('sync-status').style.background='var(--green-light)';
     document.getElementById('sync-status').style.color='var(--green-dark)';
     updateStats();renderStoreChart();renderRecentOrders();renderAllOrders();renderStoreBreakdown();renderActivityTab();renderTopItems();
   }catch(e){
-    console.error('SharePoint load error:',e);
+    console.error('Flow load error:',e);
     document.getElementById('sync-status').textContent='Sync Error — check console';
     document.getElementById('sync-status').style.background='var(--red-light)';
     document.getElementById('sync-status').style.color='var(--red)';
-    document.getElementById('recent-tbody').innerHTML='<tr><td colspan="5" style="padding:16px;color:var(--red);text-align:center;">Could not connect to SharePoint. Check your permissions.</td></tr>';
-    document.getElementById('all-tbody').innerHTML='<tr><td colspan="9" style="padding:16px;color:var(--red);text-align:center;">Could not connect to SharePoint.</td></tr>';
+    document.getElementById('recent-tbody').innerHTML='<tr><td colspan="5" style="padding:16px;color:var(--red);text-align:center;">Could not load orders. Check Power Automate flow.</td></tr>';
+    document.getElementById('all-tbody').innerHTML='<tr><td colspan="9" style="padding:16px;color:var(--red);text-align:center;">Could not load orders.</td></tr>';
   }
 }
 
 async function updateSharePointItem(spId,data){
   try{
-    const digestR=await fetch(SP_SITE+'/_api/contextinfo',{method:'POST',headers:{'Authorization':'Bearer '+spToken,'Accept':'application/json;odata=verbose'}});
-    const digestD=await digestR.json();
-    const digest=digestD.d.GetContextWebInformation.FormDigestValue;
-    await fetch(SP_SITE+"/_api/web/lists/getbytitle('"+encodeURIComponent(SP_LIST)+"')/items("+spId+")",{
+    await fetch(UPDATE_FLOW_URL,{
       method:'POST',
-      headers:{'Authorization':'Bearer '+spToken,'Content-Type':'application/json;odata=verbose','Accept':'application/json;odata=verbose','X-RequestDigest':digest,'X-HTTP-Method':'MERGE','If-Match':'*'},
-      body:JSON.stringify(Object.assign({'__metadata':{'type':'SP.Data.Edgelink_x0020_OrdersListItem'}},data))
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(Object.assign({action:'update',sp_id:spId},data))
     });
     return true;
   }catch(e){console.error('Update error:',e);return false;}
