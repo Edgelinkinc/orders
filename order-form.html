@@ -446,28 +446,37 @@ function buildEmailContent(){
 }
 
 function buildPlainText(){
-  let handsetText='';
-  handsets.forEach(brand=>{
-    brand.models.forEach(m=>{
-      const g=checks[m+'__glass'],ml=checks[m+'__male'],f=checks[m+'__female'],sp=specials[m]||'';
+  var hLines=[];
+  handsets.forEach(function(brand){
+    brand.models.forEach(function(m){
+      var g=checks[m+'__glass'],ml=checks[m+'__male'],f=checks[m+'__female'],sp=specials[m]||'';
       if(g||ml||f||sp){
-        const parts=[];if(g)parts.push('Glass');if(ml)parts.push('Male');if(f)parts.push('Female');
-        handsetText+=m+': '+parts.join(', ')+(sp?' ('+sp+')')+'\n';
+        var parts=[];
+        if(g)parts.push('Glass');
+        if(ml)parts.push('Male');
+        if(f)parts.push('Female');
+        hLines.push(m+': '+parts.join(', ')+(sp?' ('+sp+')':''));
       }
     });
-    customRows[brand.brand].forEach(({data})=>{
-      if(data.device){const parts=[];if(data.glass)parts.push('Glass');if(data.male)parts.push('Male');if(data.female)parts.push('Female');
-        if(parts.length)handsetText+=data.device+' (custom): '+parts.join(', ')+(data.special?' ('+data.special+')')+'\n';}
+    customRows[brand.brand].forEach(function(r){
+      var data=r.data;
+      if(data.device){
+        var parts=[];
+        if(data.glass)parts.push('Glass');
+        if(data.male)parts.push('Male');
+        if(data.female)parts.push('Female');
+        if(parts.length)hLines.push(data.device+' (custom): '+parts.join(', ')+(data.special?' ('+data.special+')':''));
+      }
     });
   });
-  let cableText='';
-  cables.forEach(g=>g.items.forEach(item=>{if(checks[g.section+'__'+item])cableText+=g.section+': '+item+'\n';}));
-  let audioText='';
-  audioMisc.forEach(g=>g.items.forEach(item=>{if(checks[g.section+'__'+item])audioText+=g.section+': '+item+'\n';}));
+  var cLines=[];
+  cables.forEach(function(g){g.items.forEach(function(item){if(checks[g.section+'__'+item])cLines.push(g.section+': '+item);});});
+  var aLines=[];
+  audioMisc.forEach(function(g){g.items.forEach(function(item){if(checks[g.section+'__'+item])aLines.push(g.section+': '+item);});});
   return{
-    handsetText:handsetText||'None',
-    cableText:cableText||'None',
-    audioText:audioText||'None'
+    handsetText:hLines.length?hLines.join(' | '):'None',
+    cableText:cLines.length?cLines.join(' | '):'None',
+    audioText:aLines.length?aLines.join(' | '):'None'
   };
 }
 
