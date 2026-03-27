@@ -212,10 +212,8 @@
 
 <script>
 const ADMIN_USER='admin',ADMIN_PASS='edgelink2026';
-const GITHUB_TOKEN='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';
-const GITHUB_REPO='edgelinkinc/orders';
-const GITHUB_FILE='data.json';
-const DATA_URL='https://raw.githubusercontent.com/'+GITHUB_REPO+'/main/'+GITHUB_FILE;
+const UPDATE_FLOW_URL='https://defaultebc8d7eeee3a4821b739b0b060e735.7f.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7dff4f57d5b444e89a19c943767b7c77/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=k-i2Nd8cDCy-4oq6DBFV2UEjoTxXGI09v4f7-fbacxQ';
+const DATA_URL='https://raw.githubusercontent.com/edgelinkinc/orders/main/data.json';
 
 let handsets,cables,audio,stores;
 let hasUnsaved=false;
@@ -275,37 +273,34 @@ async function loadFromGitHub(){
 async function saveAllToGitHub(){
   const btn=document.getElementById('save-btn');
   btn.textContent='Saving...';btn.disabled=true;
-  setSync('Saving to GitHub...');
+  setSync('Saving...');
   try{
     const data={handsets,cables,audio,stores};
-    const content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));
-    const getR=await fetch('https://api.github.com/repos/'+GITHUB_REPO+'/contents/'+GITHUB_FILE,{
-      headers:{'Authorization':'token '+GITHUB_TOKEN,'Accept':'application/vnd.github.v3+json'}
+    const jsonStr=JSON.stringify(data,null,2);
+    const r=await fetch(UPDATE_FLOW_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        message:'Update accessory data',
+        content:btoa(unescape(encodeURIComponent(jsonStr))),
+        json_content:jsonStr
+      })
     });
-    const getD=await getR.json();
-    const sha=getD.sha;
-    const putR=await fetch('https://api.github.com/repos/'+GITHUB_REPO+'/contents/'+GITHUB_FILE,{
-      method:'PUT',
-      headers:{'Authorization':'token '+GITHUB_TOKEN,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
-      body:JSON.stringify({message:'Update accessory data',content:content,sha:sha})
-    });
-    if(putR.ok){
+    if(r.ok||r.status===202){
       setSync('Saved ✓ — Live in 1 min');
       hasUnsaved=false;
       document.getElementById('unsaved-badge').style.display='none';
       showToast('Changes saved and published to order form!');
     }else{
-      const err=await putR.json();
-      throw new Error(err.message||'Save failed');
+      throw new Error('Flow returned status: '+r.status);
     }
   }catch(e){
     console.error(e);
     setSync('Save error: '+e.message);
     showToast('Error saving: '+e.message);
   }
-  btn.textContent='&#8679; Save & Publish Changes';btn.disabled=false;
+  btn.textContent='⬆ Save & Publish Changes';btn.disabled=false;
 }
-
 function markUnsaved(){
   hasUnsaved=true;
   document.getElementById('unsaved-badge').style.display='inline-block';
