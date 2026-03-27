@@ -15,8 +15,6 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:#f0f0f0;font-family:'Montserrat',sans-serif;font-size:13px;color:var(--text);min-height:100vh;}
-
-  /* LOGIN */
   .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--purple-dark),var(--purple),var(--magenta));}
   .login-box{background:white;border-radius:16px;padding:40px;width:340px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
   .login-logo{background:linear-gradient(90deg,var(--purple),var(--magenta));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:4px;}
@@ -26,8 +24,6 @@
   .login-btn{width:100%;background:linear-gradient(90deg,var(--purple),var(--magenta));color:white;border:none;border-radius:8px;padding:12px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
   .login-btn:hover{opacity:0.9;}
   .login-err{color:var(--magenta);font-size:11px;font-weight:600;margin-top:8px;display:none;}
-
-  /* MAIN */
   .admin-panel{display:none;}
   .topbar{background:linear-gradient(90deg,var(--purple),var(--magenta));height:62px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;}
   .topbar-left{display:flex;align-items:center;gap:14px;}
@@ -39,24 +35,18 @@
   .logout-btn:hover{background:rgba(255,255,255,0.3);}
   .dash-link{background:white;border:none;color:var(--purple);border-radius:20px;padding:5px 14px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:800;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:5px;}
   .dash-link:hover{background:var(--purple-light);}
-
+  .sync-indicator{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:1px;}
   .nav-tabs{background:white;border-bottom:2px solid var(--border);display:flex;padding:0 28px;overflow-x:auto;}
   .nav-tab{padding:13px 18px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray-text);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all 0.2s;white-space:nowrap;}
   .nav-tab:hover{color:var(--purple);}
   .nav-tab.active{color:var(--purple);border-bottom-color:var(--purple);}
-
   .content{padding:24px 28px;max-width:1000px;margin:0 auto;}
   .tab-panel{display:none;}.tab-panel.active{display:block;}
-
   .section-label{font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--purple);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--purple-light);}
-
-  /* PANELS */
   .panel{background:white;border:1.5px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.05);margin-bottom:20px;}
   .panel-header{padding:12px 18px;background:var(--gray-light);border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
   .panel-title{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;}
   .panel-body{padding:16px 18px;}
-
-  /* ITEMS LIST */
   .item-list{list-style:none;}
   .item-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f5f5;gap:10px;}
   .item-row:last-child{border-bottom:none;}
@@ -64,8 +54,6 @@
   .item-actions{display:flex;gap:6px;}
   .edit-inline{display:none;flex:1;}
   .edit-input{border:1.5px solid var(--purple);border-radius:6px;padding:5px 10px;font-family:'Montserrat',sans-serif;font-size:12px;outline:none;width:100%;}
-
-  /* BUTTONS */
   .btn{padding:7px 14px;border:none;border-radius:6px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
   .btn-sm{padding:5px 10px;font-size:10px;}
   .btn-primary{background:linear-gradient(90deg,var(--purple),var(--magenta));color:white;}
@@ -79,38 +67,28 @@
   .btn-save{background:var(--green-light);border:1.5px solid #a5d6a7;color:var(--green-dark);}
   .btn-save:hover{background:var(--green);color:white;}
   .btn-cancel{background:#f5f5f5;border:1.5px solid var(--border);color:#999;}
-
-  /* ADD FORM */
   .add-form{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
   .add-input{flex:1;min-width:180px;border:1.5px solid var(--border);border-radius:6px;padding:8px 12px;font-family:'Montserrat',sans-serif;font-size:13px;outline:none;background:white;}
   .add-input:focus{border-color:var(--purple);}
   .add-select{border:1.5px solid var(--border);border-radius:6px;padding:8px 12px;font-family:'Montserrat',sans-serif;font-size:13px;outline:none;background:white;cursor:pointer;}
   .add-select:focus{border-color:var(--purple);}
-
-  /* STORE TABLE */
   .store-table{width:100%;border-collapse:collapse;}
   .store-table th{text-align:left;padding:8px 10px;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#aaa;border-bottom:1.5px solid var(--border);}
   .store-table td{padding:10px;border-bottom:1px solid #f5f5f5;vertical-align:middle;font-size:12px;}
   .store-table tr:last-child td{border-bottom:none;}
   .store-table tr:hover td{background:#fafafa;}
-
   .store-edit-input{border:1.5px solid var(--purple);border-radius:6px;padding:5px 8px;font-family:'Montserrat',sans-serif;font-size:12px;outline:none;width:100%;}
-
-  /* TOAST */
   .toast{position:fixed;bottom:24px;right:24px;background:linear-gradient(90deg,var(--purple),var(--magenta));color:white;padding:12px 20px;border-radius:8px;font-size:12px;font-weight:700;letter-spacing:1px;opacity:0;transition:opacity 0.3s;z-index:999;pointer-events:none;}
   .toast.show{opacity:1;}
-
   .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
   .badge-purple{background:var(--purple-light);color:var(--purple);border:1px solid #c9a8f4;}
   .badge-magenta{background:var(--magenta-light);color:var(--magenta);border:1px solid #f4a8d4;}
-
-  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-  @media(max-width:700px){.two-col{grid-template-columns:1fr;}}
+  .save-all-bar{background:white;border-top:2px solid var(--magenta);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;bottom:0;z-index:10;}
+  .unsaved-badge{background:var(--amber-light);color:#e65100;border:1px solid #ffcc02;border-radius:6px;padding:5px 14px;font-size:11px;font-weight:700;display:none;}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div class="login-screen" id="login-screen">
   <div class="login-box">
     <div class="login-logo">EDGELINK INC.</div>
@@ -122,7 +100,6 @@
   </div>
 </div>
 
-<!-- ADMIN PANEL -->
 <div class="admin-panel" id="admin-panel">
   <div class="topbar">
     <div class="topbar-left">
@@ -130,6 +107,7 @@
       <div class="topbar-title">Form Admin Panel</div>
     </div>
     <div class="topbar-right">
+      <span class="sync-indicator" id="sync-indicator">Ready</span>
       <a class="dash-link" href="dashboard.html">&#128202; Dashboard</a>
       <button class="logout-btn" onclick="doLogout()">Log Out</button>
     </div>
@@ -144,7 +122,6 @@
 
   <div class="content">
 
-    <!-- HANDSETS TAB -->
     <div class="tab-panel active" id="tab-handsets">
       <div id="handset-brands-container"></div>
       <div class="panel" style="margin-top:8px">
@@ -158,7 +135,6 @@
       </div>
     </div>
 
-    <!-- CABLES TAB -->
     <div class="tab-panel" id="tab-cables">
       <div id="cables-container"></div>
       <div class="panel" style="margin-top:8px">
@@ -172,14 +148,13 @@
               <option value="Wall Chargers">Wall Chargers</option>
               <option value="Wireless Chargers">Wireless Chargers</option>
             </select>
-            <input class="add-input" type="text" id="new-cable-item" placeholder="Item name (e.g. USB-C to USB-C 15FT)">
+            <input class="add-input" type="text" id="new-cable-item" placeholder="Item name">
             <button class="btn btn-primary" onclick="addCableItem()">+ Add Item</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- AUDIO TAB -->
     <div class="tab-panel" id="tab-audio">
       <div id="audio-container"></div>
       <div class="panel" style="margin-top:8px">
@@ -192,14 +167,13 @@
               <option value="Speakers">Speakers</option>
               <option value="Misc">Misc</option>
             </select>
-            <input class="add-input" type="text" id="new-audio-item" placeholder="Item name (e.g. 256GB Memory Card)">
+            <input class="add-input" type="text" id="new-audio-item" placeholder="Item name">
             <button class="btn btn-primary" onclick="addAudioItem()">+ Add Item</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- STORES TAB -->
     <div class="tab-panel" id="tab-stores">
       <div class="panel">
         <div class="panel-header">
@@ -217,8 +191,8 @@
         <div class="panel-header"><span class="panel-title">Add New Store</span></div>
         <div class="panel-body">
           <div class="add-form">
-            <input class="add-input" type="text" id="new-store-state" placeholder="State code (e.g. TN)" style="max-width:100px">
-            <input class="add-input" type="text" id="new-store-name" placeholder="Store name (e.g. CHATTANOOGA)">
+            <input class="add-input" type="text" id="new-store-state" placeholder="State (e.g. TN)" style="max-width:100px">
+            <input class="add-input" type="text" id="new-store-name" placeholder="Store name">
             <input class="add-input" type="email" id="new-store-email" placeholder="store@edgelinkinc.com">
             <button class="btn btn-primary" onclick="addStore()">+ Add Store</button>
           </div>
@@ -227,76 +201,24 @@
     </div>
 
   </div>
+
+  <div class="save-all-bar">
+    <span class="unsaved-badge" id="unsaved-badge">&#9679; Unsaved changes</span>
+    <button class="btn btn-primary" onclick="saveAllToGitHub()" id="save-btn" style="padding:10px 28px;font-size:13px">&#8679; Save & Publish Changes</button>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const ADMIN_USER='admin', ADMIN_PASS='edgelink2026';
+const ADMIN_USER='admin',ADMIN_PASS='edgelink2026';
+const GITHUB_TOKEN='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';
+const GITHUB_REPO='edgelinkinc/orders';
+const GITHUB_FILE='data.json';
+const DATA_URL='https://raw.githubusercontent.com/'+GITHUB_REPO+'/main/'+GITHUB_FILE;
 
-const defaultData = {
-  handsets:[
-    {brand:"iPhone",models:["iPhone 13","iPhone 14","iPhone 15","iPhone 16E","iPhone 17E","iPhone 17","iPhone 17 Pro","iPhone 17 ProMax","iPhone Air","Apple Watch"]},
-    {brand:"Samsung",models:["Samsung A16","Samsung A17","Samsung A36","Samsung S24FE","Samsung Tab 9","Samsung Watch"]},
-    {brand:"Motorola",models:["Moto G 2026","Moto G Play 2026","Moto Razr","Moto Edge 2025"]},
-    {brand:"T-Mobile REVVL",models:["REVVL 8","REVVL 8 Pro","REVVL Tab 2"]},
-    {brand:"TCL",models:["TCL Flip 4","TCL K11","TCL K32"]},
-  ],
-  cables:[
-    {section:"Cables",items:["USB-C to USB-C 3FT","USB-C to USB-C 6FT","USB-C to USB-C 10FT","USB-C to Lightning 3FT","USB-C to Lightning 6FT"]},
-    {section:"Car Chargers",items:["Single Port Charger","Dual Port Charger"]},
-    {section:"Portable Power",items:["Power Bank 5K","Power Bank 10K","Power Bank 20K"]},
-    {section:"Wall Chargers",items:["C-Type Wall Charger 20W","C-Type Wall Charger 25W","Dual Wall Charger 35W","Dual Wall Charger 45W","Dual Wall Charger 67W"]},
-    {section:"Wireless Chargers",items:["Magnet Charger 15W","3 in 1 Charger"]},
-  ],
-  audio:[
-    {section:"Headphones",items:["Wireless","Wired","Over the Ear","Around the Neck"]},
-    {section:"Memory Cards",items:["32GB","64GB","128GB"]},
-    {section:"Speakers",items:["Small","Medium","Large"]},
-    {section:"Misc",items:["Pop Sockets","Car Mounts","Liquid Glass","Watch Bands","Lanyards"]},
-  ],
-  stores:[
-    {state:"AR",name:"COLONEL GLENN",email:"colonelglenn@edgelinkinc.com"},
-    {state:"AR",name:"RADIO GEYER",email:"radiogeyer@edgelinkinc.com"},
-    {state:"CT",name:"BUCKLAND HILLS MALL",email:"bucklandhillsmall@edgelinkinc.com"},
-    {state:"CT",name:"NEW LONDON",email:"newlondon@edgelinkinc.com"},
-    {state:"CT",name:"NORWICH",email:"norwich@edgelinkinc.com"},
-    {state:"MA",name:"CAPE COD MALL",email:"capecodmall@edgelinkinc.com"},
-    {state:"MA",name:"COGGESHALL",email:"coggeshall@edgelinkinc.com"},
-    {state:"MA",name:"EXCHANGE ST.",email:"exchangest@edgelinkinc.com"},
-    {state:"MA",name:"FALL RIVER",email:"FallRiver@edgelinkinc.com"},
-    {state:"MA",name:"HOLYOKE",email:"holyoke@edgelinkinc.com"},
-    {state:"MA",name:"KELLEY SQUARE",email:"kelleysquare@edgelinkinc.com"},
-    {state:"MA",name:"LOCUST STREET",email:"locustst@edgelinkinc.com"},
-    {state:"MA",name:"ROCKDALE",email:"rockdale@edgelinkinc.com"},
-    {state:"MA",name:"SOUTH SHORE MALL",email:"southshoreplaza@edgelinkinc.com"},
-    {state:"MA",name:"STATE STREET",email:"statest@edgelinkinc.com"},
-    {state:"MA",name:"WESTERN AVE",email:"westernavema@edgelinkinc.com"},
-    {state:"RI",name:"751 BROAD",email:"751BroadStreet@edgelinkinc.com"},
-    {state:"RI",name:"BALD HILL",email:"baldhillrd@edgelinkinc.com"},
-    {state:"RI",name:"BROAD ST",email:"broadst@edgelinkinc.com"},
-    {state:"RI",name:"BROADWAY",email:"broadway@edgelinkinc.com"},
-    {state:"RI",name:"COVENTRY",email:"coventry@edgelinkinc.com"},
-    {state:"RI",name:"DOUGLAS",email:"DouglasAve@edgelinkinc.com"},
-    {state:"RI",name:"EAST PROVIDENCE",email:"eastprovidence@edgelinkinc.com"},
-    {state:"RI",name:"HARTFORD AVE",email:"hartfordave@edgelinkinc.com"},
-    {state:"RI",name:"NEWPORT AVE",email:"newportave@edgelinkinc.com"},
-    {state:"RI",name:"PROVIDENCE PLACE MALL",email:"provplacemall@edgelinkinc.com"},
-    {state:"RI",name:"RESERVOIR AVE",email:"ReservoirAve@edgelinkinc.com"},
-    {state:"TN",name:"KEITH ST",email:"keithst@edgelinkinc.com"},
-    {state:"TN",name:"MAGNOLIA",email:"magnolia@edgelinkinc.com"},
-    {state:"TN",name:"MORRISTOWN",email:"morristown@edgelinkinc.com"},
-    {state:"TN",name:"NORTH BROADWAY",email:"northbroadway@edgelinkinc.com"},
-    {state:"TN",name:"SHALLOWFORD RD",email:"shallowford@edgelinkinc.com"},
-    {state:"TN",name:"WEST MARKET",email:"westmarket@edgelinkinc.com"},
-    {state:"TN",name:"WESTERN AVE",email:"westernavetn@edgelinkinc.com"},
-  ]
-};
-
-function loadData(key){ try{ const s=localStorage.getItem('el_admin_'+key); return s?JSON.parse(s):defaultData[key]; }catch(e){ return defaultData[key]; } }
-function saveData(key,val){ localStorage.setItem('el_admin_'+key,JSON.stringify(val)); }
-
-let handsets, cables, audio, stores;
+let handsets,cables,audio,stores;
+let hasUnsaved=false;
 
 function doLogin(){
   const u=document.getElementById('login-user').value.trim();
@@ -304,8 +226,8 @@ function doLogin(){
   if(u===ADMIN_USER&&p===ADMIN_PASS){
     document.getElementById('login-screen').style.display='none';
     document.getElementById('admin-panel').style.display='block';
-    initAdmin();
-  } else { document.getElementById('login-err').style.display='block'; }
+    loadFromGitHub();
+  }else{document.getElementById('login-err').style.display='block';}
 }
 function doLogout(){
   document.getElementById('admin-panel').style.display='none';
@@ -314,56 +236,102 @@ function doLogout(){
   document.getElementById('login-pass').value='';
 }
 
-function initAdmin(){
-  handsets=loadData('handsets');
-  cables=loadData('cables');
-  audio=loadData('audio');
-  stores=loadData('stores');
-  renderHandsets();
-  renderCables();
-  renderAudio();
-  renderStores();
+async function loadFromGitHub(){
+  setSync('Loading...');
+  try{
+    const r=await fetch(DATA_URL+'?t='+Date.now());
+    const d=await r.json();
+    handsets=d.handsets;cables=d.cables;audio=d.audio;stores=d.stores;
+    setSync('Loaded from GitHub');
+    renderHandsets();renderCables();renderAudio();renderStores();
+  }catch(e){
+    console.error(e);
+    setSync('Load error — using defaults');
+    handsets=[
+      {brand:"iPhone",models:["iPhone 13","iPhone 14","iPhone 15","iPhone 16E","iPhone 17E","iPhone 17","iPhone 17 Pro","iPhone 17 ProMax","iPhone Air","Apple Watch"]},
+      {brand:"Samsung",models:["Samsung A16","Samsung A17","Samsung A36","Samsung S24FE","Samsung Tab 9","Samsung Watch"]},
+      {brand:"Motorola",models:["Moto G 2026","Moto G Play 2026","Moto Razr","Moto Edge 2025"]},
+      {brand:"T-Mobile REVVL",models:["REVVL 8","REVVL 8 Pro","REVVL Tab 2"]},
+      {brand:"TCL",models:["TCL Flip 4","TCL K11","TCL K32"]}
+    ];
+    cables=[
+      {section:"Cables",items:["USB-C to USB-C 3FT","USB-C to USB-C 6FT","USB-C to USB-C 10FT","USB-C to Lightning 3FT","USB-C to Lightning 6FT"]},
+      {section:"Car Chargers",items:["Single Port Charger","Dual Port Charger"]},
+      {section:"Portable Power",items:["Power Bank 5K","Power Bank 10K","Power Bank 20K"]},
+      {section:"Wall Chargers",items:["C-Type Wall Charger 20W","C-Type Wall Charger 25W","Dual Wall Charger 35W","Dual Wall Charger 45W","Dual Wall Charger 67W"]},
+      {section:"Wireless Chargers",items:["Magnet Charger 15W","3 in 1 Charger"]}
+    ];
+    audio=[
+      {section:"Headphones",items:["Wireless","Wired","Over the Ear","Around the Neck"]},
+      {section:"Memory Cards",items:["32GB","64GB","128GB"]},
+      {section:"Speakers",items:["Small","Medium","Large"]},
+      {section:"Misc",items:["Pop Sockets","Car Mounts","Liquid Glass","Watch Bands","Lanyards"]}
+    ];
+    stores=[];
+    renderHandsets();renderCables();renderAudio();renderStores();
+  }
+}
+
+async function saveAllToGitHub(){
+  const btn=document.getElementById('save-btn');
+  btn.textContent='Saving...';btn.disabled=true;
+  setSync('Saving to GitHub...');
+  try{
+    const data={handsets,cables,audio,stores};
+    const content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));
+    const getR=await fetch('https://api.github.com/repos/'+GITHUB_REPO+'/contents/'+GITHUB_FILE,{
+      headers:{'Authorization':'token '+GITHUB_TOKEN,'Accept':'application/vnd.github.v3+json'}
+    });
+    const getD=await getR.json();
+    const sha=getD.sha;
+    const putR=await fetch('https://api.github.com/repos/'+GITHUB_REPO+'/contents/'+GITHUB_FILE,{
+      method:'PUT',
+      headers:{'Authorization':'token '+GITHUB_TOKEN,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+      body:JSON.stringify({message:'Update accessory data',content:content,sha:sha})
+    });
+    if(putR.ok){
+      setSync('Saved ✓ — Live in 1 min');
+      hasUnsaved=false;
+      document.getElementById('unsaved-badge').style.display='none';
+      showToast('Changes saved and published to order form!');
+    }else{
+      const err=await putR.json();
+      throw new Error(err.message||'Save failed');
+    }
+  }catch(e){
+    console.error(e);
+    setSync('Save error: '+e.message);
+    showToast('Error saving: '+e.message);
+  }
+  btn.textContent='&#8679; Save & Publish Changes';btn.disabled=false;
+}
+
+function markUnsaved(){
+  hasUnsaved=true;
+  document.getElementById('unsaved-badge').style.display='inline-block';
+}
+
+function setSync(msg){
+  document.getElementById('sync-indicator').textContent=msg;
 }
 
 function showToast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
+  setTimeout(()=>t.classList.remove('show'),3000);
 }
 
-/* ── HANDSETS ── */
 function renderHandsets(){
   const container=document.getElementById('handset-brands-container');
   container.innerHTML='';
-  handsets.forEach((brand,bi)=>{
+  handsets.forEach(function(brand,bi){
     const panel=document.createElement('div');panel.className='panel';
-    panel.innerHTML=`
-      <div class="panel-header">
-        <span class="panel-title">${brand.brand} <span class="badge badge-purple">${brand.models.length} models</span></span>
-        <button class="btn btn-sm btn-danger" onclick="deleteBrand(${bi})">Remove Brand</button>
-      </div>
-      <div class="panel-body">
-        <ul class="item-list" id="brand-list-${bi}"></ul>
-        <div class="add-form">
-          <input class="add-input" type="text" id="new-model-${bi}" placeholder="New model name (e.g. ${brand.brand} Pro Max 2)">
-          <button class="btn btn-primary btn-sm" onclick="addModel(${bi})">+ Add Model</button>
-        </div>
-      </div>`;
+    panel.innerHTML='<div class="panel-header"><span class="panel-title">'+brand.brand+' <span class="badge badge-purple">'+brand.models.length+' models</span></span><button class="btn btn-sm btn-danger" onclick="deleteBrand('+bi+')">Remove Brand</button></div><div class="panel-body"><ul class="item-list" id="brand-list-'+bi+'"></ul><div class="add-form"><input class="add-input" type="text" id="new-model-'+bi+'" placeholder="New model name"><button class="btn btn-primary btn-sm" onclick="addModel('+bi+')">+ Add Model</button></div></div>';
     container.appendChild(panel);
     const list=document.getElementById('brand-list-'+bi);
-    brand.models.forEach((model,mi)=>{
+    brand.models.forEach(function(model,mi){
       const li=document.createElement('li');li.className='item-row';
-      li.innerHTML=`
-        <span class="item-name" id="model-name-${bi}-${mi}">${model}</span>
-        <div class="edit-inline" id="model-edit-${bi}-${mi}">
-          <input class="edit-input" type="text" value="${model}" id="model-input-${bi}-${mi}">
-        </div>
-        <div class="item-actions">
-          <button class="btn btn-sm btn-edit" id="model-edit-btn-${bi}-${mi}" onclick="startEditModel(${bi},${mi})">Edit</button>
-          <button class="btn btn-sm btn-save" id="model-save-btn-${bi}-${mi}" style="display:none" onclick="saveModel(${bi},${mi})">Save</button>
-          <button class="btn btn-sm btn-cancel" id="model-cancel-btn-${bi}-${mi}" style="display:none" onclick="cancelEditModel(${bi},${mi})">Cancel</button>
-          <button class="btn btn-sm btn-danger" onclick="deleteModel(${bi},${mi})">Remove</button>
-        </div>`;
+      li.innerHTML='<span class="item-name" id="mn-'+bi+'-'+mi+'">'+model+'</span><div class="edit-inline" id="me-'+bi+'-'+mi+'"><input class="edit-input" type="text" value="'+model+'" id="mi-'+bi+'-'+mi+'"></div><div class="item-actions"><button class="btn btn-sm btn-edit" id="meb-'+bi+'-'+mi+'" onclick="startEditModel('+bi+','+mi+')">Edit</button><button class="btn btn-sm btn-save" id="msb-'+bi+'-'+mi+'" style="display:none" onclick="saveModel('+bi+','+mi+')">Save</button><button class="btn btn-sm btn-cancel" id="mcb-'+bi+'-'+mi+'" style="display:none" onclick="renderHandsets()">Cancel</button><button class="btn btn-sm btn-danger" onclick="deleteModel('+bi+','+mi+')">Remove</button></div>';
       list.appendChild(li);
     });
   });
@@ -371,128 +339,96 @@ function renderHandsets(){
 
 function addBrand(){
   const name=document.getElementById('new-brand-name').value.trim();
-  if(!name){alert('Please enter a brand name.');return;}
+  if(!name){alert('Enter brand name');return;}
   handsets.push({brand:name,models:[]});
-  saveData('handsets',handsets);renderHandsets();
+  markUnsaved();renderHandsets();
   document.getElementById('new-brand-name').value='';
   showToast('Brand added: '+name);
 }
 function deleteBrand(bi){
-  if(!confirm('Remove brand "'+handsets[bi].brand+'" and all its models?'))return;
-  const name=handsets[bi].brand;handsets.splice(bi,1);saveData('handsets',handsets);renderHandsets();showToast('Removed: '+name);
+  if(!confirm('Remove brand "'+handsets[bi].brand+'"?'))return;
+  const name=handsets[bi].brand;handsets.splice(bi,1);markUnsaved();renderHandsets();showToast('Removed: '+name);
 }
 function addModel(bi){
   const input=document.getElementById('new-model-'+bi);
-  const name=input.value.trim();if(!name){alert('Please enter a model name.');return;}
-  handsets[bi].models.push(name);saveData('handsets',handsets);renderHandsets();showToast('Model added: '+name);
+  const name=input.value.trim();if(!name){alert('Enter model name');return;}
+  handsets[bi].models.push(name);markUnsaved();renderHandsets();showToast('Model added: '+name);
 }
 function deleteModel(bi,mi){
-  const name=handsets[bi].models[mi];
-  if(!confirm('Remove "'+name+'"?'))return;
-  handsets[bi].models.splice(mi,1);saveData('handsets',handsets);renderHandsets();showToast('Removed: '+name);
+  if(!confirm('Remove "'+handsets[bi].models[mi]+'"?'))return;
+  const name=handsets[bi].models[mi];handsets[bi].models.splice(mi,1);markUnsaved();renderHandsets();showToast('Removed: '+name);
 }
 function startEditModel(bi,mi){
-  document.getElementById('model-name-'+bi+'-'+mi).style.display='none';
-  document.getElementById('model-edit-'+bi+'-'+mi).style.display='flex';
-  document.getElementById('model-edit-btn-'+bi+'-'+mi).style.display='none';
-  document.getElementById('model-save-btn-'+bi+'-'+mi).style.display='inline-block';
-  document.getElementById('model-cancel-btn-'+bi+'-'+mi).style.display='inline-block';
+  document.getElementById('mn-'+bi+'-'+mi).style.display='none';
+  document.getElementById('me-'+bi+'-'+mi).style.display='flex';
+  document.getElementById('meb-'+bi+'-'+mi).style.display='none';
+  document.getElementById('msb-'+bi+'-'+mi).style.display='inline-block';
+  document.getElementById('mcb-'+bi+'-'+mi).style.display='inline-block';
 }
 function saveModel(bi,mi){
-  const val=document.getElementById('model-input-'+bi+'-'+mi).value.trim();
-  if(!val)return;handsets[bi].models[mi]=val;saveData('handsets',handsets);renderHandsets();showToast('Model updated');
+  const val=document.getElementById('mi-'+bi+'-'+mi).value.trim();
+  if(!val)return;handsets[bi].models[mi]=val;markUnsaved();renderHandsets();showToast('Updated');
 }
-function cancelEditModel(bi,mi){ renderHandsets(); }
 
-/* ── CABLES ── */
-function renderCables(){ renderAccSection('cables-container',cables,'cable'); }
-function renderAudio(){ renderAccSection('audio-container',audio,'audio'); }
+function renderCables(){renderAccSection('cables-container',cables,'cable');}
+function renderAudio(){renderAccSection('audio-container',audio,'audio');}
 
 function renderAccSection(containerId,data,prefix){
   const container=document.getElementById(containerId);container.innerHTML='';
-  data.forEach((group,gi)=>{
+  data.forEach(function(group,gi){
     const panel=document.createElement('div');panel.className='panel';
-    panel.innerHTML=`
-      <div class="panel-header">
-        <span class="panel-title">${group.section} <span class="badge badge-magenta">${group.items.length} items</span></span>
-      </div>
-      <div class="panel-body">
-        <ul class="item-list" id="${prefix}-list-${gi}"></ul>
-      </div>`;
+    const items=group.items.map(function(item,ii){
+      return '<li class="item-row"><span class="item-name" id="'+prefix+'-n-'+gi+'-'+ii+'">'+item+'</span><div class="edit-inline" id="'+prefix+'-e-'+gi+'-'+ii+'"><input class="edit-input" type="text" value="'+item+'" id="'+prefix+'-i-'+gi+'-'+ii+'"></div><div class="item-actions"><button class="btn btn-sm btn-edit" id="'+prefix+'-eb-'+gi+'-'+ii+'" onclick="startEditAcc(\''+prefix+'\','+gi+','+ii+')">Edit</button><button class="btn btn-sm btn-save" id="'+prefix+'-sb-'+gi+'-'+ii+'" style="display:none" onclick="saveAcc(\''+prefix+'\','+gi+','+ii+')">Save</button><button class="btn btn-sm btn-cancel" id="'+prefix+'-cb-'+gi+'-'+ii+'" style="display:none" onclick="'+( prefix==='cable'?'renderCables':'renderAudio')+'()">Cancel</button><button class="btn btn-sm btn-danger" onclick="deleteAcc(\''+prefix+'\','+gi+','+ii+')">Remove</button></div></li>';
+    }).join('');
+    panel.innerHTML='<div class="panel-header"><span class="panel-title">'+group.section+' <span class="badge badge-magenta">'+group.items.length+' items</span></span></div><div class="panel-body"><ul class="item-list">'+items+'</ul></div>';
     container.appendChild(panel);
-    const list=document.getElementById(prefix+'-list-'+gi);
-    group.items.forEach((item,ii)=>{
-      const li=document.createElement('li');li.className='item-row';
-      li.innerHTML=`
-        <span class="item-name" id="${prefix}-name-${gi}-${ii}">${item}</span>
-        <div class="edit-inline" id="${prefix}-edit-${gi}-${ii}">
-          <input class="edit-input" type="text" value="${item}" id="${prefix}-input-${gi}-${ii}">
-        </div>
-        <div class="item-actions">
-          <button class="btn btn-sm btn-edit" id="${prefix}-edit-btn-${gi}-${ii}" onclick="startEditAcc('${prefix}',${gi},${ii})">Edit</button>
-          <button class="btn btn-sm btn-save" id="${prefix}-save-btn-${gi}-${ii}" style="display:none" onclick="saveAcc('${prefix}',${gi},${ii})">Save</button>
-          <button class="btn btn-sm btn-cancel" id="${prefix}-cancel-btn-${gi}-${ii}" style="display:none" onclick="cancelEditAcc('${prefix}',${gi},${ii})">Cancel</button>
-          <button class="btn btn-sm btn-danger" onclick="deleteAcc('${prefix}',${gi},${ii})">Remove</button>
-        </div>`;
-      list.appendChild(li);
-    });
   });
 }
 
-function getAccData(prefix){ return prefix==='cable'?cables:audio; }
-function saveAccData(prefix){ if(prefix==='cable'){saveData('cables',cables);}else{saveData('audio',audio);} }
-function reRenderAcc(prefix){ if(prefix==='cable'){renderCables();}else{renderAudio();} }
+function getAccData(prefix){return prefix==='cable'?cables:audio;}
+function reRenderAcc(prefix){if(prefix==='cable')renderCables();else renderAudio();}
 
 function addCableItem(){
   const section=document.getElementById('new-cable-section').value;
   const item=document.getElementById('new-cable-item').value.trim();
-  if(!item){alert('Please enter an item name.');return;}
-  const group=cables.find(g=>g.section===section);
-  if(group)group.items.push(item);saveData('cables',cables);renderCables();
+  if(!item){alert('Enter item name');return;}
+  const group=cables.find(function(g){return g.section===section;});
+  if(group)group.items.push(item);markUnsaved();renderCables();
   document.getElementById('new-cable-item').value='';showToast('Added: '+item);
 }
 function addAudioItem(){
   const section=document.getElementById('new-audio-section').value;
   const item=document.getElementById('new-audio-item').value.trim();
-  if(!item){alert('Please enter an item name.');return;}
-  const group=audio.find(g=>g.section===section);
-  if(group)group.items.push(item);saveData('audio',audio);renderAudio();
+  if(!item){alert('Enter item name');return;}
+  const group=audio.find(function(g){return g.section===section;});
+  if(group)group.items.push(item);markUnsaved();renderAudio();
   document.getElementById('new-audio-item').value='';showToast('Added: '+item);
 }
 function deleteAcc(prefix,gi,ii){
   const data=getAccData(prefix);const name=data[gi].items[ii];
   if(!confirm('Remove "'+name+'"?'))return;
-  data[gi].items.splice(ii,1);saveAccData(prefix);reRenderAcc(prefix);showToast('Removed: '+name);
+  data[gi].items.splice(ii,1);markUnsaved();reRenderAcc(prefix);showToast('Removed: '+name);
 }
 function startEditAcc(prefix,gi,ii){
-  document.getElementById(prefix+'-name-'+gi+'-'+ii).style.display='none';
-  document.getElementById(prefix+'-edit-'+gi+'-'+ii).style.display='flex';
-  document.getElementById(prefix+'-edit-btn-'+gi+'-'+ii).style.display='none';
-  document.getElementById(prefix+'-save-btn-'+gi+'-'+ii).style.display='inline-block';
-  document.getElementById(prefix+'-cancel-btn-'+gi+'-'+ii).style.display='inline-block';
+  document.getElementById(prefix+'-n-'+gi+'-'+ii).style.display='none';
+  document.getElementById(prefix+'-e-'+gi+'-'+ii).style.display='flex';
+  document.getElementById(prefix+'-eb-'+gi+'-'+ii).style.display='none';
+  document.getElementById(prefix+'-sb-'+gi+'-'+ii).style.display='inline-block';
+  document.getElementById(prefix+'-cb-'+gi+'-'+ii).style.display='inline-block';
 }
 function saveAcc(prefix,gi,ii){
-  const val=document.getElementById(prefix+'-input-'+gi+'-'+ii).value.trim();
-  if(!val)return;const data=getAccData(prefix);data[gi].items[ii]=val;saveAccData(prefix);reRenderAcc(prefix);showToast('Updated');
+  const val=document.getElementById(prefix+'-i-'+gi+'-'+ii).value.trim();
+  if(!val)return;const data=getAccData(prefix);data[gi].items[ii]=val;markUnsaved();reRenderAcc(prefix);showToast('Updated');
 }
-function cancelEditAcc(prefix,gi,ii){ reRenderAcc(prefix); }
 
-/* ── STORES ── */
 function renderStores(){
-  const sorted=[...stores].sort((a,b)=>a.state.localeCompare(b.state)||a.name.localeCompare(b.name));
+  const sorted=[...stores].sort(function(a,b){return a.state.localeCompare(b.state)||a.name.localeCompare(b.name);});
   document.getElementById('store-count-label').textContent=stores.length+' locations';
   const tbody=document.getElementById('stores-tbody');tbody.innerHTML='';
-  sorted.forEach((store,i)=>{
+  sorted.forEach(function(store){
     const realIdx=stores.indexOf(store);
     const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td><span class="badge badge-purple">${store.state}</span></td>
-      <td id="store-name-${realIdx}" style="font-weight:600">${store.name}</td>
-      <td id="store-email-${realIdx}" style="color:var(--purple)">${store.email}</td>
-      <td style="display:flex;gap:6px">
-        <button class="btn btn-sm btn-edit" onclick="startEditStore(${realIdx})">Edit</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteStore(${realIdx})">Remove</button>
-      </td>`;
+    tr.innerHTML='<td><span class="badge badge-purple">'+store.state+'</span></td><td id="sn-'+realIdx+'" style="font-weight:600">'+store.name+'</td><td id="se-'+realIdx+'" style="color:var(--purple)">'+store.email+'</td><td style="display:flex;gap:6px"><button class="btn btn-sm btn-edit" onclick="startEditStore('+realIdx+')">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteStore('+realIdx+')">Remove</button></td>';
     tbody.appendChild(tr);
   });
 }
@@ -501,39 +437,35 @@ function addStore(){
   const state=document.getElementById('new-store-state').value.trim().toUpperCase();
   const name=document.getElementById('new-store-name').value.trim().toUpperCase();
   const email=document.getElementById('new-store-email').value.trim();
-  if(!state||!name||!email){alert('Please fill in all store fields.');return;}
-  stores.push({state,name,email});saveData('stores',stores);renderStores();
+  if(!state||!name||!email){alert('Fill in all store fields');return;}
+  stores.push({state,name,email});markUnsaved();renderStores();
   document.getElementById('new-store-state').value='';
   document.getElementById('new-store-name').value='';
   document.getElementById('new-store-email').value='';
   showToast('Store added: '+state+'-'+name);
 }
-
 function deleteStore(i){
   if(!confirm('Remove store "'+stores[i].name+'"?'))return;
-  const name=stores[i].name;stores.splice(i,1);saveData('stores',stores);renderStores();showToast('Removed: '+name);
+  const name=stores[i].name;stores.splice(i,1);markUnsaved();renderStores();showToast('Removed: '+name);
 }
-
 function startEditStore(i){
   const store=stores[i];
-  const nameTd=document.getElementById('store-name-'+i);
-  const emailTd=document.getElementById('store-email-'+i);
-  nameTd.innerHTML='<input class="store-edit-input" id="sedit-name-'+i+'" value="'+store.name+'">';
-  emailTd.innerHTML='<input class="store-edit-input" id="sedit-email-'+i+'" value="'+store.email+'">';
-  const actionTd=nameTd.parentElement.querySelector('td:last-child');
-  actionTd.innerHTML='<button class="btn btn-sm btn-save" onclick="saveStore('+i+')">Save</button> <button class="btn btn-sm btn-cancel" onclick="renderStores()">Cancel</button>';
+  document.getElementById('sn-'+i).innerHTML='<input class="store-edit-input" id="sedit-n-'+i+'" value="'+store.name+'">';
+  document.getElementById('se-'+i).innerHTML='<input class="store-edit-input" id="sedit-e-'+i+'" value="'+store.email+'">';
+  const row=document.getElementById('sn-'+i).parentElement;
+  const lastTd=row.querySelector('td:last-child');
+  lastTd.innerHTML='<button class="btn btn-sm btn-save" onclick="saveStore('+i+')">Save</button> <button class="btn btn-sm btn-cancel" onclick="renderStores()">Cancel</button>';
 }
-
 function saveStore(i){
-  const name=document.getElementById('sedit-name-'+i).value.trim().toUpperCase();
-  const email=document.getElementById('sedit-email-'+i).value.trim();
-  if(!name||!email){alert('Name and email required.');return;}
-  stores[i].name=name;stores[i].email=email;saveData('stores',stores);renderStores();showToast('Store updated');
+  const name=document.getElementById('sedit-n-'+i).value.trim().toUpperCase();
+  const email=document.getElementById('sedit-e-'+i).value.trim();
+  if(!name||!email){alert('Name and email required');return;}
+  stores[i].name=name;stores[i].email=email;markUnsaved();renderStores();showToast('Store updated');
 }
 
 function switchTab(name,el){
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
   document.getElementById('tab-'+name).classList.add('active');
   el.classList.add('active');
 }

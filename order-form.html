@@ -259,26 +259,10 @@ const TEMPLATE_ID='template_tr9s2j5';
 const HQ_EMAIL='INVENTORYHELPTEAM@EVOLUTIONWIRELESS.NET';
 const FLOW_URL='https://defaultebc8d7eeee3a4821b739b0b060e735.7f.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/33ae8f735af34dee9dfbae8b557515df/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=4as2Hqnp0ahNu9I8eqi6VmdcMcld9f1qdHA2D2PTMI4';
 
-const handsets=[
-  {brand:"iPhone",pill:"brand-iphone",models:["iPhone 13","iPhone 14","iPhone 15","iPhone 16E","iPhone 17E","iPhone 17","iPhone 17 Pro","iPhone 17 ProMax","iPhone Air","Apple Watch"]},
-  {brand:"Samsung",pill:"brand-samsung",models:["Samsung A16","Samsung A17","Samsung A36","Samsung S24FE","Samsung Tab 9","Samsung Watch"]},
-  {brand:"Motorola",pill:"brand-motorola",models:["Moto G 2026","Moto G Play 2026","Moto Razr","Moto Edge 2025"]},
-  {brand:"T-Mobile REVVL",pill:"brand-tmobile",models:["REVVL 8","REVVL 8 Pro","REVVL Tab 2"]},
-  {brand:"TCL",pill:"brand-tcl",models:["TCL Flip 4","TCL K11","TCL K32"]},
-];
-const cables=[
-  {section:"Cables",items:["USB-C to USB-C 3FT","USB-C to USB-C 6FT","USB-C to USB-C 10FT","USB-C to Lightning 3FT","USB-C to Lightning 6FT"]},
-  {section:"Car Chargers",items:["Single Port Charger","Dual Port Charger"]},
-  {section:"Portable Power",items:["Power Bank 5K","Power Bank 10K","Power Bank 20K"]},
-  {section:"Wall Chargers",items:["C-Type Wall Charger 20W","C-Type Wall Charger 25W","Dual Wall Charger 35W","Dual Wall Charger 45W","Dual Wall Charger 67W"]},
-  {section:"Wireless Chargers",items:["Magnet Charger 15W","3 in 1 Charger"]},
-];
-const audioMisc=[
-  {section:"Headphones",items:["Wireless","Wired","Over the Ear","Around the Neck"]},
-  {section:"Memory Cards",items:["32GB","64GB","128GB"]},
-  {section:"Speakers",items:["Small","Medium","Large"]},
-  {section:"Misc",items:["Pop Sockets","Car Mounts","Liquid Glass","Watch Bands","Lanyards"]},
-];
+const DATA_URL='https://raw.githubusercontent.com/edgelinkinc/orders/main/data.json';
+let handsets=[];
+let cables=[];
+let audioMisc=[];
 
 const checks={};const specials={};let customRows={};
 let currentStoreName='';let currentStoreEmail='';
@@ -532,9 +516,64 @@ async function submitOrder(){
 }
 
 function resetForm(){location.reload();}
-buildHandsets();
-buildAccGrid('cables-grid',cables);
-buildAccGrid('audio-grid',audioMisc);
+async function loadFormData(){
+  try{
+    const r=await fetch(DATA_URL+'?t='+Date.now());
+    const d=await r.json();
+    // Map brands with pills
+    const pillMap={'iPhone':'brand-iphone','Samsung':'brand-samsung','Motorola':'brand-motorola','T-Mobile REVVL':'brand-tmobile','TCL':'brand-tcl'};
+    handsets=d.handsets.map(function(b){return{brand:b.brand,pill:pillMap[b.brand]||'brand-tcl',models:b.models};});
+    cables=d.cables;
+    audioMisc=d.audio;
+    // Build store dropdown dynamically
+    const sel=document.getElementById('store-select');
+    // Clear existing options except first
+    while(sel.options.length>1)sel.remove(1);
+    // Group by state
+    const stateMap={};
+    d.stores.forEach(function(s){
+      if(!stateMap[s.state])stateMap[s.state]=[];
+      stateMap[s.state].push(s);
+    });
+    Object.keys(stateMap).sort().forEach(function(state){
+      const og=document.createElement('optgroup');
+      og.label='── '+state+' ──';
+      stateMap[state].sort(function(a,b){return a.name.localeCompare(b.name);}).forEach(function(s){
+        const opt=document.createElement('option');
+        opt.value=s.state+'-'+s.name+'|'+s.email;
+        opt.textContent=s.state+' — '+s.name;
+        og.appendChild(opt);
+      });
+      sel.appendChild(og);
+    });
+  }catch(e){
+    console.error('Could not load data.json, using defaults',e);
+    handsets=[
+      {brand:"iPhone",pill:"brand-iphone",models:["iPhone 13","iPhone 14","iPhone 15","iPhone 16E","iPhone 17E","iPhone 17","iPhone 17 Pro","iPhone 17 ProMax","iPhone Air","Apple Watch"]},
+      {brand:"Samsung",pill:"brand-samsung",models:["Samsung A16","Samsung A17","Samsung A36","Samsung S24FE","Samsung Tab 9","Samsung Watch"]},
+      {brand:"Motorola",pill:"brand-motorola",models:["Moto G 2026","Moto G Play 2026","Moto Razr","Moto Edge 2025"]},
+      {brand:"T-Mobile REVVL",pill:"brand-tmobile",models:["REVVL 8","REVVL 8 Pro","REVVL Tab 2"]},
+      {brand:"TCL",pill:"brand-tcl",models:["TCL Flip 4","TCL K11","TCL K32"]}
+    ];
+    cables=[
+      {section:"Cables",items:["USB-C to USB-C 3FT","USB-C to USB-C 6FT","USB-C to USB-C 10FT","USB-C to Lightning 3FT","USB-C to Lightning 6FT"]},
+      {section:"Car Chargers",items:["Single Port Charger","Dual Port Charger"]},
+      {section:"Portable Power",items:["Power Bank 5K","Power Bank 10K","Power Bank 20K"]},
+      {section:"Wall Chargers",items:["C-Type Wall Charger 20W","C-Type Wall Charger 25W","Dual Wall Charger 35W","Dual Wall Charger 45W","Dual Wall Charger 67W"]},
+      {section:"Wireless Chargers",items:["Magnet Charger 15W","3 in 1 Charger"]}
+    ];
+    audioMisc=[
+      {section:"Headphones",items:["Wireless","Wired","Over the Ear","Around the Neck"]},
+      {section:"Memory Cards",items:["32GB","64GB","128GB"]},
+      {section:"Speakers",items:["Small","Medium","Large"]},
+      {section:"Misc",items:["Pop Sockets","Car Mounts","Liquid Glass","Watch Bands","Lanyards"]}
+    ];
+  }
+  buildHandsets();
+  buildAccGrid('cables-grid',cables);
+  buildAccGrid('audio-grid',audioMisc);
+}
+loadFormData();
 </script>
 </body>
 </html>
