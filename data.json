@@ -1,0 +1,58 @@
+{
+  "handsets": [
+    {"brand": "iPhone", "models": ["iPhone 13","iPhone 14","iPhone 15","iPhone 16E","iPhone 17E","iPhone 17","iPhone 17 Pro","iPhone 17 ProMax","iPhone Air","Apple Watch"]},
+    {"brand": "Samsung", "models": ["Samsung A16","Samsung A17","Samsung A36","Samsung S24FE","Samsung Tab 9","Samsung Watch"]},
+    {"brand": "Motorola", "models": ["Moto G 2026","Moto G Play 2026","Moto Razr","Moto Edge 2025"]},
+    {"brand": "T-Mobile REVVL", "models": ["REVVL 8","REVVL 8 Pro","REVVL Tab 2"]},
+    {"brand": "TCL", "models": ["TCL Flip 4","TCL K11","TCL K32"]}
+  ],
+  "cables": [
+    {"section": "Cables", "items": ["USB-C to USB-C 3FT","USB-C to USB-C 6FT","USB-C to USB-C 10FT","USB-C to Lightning 3FT","USB-C to Lightning 6FT"]},
+    {"section": "Car Chargers", "items": ["Single Port Charger","Dual Port Charger"]},
+    {"section": "Portable Power", "items": ["Power Bank 5K","Power Bank 10K","Power Bank 20K"]},
+    {"section": "Wall Chargers", "items": ["C-Type Wall Charger 20W","C-Type Wall Charger 25W","Dual Wall Charger 35W","Dual Wall Charger 45W","Dual Wall Charger 67W"]},
+    {"section": "Wireless Chargers", "items": ["Magnet Charger 15W","3 in 1 Charger"]}
+  ],
+  "audio": [
+    {"section": "Headphones", "items": ["Wireless","Wired","Over the Ear","Around the Neck"]},
+    {"section": "Memory Cards", "items": ["32GB","64GB","128GB"]},
+    {"section": "Speakers", "items": ["Small","Medium","Large"]},
+    {"section": "Misc", "items": ["Pop Sockets","Car Mounts","Liquid Glass","Watch Bands","Lanyards"]}
+  ],
+  "stores": [
+    {"state": "AR", "name": "COLONEL GLENN", "email": "colonelglenn@edgelinkinc.com"},
+    {"state": "AR", "name": "RADIO GEYER", "email": "radiogeyer@edgelinkinc.com"},
+    {"state": "CT", "name": "BUCKLAND HILLS MALL", "email": "bucklandhillsmall@edgelinkinc.com"},
+    {"state": "CT", "name": "NEW LONDON", "email": "newlondon@edgelinkinc.com"},
+    {"state": "CT", "name": "NORWICH", "email": "norwich@edgelinkinc.com"},
+    {"state": "MA", "name": "CAPE COD MALL", "email": "capecodmall@edgelinkinc.com"},
+    {"state": "MA", "name": "COGGESHALL", "email": "coggeshall@edgelinkinc.com"},
+    {"state": "MA", "name": "EXCHANGE ST.", "email": "exchangest@edgelinkinc.com"},
+    {"state": "MA", "name": "FALL RIVER", "email": "FallRiver@edgelinkinc.com"},
+    {"state": "MA", "name": "HOLYOKE", "email": "holyoke@edgelinkinc.com"},
+    {"state": "MA", "name": "KELLEY SQUARE", "email": "kelleysquare@edgelinkinc.com"},
+    {"state": "MA", "name": "LOCUST STREET", "email": "locustst@edgelinkinc.com"},
+    {"state": "MA", "name": "ROCKDALE", "email": "rockdale@edgelinkinc.com"},
+    {"state": "MA", "name": "SOUTH SHORE MALL", "email": "southshoreplaza@edgelinkinc.com"},
+    {"state": "MA", "name": "STATE STREET", "email": "statest@edgelinkinc.com"},
+    {"state": "MA", "name": "WESTERN AVE", "email": "westernavema@edgelinkinc.com"},
+    {"state": "RI", "name": "751 BROAD", "email": "751BroadStreet@edgelinkinc.com"},
+    {"state": "RI", "name": "BALD HILL", "email": "baldhillrd@edgelinkinc.com"},
+    {"state": "RI", "name": "BROAD ST", "email": "broadst@edgelinkinc.com"},
+    {"state": "RI", "name": "BROADWAY", "email": "broadway@edgelinkinc.com"},
+    {"state": "RI", "name": "COVENTRY", "email": "coventry@edgelinkinc.com"},
+    {"state": "RI", "name": "DOUGLAS", "email": "DouglasAve@edgelinkinc.com"},
+    {"state": "RI", "name": "EAST PROVIDENCE", "email": "eastprovidence@edgelinkinc.com"},
+    {"state": "RI", "name": "HARTFORD AVE", "email": "hartfordave@edgelinkinc.com"},
+    {"state": "RI", "name": "NEWPORT AVE", "email": "newportave@edgelinkinc.com"},
+    {"state": "RI", "name": "PROVIDENCE PLACE MALL", "email": "provplacemall@edgelinkinc.com"},
+    {"state": "RI", "name": "RESERVOIR AVE", "email": "ReservoirAve@edgelinkinc.com"},
+    {"state": "TN", "name": "KEITH ST", "email": "keithst@edgelinkinc.com"},
+    {"state": "TN", "name": "MAGNOLIA", "email": "magnolia@edgelinkinc.com"},
+    {"state": "TN", "name": "MORRISTOWN", "email": "morristown@edgelinkinc.com"},
+    {"state": "TN", "name": "NORTH BROADWAY", "email": "northbroadway@edgelinkinc.com"},
+    {"state": "TN", "name": "SHALLOWFORD RD", "email": "shallowford@edgelinkinc.com"},
+    {"state": "TN", "name": "WEST MARKET", "email": "westmarket@edgelinkinc.com"},
+    {"state": "TN", "name": "WESTERN AVE", "email": "westernavetn@edgelinkinc.com"}
+  ]
+}
