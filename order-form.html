@@ -257,10 +257,7 @@
 const SERVICE_ID='service_a1wynjd';
 const TEMPLATE_ID='template_tr9s2j5';
 const HQ_EMAIL='INVENTORYHELPTEAM@EVOLUTIONWIRELESS.NET';
-const SP_SITE='https://evolutionwirelessinc.sharepoint.com/sites/INVENTORYHELPTEAM';
-const SP_LIST='Edgelink Orders';
-const SP_CLIENT_ID='4cbd483c-1c2f-4b9a-916d-c0253cbe5f38';
-const SP_CLIENT_SECRET='QnNQOFF+cEV2OUdjU3VMOHRiSXBhaWxkamJyMWVtT250TXNNZWE0TQ==';
+const FLOW_URL='https://defaultebc8d7eeee3a4821b739b0b060e735.7f.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/33ae8f735af34dee9dfbae8b557515df/triggers/manual/paths/invoke?api-version=1';
 
 const handsets=[
   {brand:"iPhone",pill:"brand-iphone",models:["iPhone 13","iPhone 14","iPhone 15","iPhone 16E","iPhone 17E","iPhone 17","iPhone 17 Pro","iPhone 17 ProMax","iPhone Air","Apple Watch"]},
@@ -448,7 +445,7 @@ function buildEmailContent(){
   return{handsetRows,cableRows,audioRows};
 }
 
-function buildSharePointData(){
+function buildPlainText(){
   let handsetText='';
   handsets.forEach(brand=>{
     brand.models.forEach(m=>{
@@ -467,53 +464,25 @@ function buildSharePointData(){
   cables.forEach(g=>g.items.forEach(item=>{if(checks[g.section+'__'+item])cableText+=g.section+': '+item+'\\n';}));
   let audioText='';
   audioMisc.forEach(g=>g.items.forEach(item=>{if(checks[g.section+'__'+item])audioText+=g.section+': '+item+'\\n';}));
-  return{handsetText:handsetText||'None',cableText:cableText||'None',audioText:audioText||'None'};
+  return{
+    handsetText:handsetText||'None',
+    cableText:cableText||'None',
+    audioText:audioText||'None'
+  };
 }
 
-async function saveToSharePoint(orderData){
+async function saveToFlow(data){
   try{
-    const tokenResp=await fetch('https://accounts.accesscontrol.windows.net/evolutionwirelessinc.onmicrosoft.com/tokens/OAuth/2',{
+    const resp=await fetch(FLOW_URL,{
       method:'POST',
-      headers:{'Content-Type':'application/x-www-form-urlencoded'},
-      body:'grant_type=client_credentials&client_id='+encodeURIComponent(SP_CLIENT_ID+'@evolutionwirelessinc.onmicrosoft.com')+'&client_secret='+encodeURIComponent(SP_CLIENT_SECRET)+'&resource='+encodeURIComponent('00000003-0000-0ff1-ce00-000000000000/evolutionwirelessinc.sharepoint.com@evolutionwirelessinc.onmicrosoft.com')
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(data)
     });
-    const tokenData=await tokenResp.json();
-    const token=tokenData.access_token;
-    const listResp=await fetch(SP_SITE+"/_api/web/lists/getbytitle('"+SP_LIST+"')/items",{
-      method:'POST',
-      headers:{
-        'Authorization':'Bearer '+token,
-        'Content-Type':'application/json;odata=verbose',
-        'Accept':'application/json;odata=verbose',
-        'X-RequestDigest':await getDigest(token)
-      },
-      body:JSON.stringify({
-        '__metadata':{'type':'SP.Data.Edgelink_x0020_OrdersListItem'},
-        'Title':orderData.orderId,
-        'Employee':orderData.employee,
-        'Store':orderData.store,
-        'StoreEmail':orderData.storeEmail,
-        'OrderDate':orderData.date,
-        'Status':'pending',
-        'HandsetItems':orderData.handsetText,
-        'CableItems':orderData.cableText,
-        'AudioItems':orderData.audioText,
-        'OrderNotes':orderData.notes,
-        'PurchaseOrder':'',
-        'Cost':'',
-        'Received':'pending_recv'
-      })
-    });
-    return listResp.ok;
-  }catch(e){console.error('SharePoint error:',e);return false;}
-}
-
-async function getDigest(token){
-  try{
-    const r=await fetch(SP_SITE+'/_api/contextinfo',{method:'POST',headers:{'Authorization':'Bearer '+token,'Accept':'application/json;odata=verbose'}});
-    const d=await r.json();
-    return d.d.GetContextWebInformation.FormDigestValue;
-  }catch(e){return '';}
+    return resp.ok||resp.status===202;
+  }catch(e){
+    console.error('Flow error:',e);
+    return false;
+  }
 }
 
 async function submitOrder(){
@@ -524,17 +493,31 @@ async function submitOrder(){
   if(!currentStoreName){alert('Please select your store location.');goTo(0);return;}
   const btn=document.getElementById('submit-btn');btn.disabled=true;btn.textContent='Sending...';
   const{handsetRows,cableRows,audioRows}=buildEmailContent();
-  const{handsetText,cableText,audioText}=buildSharePointData();
-  const templateParams={order_id:orderId,employee_name:empName,store_name:currentStoreName,store_email:currentStoreEmail,order_date:orderDate,hq_email:HQ_EMAIL,handset_rows:handsetRows,cable_rows:cableRows,audio_rows:audioRows,order_notes:notes,reply_to:currentStoreEmail};
+  const{handsetText,cableText,audioText}=buildPlainText();
+  const templateParams={
+    order_id:orderId,employee_name:empName,store_name:currentStoreName,
+    store_email:currentStoreEmail,order_date:orderDate,hq_email:HQ_EMAIL,
+    handset_rows:handsetRows,cable_rows:cableRows,audio_rows:audioRows,
+    order_notes:notes,reply_to:currentStoreEmail
+  };
+  const flowData={
+    order_id:orderId,employee:empName,store:currentStoreName,
+    store_email:currentStoreEmail,order_date:orderDate,
+    handset_items:handsetText,cable_items:cableText,
+    audio_items:audioText,order_notes:notes
+  };
   try{
-    await emailjs.send(SERVICE_ID,TEMPLATE_ID,templateParams);
-    await saveToSharePoint({orderId,employee:empName,store:currentStoreName,storeEmail:currentStoreEmail,date:orderDate,notes,handsetText,cableText,audioText});
+    await Promise.all([
+      emailjs.send(SERVICE_ID,TEMPLATE_ID,templateParams),
+      saveToFlow(flowData)
+    ]);
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     document.getElementById('page-success').classList.add('active');
     document.querySelectorAll('.step-tab').forEach(t=>t.classList.add('completed'));
     document.getElementById('total-bar').style.display='none';
   }catch(err){
-    console.error(err);alert('There was an error sending the order. Please try again.');
+    console.error(err);
+    alert('There was an error sending the order. Please try again.');
     btn.disabled=false;btn.textContent='Submit Order ✓';
   }
 }
