@@ -113,11 +113,9 @@
   .total-item{display:flex;gap:8px;align-items:center;}
   .total-item .val{color:var(--magenta);font-size:16px;font-family:'Bebas Neue',sans-serif;}
   .store-email-display{font-size:11px;color:var(--purple);font-weight:600;margin-top:4px;}
-  optgroup{font-weight:800;font-size:11px;letter-spacing:1px;}
 </style>
 </head>
 <body>
-
 <div class="header">
   <div class="logo-area">
     <div class="logo-box"><span class="logo-text">EDGELINK INC.</span></div>
@@ -125,7 +123,6 @@
   </div>
   <div class="order-badge" id="order-id-badge">ORDER #—</div>
 </div>
-
 <div class="steps-nav">
   <div class="step-tab active" onclick="goTo(0)"><span class="step-dot">1</span> Store Info</div>
   <div class="step-tab" onclick="goTo(1)"><span class="step-dot">2</span> Handsets</div>
@@ -133,32 +130,24 @@
   <div class="step-tab" onclick="goTo(3)"><span class="step-dot">4</span> Audio & Misc</div>
   <div class="step-tab" onclick="goTo(4)"><span class="step-dot">5</span> Review & Submit</div>
 </div>
-
 <div class="content">
-
 <div class="page active" id="page-0">
   <div class="section-label">Store Information</div>
   <div class="info-grid">
-    <div class="field-group">
-      <label>Employee Name</label>
-      <input type="text" id="emp-name" placeholder="Full name">
-    </div>
+    <div class="field-group"><label>Employee Name</label><input type="text" id="emp-name" placeholder="Full name"></div>
     <div class="field-group">
       <label>Store Location</label>
       <select id="store-select" onchange="onStoreChange()">
         <option value="">-- Select Your Store --</option>
-
         <optgroup label="── ARKANSAS (AR) ──">
           <option value="AR-COLONEL GLENN|colonelglenn@edgelinkinc.com">AR — COLONEL GLENN</option>
           <option value="AR-RADIO GEYER|radiogeyer@edgelinkinc.com">AR — RADIO GEYER</option>
         </optgroup>
-
         <optgroup label="── CONNECTICUT (CT) ──">
           <option value="CT-BUCKLAND HILLS MALL|bucklandhillsmall@edgelinkinc.com">CT — BUCKLAND HILLS MALL</option>
           <option value="CT-NEW LONDON|newlondon@edgelinkinc.com">CT — NEW LONDON</option>
           <option value="CT-NORWICH|norwich@edgelinkinc.com">CT — NORWICH</option>
         </optgroup>
-
         <optgroup label="── MASSACHUSETTS (MA) ──">
           <option value="MA-CAPE COD MALL|capecodmall@edgelinkinc.com">MA — CAPE COD MALL</option>
           <option value="MA-COGGESHALL|coggeshall@edgelinkinc.com">MA — COGGESHALL</option>
@@ -172,7 +161,6 @@
           <option value="MA-STATE STREET|statest@edgelinkinc.com">MA — STATE STREET</option>
           <option value="MA-WESTERN AVE|westernavema@edgelinkinc.com">MA — WESTERN AVE</option>
         </optgroup>
-
         <optgroup label="── RHODE ISLAND (RI) ──">
           <option value="RI-751BROAD|751BroadStreet@edgelinkinc.com">RI — 751 BROAD</option>
           <option value="RI-BALD HILL|baldhillrd@edgelinkinc.com">RI — BALD HILL</option>
@@ -186,7 +174,6 @@
           <option value="RI-PROVIDENCE PLACE MALL|provplacemall@edgelinkinc.com">RI — PROVIDENCE PLACE MALL</option>
           <option value="RI-RESERVOIR AVE|ReservoirAve@edgelinkinc.com">RI — RESERVOIR AVE</option>
         </optgroup>
-
         <optgroup label="── TENNESSEE (TN) ──">
           <option value="TN-KEITH ST|keithst@edgelinkinc.com">TN — KEITH ST</option>
           <option value="TN-MAGNOLIA|magnolia@edgelinkinc.com">TN — MAGNOLIA</option>
@@ -196,20 +183,13 @@
           <option value="TN-WEST MARKET|westmarket@edgelinkinc.com">TN — WEST MARKET</option>
           <option value="TN-WESTERN AVE|westernavetn@edgelinkinc.com">TN — WESTERN AVE</option>
         </optgroup>
-
       </select>
       <div class="store-email-display" id="store-email-display"></div>
     </div>
-    <div class="field-group">
-      <label>Order Date</label>
-      <input type="date" id="order-date">
-    </div>
+    <div class="field-group"><label>Order Date</label><input type="date" id="order-date"></div>
   </div>
-  <div class="btn-row">
-    <button class="btn btn-primary" onclick="goTo(1)">Next: Handsets →</button>
-  </div>
+  <div class="btn-row"><button class="btn btn-primary" onclick="goTo(1)">Next: Handsets →</button></div>
 </div>
-
 <div class="page" id="page-1">
   <div class="section-label">Handset Screen Protectors & Cases</div>
   <div id="handset-sections"></div>
@@ -218,7 +198,6 @@
     <button class="btn btn-primary" onclick="goTo(2)">Next: Cables & Chargers →</button>
   </div>
 </div>
-
 <div class="page" id="page-2">
   <div class="section-label">Cables, Chargers & Power</div>
   <div class="acc-grid" id="cables-grid"></div>
@@ -227,7 +206,6 @@
     <button class="btn btn-primary" onclick="goTo(3)">Next: Audio & Misc →</button>
   </div>
 </div>
-
 <div class="page" id="page-3">
   <div class="section-label">Headphones, Memory Cards, Speakers & Misc</div>
   <div class="acc-grid" id="audio-grid"></div>
@@ -236,7 +214,6 @@
     <button class="btn btn-primary" onclick="goTo(4)">Review Order →</button>
   </div>
 </div>
-
 <div class="page" id="page-4">
   <div class="section-label">Review & Submit</div>
   <div class="review-section">
@@ -258,12 +235,11 @@
     <button class="btn btn-success" id="submit-btn" onclick="submitOrder()">Submit Order ✓</button>
   </div>
 </div>
-
 <div class="page" id="page-success">
   <div class="success-screen">
     <div class="success-icon">✓</div>
     <div class="success-title">Order Submitted!</div>
-    <div class="success-sub">Your order has been sent to the Edgelink Inc. inventory team. A copy has been sent to your store email.</div>
+    <div class="success-sub">Your order has been sent to the Edgelink Inc. inventory team and saved to the system.</div>
     <div class="order-id-display" id="final-order-id"></div>
     <div>
       <button class="btn btn-ghost" onclick="window.print()" style="margin-right:10px">Print Order</button>
@@ -271,19 +247,20 @@
     </div>
   </div>
 </div>
-
 </div>
-
 <div class="total-bar" id="total-bar">
   <div class="total-item">Items Selected: <span class="val" id="total-items">0</span></div>
   <div class="total-item">Categories: <span class="val" id="total-cats">0</span></div>
 </div>
-
 <script>
 (function(){emailjs.init('-Fi8l0rsS-W5Zh0m7');})();
 const SERVICE_ID='service_a1wynjd';
 const TEMPLATE_ID='template_tr9s2j5';
 const HQ_EMAIL='INVENTORYHELPTEAM@EVOLUTIONWIRELESS.NET';
+const SP_SITE='https://evolutionwirelessinc.sharepoint.com/sites/INVENTORYHELPTEAM';
+const SP_LIST='Edgelink Orders';
+const SP_CLIENT_ID='4cbd483c-1c2f-4b9a-916d-c0253cbe5f38';
+const SP_CLIENT_SECRET='QnNQOFF+cEV2OUdjU3VMOHRiSXBhaWxkamJyMWVtT250TXNNZWE0TQ==';
 
 const handsets=[
   {brand:"iPhone",pill:"brand-iphone",models:["iPhone 13","iPhone 14","iPhone 15","iPhone 16E","iPhone 17E","iPhone 17","iPhone 17 Pro","iPhone 17 ProMax","iPhone Air","Apple Watch"]},
@@ -308,7 +285,6 @@ const audioMisc=[
 
 const checks={};const specials={};let customRows={};
 let currentStoreName='';let currentStoreEmail='';
-
 const orderId='ORD-'+Date.now().toString(36).toUpperCase();
 document.getElementById('order-id-badge').textContent='ORDER #'+orderId.split('-')[1];
 document.getElementById('final-order-id').textContent=orderId;
@@ -366,7 +342,7 @@ function addCustomRow(brandName,container){
   const idx=Date.now();const rowData={device:'',glass:false,male:false,female:false,special:''};
   customRows[brandName].push({idx,data:rowData});
   const row=document.createElement('div');row.className='custom-row';
-  const deviceInput=document.createElement('input');deviceInput.type='text';deviceInput.className='custom-device-input';deviceInput.placeholder='Device name (e.g. iPhone 18)';
+  const deviceInput=document.createElement('input');deviceInput.type='text';deviceInput.className='custom-device-input';deviceInput.placeholder='Device name';
   deviceInput.addEventListener('input',()=>{rowData.device=deviceInput.value;updateTotals();});
   function makeCustomCb(field,label){
     const wrap=document.createElement('div');wrap.className='custom-check-group';
@@ -472,6 +448,74 @@ function buildEmailContent(){
   return{handsetRows,cableRows,audioRows};
 }
 
+function buildSharePointData(){
+  let handsetText='';
+  handsets.forEach(brand=>{
+    brand.models.forEach(m=>{
+      const g=checks[m+'__glass'],ml=checks[m+'__male'],f=checks[m+'__female'],sp=specials[m]||'';
+      if(g||ml||f||sp){
+        const parts=[];if(g)parts.push('Glass');if(ml)parts.push('Male');if(f)parts.push('Female');
+        handsetText+=m+': '+parts.join(', ')+(sp?' ('+sp+')')+'\\n';
+      }
+    });
+    customRows[brand.brand].forEach(({data})=>{
+      if(data.device){const parts=[];if(data.glass)parts.push('Glass');if(data.male)parts.push('Male');if(data.female)parts.push('Female');
+        if(parts.length)handsetText+=data.device+' (custom): '+parts.join(', ')+(data.special?' ('+data.special+')')+'\\n';}
+    });
+  });
+  let cableText='';
+  cables.forEach(g=>g.items.forEach(item=>{if(checks[g.section+'__'+item])cableText+=g.section+': '+item+'\\n';}));
+  let audioText='';
+  audioMisc.forEach(g=>g.items.forEach(item=>{if(checks[g.section+'__'+item])audioText+=g.section+': '+item+'\\n';}));
+  return{handsetText:handsetText||'None',cableText:cableText||'None',audioText:audioText||'None'};
+}
+
+async function saveToSharePoint(orderData){
+  try{
+    const tokenResp=await fetch('https://accounts.accesscontrol.windows.net/evolutionwirelessinc.onmicrosoft.com/tokens/OAuth/2',{
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:'grant_type=client_credentials&client_id='+encodeURIComponent(SP_CLIENT_ID+'@evolutionwirelessinc.onmicrosoft.com')+'&client_secret='+encodeURIComponent(SP_CLIENT_SECRET)+'&resource='+encodeURIComponent('00000003-0000-0ff1-ce00-000000000000/evolutionwirelessinc.sharepoint.com@evolutionwirelessinc.onmicrosoft.com')
+    });
+    const tokenData=await tokenResp.json();
+    const token=tokenData.access_token;
+    const listResp=await fetch(SP_SITE+"/_api/web/lists/getbytitle('"+SP_LIST+"')/items",{
+      method:'POST',
+      headers:{
+        'Authorization':'Bearer '+token,
+        'Content-Type':'application/json;odata=verbose',
+        'Accept':'application/json;odata=verbose',
+        'X-RequestDigest':await getDigest(token)
+      },
+      body:JSON.stringify({
+        '__metadata':{'type':'SP.Data.Edgelink_x0020_OrdersListItem'},
+        'Title':orderData.orderId,
+        'Employee':orderData.employee,
+        'Store':orderData.store,
+        'StoreEmail':orderData.storeEmail,
+        'OrderDate':orderData.date,
+        'Status':'pending',
+        'HandsetItems':orderData.handsetText,
+        'CableItems':orderData.cableText,
+        'AudioItems':orderData.audioText,
+        'OrderNotes':orderData.notes,
+        'PurchaseOrder':'',
+        'Cost':'',
+        'Received':'pending_recv'
+      })
+    });
+    return listResp.ok;
+  }catch(e){console.error('SharePoint error:',e);return false;}
+}
+
+async function getDigest(token){
+  try{
+    const r=await fetch(SP_SITE+'/_api/contextinfo',{method:'POST',headers:{'Authorization':'Bearer '+token,'Accept':'application/json;odata=verbose'}});
+    const d=await r.json();
+    return d.d.GetContextWebInformation.FormDigestValue;
+  }catch(e){return '';}
+}
+
 async function submitOrder(){
   const empName=document.getElementById('emp-name').value.trim();
   const orderDate=document.getElementById('order-date').value;
@@ -480,15 +524,17 @@ async function submitOrder(){
   if(!currentStoreName){alert('Please select your store location.');goTo(0);return;}
   const btn=document.getElementById('submit-btn');btn.disabled=true;btn.textContent='Sending...';
   const{handsetRows,cableRows,audioRows}=buildEmailContent();
+  const{handsetText,cableText,audioText}=buildSharePointData();
   const templateParams={order_id:orderId,employee_name:empName,store_name:currentStoreName,store_email:currentStoreEmail,order_date:orderDate,hq_email:HQ_EMAIL,handset_rows:handsetRows,cable_rows:cableRows,audio_rows:audioRows,order_notes:notes,reply_to:currentStoreEmail};
   try{
     await emailjs.send(SERVICE_ID,TEMPLATE_ID,templateParams);
+    await saveToSharePoint({orderId,employee:empName,store:currentStoreName,storeEmail:currentStoreEmail,date:orderDate,notes,handsetText,cableText,audioText});
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     document.getElementById('page-success').classList.add('active');
     document.querySelectorAll('.step-tab').forEach(t=>t.classList.add('completed'));
     document.getElementById('total-bar').style.display='none';
   }catch(err){
-    console.error(err);alert('There was an error sending the order. Please try again or contact support.');
+    console.error(err);alert('There was an error sending the order. Please try again.');
     btn.disabled=false;btn.textContent='Submit Order ✓';
   }
 }
