@@ -159,9 +159,7 @@
   .period-btn.active{background:var(--purple);color:white;border-color:var(--purple);}
   .date-filter-bar{background:white;border:1.5px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
   .date-filter-label{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--purple);white-space:nowrap;}
-  .preset-btn{padding:6px 14px;border-radius:20px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;border:1.5px solid var(--border);background:white;color:var(--gray-text);transition:all 0.2s;white-space:nowrap;}
-  .preset-btn:hover{border-color:var(--purple);color:var(--purple);}
-  .preset-btn.active{background:var(--purple);color:white;border-color:var(--purple);}
+
   .date-sep{color:var(--gray-text);font-size:12px;font-weight:700;}
   .date-input{border:1.5px solid var(--border);border-radius:6px;padding:6px 10px;font-family:'Montserrat',sans-serif;font-size:12px;color:var(--text);outline:none;cursor:pointer;}
   .date-input:focus{border-color:var(--purple);}
@@ -268,21 +266,12 @@
 
     <div class="tab-panel" id="tab-analytics">
       <div class="date-filter-bar">
-        <span class="date-filter-label">Time Frame</span>
-        <button class="preset-btn active" onclick="setPreset('all',this)">All Time</button>
-        <button class="preset-btn" onclick="setPreset('this_week',this)">This Week</button>
-        <button class="preset-btn" onclick="setPreset('last_week',this)">Last Week</button>
-        <button class="preset-btn" onclick="setPreset('this_month',this)">This Month</button>
-        <button class="preset-btn" onclick="setPreset('last_month',this)">Last Month</button>
-        <button class="preset-btn" onclick="setPreset('last_30',this)">Last 30 Days</button>
-        <button class="preset-btn" onclick="setPreset('last_90',this)">Last 90 Days</button>
-        <button class="preset-btn" onclick="setPreset('ytd',this)">Year to Date</button>
-        <div class="date-divider"></div>
-        <span class="date-filter-label">Custom</span>
-        <input class="date-input" type="date" id="filter-from" placeholder="From">
+        <span class="date-filter-label">Date Range</span>
+        <input class="date-input" type="date" id="filter-from">
         <span class="date-sep">→</span>
-        <input class="date-input" type="date" id="filter-to" placeholder="To">
+        <input class="date-input" type="date" id="filter-to">
         <button class="apply-btn" onclick="applyCustomDates()">Apply</button>
+        <button class="apply-btn" style="background:white;color:var(--purple);border:1.5px solid var(--purple);" onclick="clearDates()">Clear</button>
       </div>
       <div class="analytics-grid-4" id="analytics-highlights"></div>
       <div class="chart-panel">
@@ -676,6 +665,7 @@ function formatMonth(key){
 var spendPeriod='weekly';
 var filterFrom=null;
 var filterTo=null;
+var spendChartObj=null,ordersChartObj=null,storeChartObj=null,itemsChartObj=null;
 
 function getFilteredOrders(){
   if(!filterFrom&&!filterTo)return orders;
@@ -688,32 +678,10 @@ function getFilteredOrders(){
   });
 }
 
-function setPreset(preset,btn){
-  document.querySelectorAll('.preset-btn').forEach(function(b){b.classList.remove('active');});
-  btn.classList.add('active');
-  var now=new Date();
-  var from=null;
-  var to=new Date(now.getFullYear(),now.getMonth(),now.getDate(),23,59,59);
-  if(preset==='all'){from=null;to=null;}
-  else if(preset==='this_week'){from=new Date(now);from.setDate(now.getDate()-now.getDay());}
-  else if(preset==='last_week'){
-    from=new Date(now);from.setDate(now.getDate()-now.getDay()-7);
-    to=new Date(now);to.setDate(now.getDate()-now.getDay()-1);to.setHours(23,59,59);
-  }
-  else if(preset==='this_month'){from=new Date(now.getFullYear(),now.getMonth(),1);}
-  else if(preset==='last_month'){
-    from=new Date(now.getFullYear(),now.getMonth()-1,1);
-    to=new Date(now.getFullYear(),now.getMonth(),0,23,59,59);
-  }
-  else if(preset==='last_30'){from=new Date(now);from.setDate(now.getDate()-30);}
-  else if(preset==='last_90'){from=new Date(now);from.setDate(now.getDate()-90);}
-  else if(preset==='ytd'){from=new Date(now.getFullYear(),0,1);}
-  filterFrom=from;
-  filterTo=to;
-  if(from){document.getElementById('filter-from').value=from.toISOString().split('T')[0];}
-  else{document.getElementById('filter-from').value='';}
-  if(to&&preset!=='all'){document.getElementById('filter-to').value=to.toISOString().split('T')[0];}
-  else{document.getElementById('filter-to').value='';}
+function clearDates(){
+  filterFrom=null;filterTo=null;
+  document.getElementById('filter-from').value='';
+  document.getElementById('filter-to').value='';
   renderAnalytics();
 }
 
@@ -870,4 +838,4 @@ function closeModal(e){
 }
 </script>
 </body>
-</html> 
+</html>
