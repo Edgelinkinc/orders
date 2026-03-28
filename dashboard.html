@@ -67,6 +67,7 @@
   .status-14{background:#e8f5e9;color:#1b5e20;border:1px solid #81c784;}
   .status-30{background:#fff8e1;color:#e65100;border:1px solid #ffcc02;}
   .status-inactive{background:var(--red-light);color:var(--red);border:1px solid #f5a0a0;}
+  .status-partial{background:#fff3e0;color:#e65100;border:1px solid #ffcc80;}
   .fulfill-btn{background:var(--purple-light);border:1.5px solid var(--purple);color:var(--purple);border-radius:6px;padding:4px 12px;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
   .fulfill-btn:hover{background:var(--purple);color:white;}
   .fulfilled-label{color:var(--green-dark);font-size:11px;font-weight:700;}
@@ -192,13 +193,13 @@
       <div class="filter-bar">
         <input class="search-input" type="text" placeholder="Search store, employee, order ID, PO#..." oninput="renderAllOrders()" id="search-orders">
         <select class="filter-select" onchange="renderAllOrders()" id="filter-status"><option value="">All Statuses</option><option value="pending">Pending</option><option value="fulfilled">Fulfilled</option></select>
-        <select class="filter-select" onchange="renderAllOrders()" id="filter-received"><option value="">All Receipt</option><option value="received">Received</option><option value="pending_recv">Pending Receipt</option></select>
+        <select class="filter-select" onchange="renderAllOrders()" id="filter-received"><option value="">All Receipt</option><option value="received">Delivered</option><option value="partial">Partially Delivered</option><option value="in_transit">In Transit</option></select>
         <select class="filter-select" onchange="renderAllOrders()" id="filter-store"><option value="">All Stores</option></select>
       </div>
       <div class="panel">
         <div class="panel-header"><span class="panel-title">All Orders</span><span style="font-size:11px;color:var(--gray-text)" id="order-count-label"></span></div>
         <div class="panel-body" style="padding:0">
-          <table class="orders-table"><thead><tr><th>Order ID</th><th>Employee</th><th>Store</th><th>Date</th><th>PO #</th><th>Cost</th><th>Receipt</th><th>Status</th><th>Action</th></tr></thead><tbody id="all-tbody"><tr><td colspan="9" class="loading-bar"><span class="loading-spinner"></span>Loading orders from SharePoint...</td></tr></tbody></table>
+          <table class="orders-table"><thead><tr><th>Order ID</th><th>Employee</th><th>Store</th><th>Date</th><th>PO #</th><th>Cost</th><th>Tracking Status</th><th>Status</th><th>Action</th></tr></thead><tbody id="all-tbody"><tr><td colspan="9" class="loading-bar"><span class="loading-spinner"></span>Loading orders from SharePoint...</td></tr></tbody></table>
         </div>
       </div>
     </div>
@@ -388,7 +389,7 @@ function renderAllOrders(){
   const tbody=document.getElementById('all-tbody');tbody.innerHTML='';
   if(!filtered.length){tbody.innerHTML='<tr><td colspan="9" style="padding:16px;color:#aaa;text-align:center;">No orders found</td></tr>';return;}
   [...filtered].sort((a,b)=>b.date.localeCompare(a.date)).forEach(o=>{
-    const recvBadge=o.received==='received'?'<span class="status-badge status-received">Received</span>':'<span class="status-badge status-pending">Pending</span>';
+    const recvBadge=o.received==='received'?'<span class="status-badge status-received">Delivered</span>':'<span class="status-badge status-pending">Pending</span>';
     const tr=document.createElement('tr');
     tr.innerHTML='<td style="font-family:\'Bebas Neue\',sans-serif;font-size:13px;letter-spacing:1px;color:var(--purple)">'+o.id+'</td><td style="font-weight:600">'+o.employee+'</td><td>'+o.store+'</td><td style="color:var(--gray-text)">'+o.date+'</td><td>'+(o.po?'<span class="po-badge">'+o.po+'</span>':'<span style="color:#ccc;font-size:11px">Not set</span>')+'</td><td>'+(o.cost?'<span class="cost-badge">$'+parseFloat(o.cost).toFixed(2)+'</span>':'<span style="color:#ccc;font-size:11px">Not set</span>')+'</td><td>'+recvBadge+'</td><td><span class="status-badge status-'+o.status+'">'+o.status+'</span></td><td style="display:flex;gap:5px;align-items:center"><button class="fulfill-btn" onclick="viewOrder(\''+o.id+'\')">View</button>'+(o.status==='pending'?'<button class="fulfill-btn" style="background:var(--green-light);border-color:var(--green-dark);color:var(--green-dark)" onclick="fulfillOrder(\''+o.id+'\')">Fulfill</button>':'<span class="fulfilled-label">✓</span>')+'</td>';
     tbody.appendChild(tr);
@@ -479,12 +480,12 @@ function viewOrder(id){
     '<div><div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#aaa;margin-bottom:3px">Date</div><div style="font-weight:600">'+o.date+'</div></div></div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px">'+
     '<div><div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#aaa;margin-bottom:3px">Order Status</div><span class="status-badge status-'+o.status+'">'+o.status+'</span></div>'+
-    '<div><div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#aaa;margin-bottom:3px">Receipt Status</div><span class="status-badge '+(o.received==='received'?'status-received':'status-pending')+'">'+(o.received==='received'?'Received':'Pending Receipt')+'</span></div></div>';
+    '<div><div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#aaa;margin-bottom:3px">Tracking Status</div><span class="status-badge '+(o.received==='received'?'status-received':'status-pending')+'">'+(o.received==='received'?'Delivered':o.received==='partial'?'Partially Delivered':'In Transit')+'</span></div></div>';
   html+='<div class="admin-section"><div class="admin-section-title"><span class="admin-banner">&#128274; Admin Only</span> Purchasing Details</div>'+
     '<div class="admin-fields-grid">'+
     '<div class="admin-field-group"><label>Purchase Order #</label><input class="admin-input" type="text" id="edit-po-'+o.id+'" value="'+(o.po||'')+'" placeholder="e.g. PO-2026-042"></div>'+
     '<div class="admin-field-group"><label>Cost of Order ($)</label><input class="admin-input" type="number" id="edit-cost-'+o.id+'" value="'+(o.cost||'')+'" placeholder="0.00" step="0.01"></div>'+
-    '<div class="admin-field-group"><label>Receipt Status</label><select class="admin-select" id="edit-recv-'+o.id+'"><option value="pending_recv" '+(o.received!=='received'?'selected':'')+'>Pending Receipt</option><option value="received" '+(o.received==='received'?'selected':'')+'>Received</option></select></div>'+
+    '<div class="admin-field-group"><label>Receipt Status</label><select class="admin-select" id="edit-recv-'+o.id+'"><option value="in_transit" '+(o.received==='in_transit'||o.received==='pending_recv'||(!o.received||o.received==='')?'selected':'')+'>In Transit</option><option value="partial" '+(o.received==='partial'?'selected':'')+'>Partially Delivered</option><option value="received" '+(o.received==='received'?'selected':'')+'>Delivered</option></select></div>'+
     '</div><button class="save-admin-btn" onclick="saveAdminFields(\''+o.id+'\','+o.spId+')">Save Purchasing Details</button></div>';
   if(o.handsets&&o.handsets!=='None'){
     html+='<div class="modal-section-title">Handsets</div>';
