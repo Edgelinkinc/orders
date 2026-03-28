@@ -137,7 +137,28 @@
   .modal-row:last-child{border-bottom:none;}
   .modal-row span:first-child{color:var(--gray-text);}
   .modal-check{color:var(--magenta);font-weight:700;}
+  .analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+  .analytics-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+  .highlight-card{background:white;border:1.5px solid var(--border);border-radius:10px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+  .highlight-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray-text);margin-bottom:6px;}
+  .highlight-value{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;line-height:1;}
+  .highlight-value.purple{color:var(--purple);}
+  .highlight-value.magenta{color:var(--magenta);}
+  .highlight-value.green{color:var(--green);}
+  .highlight-value.amber{color:var(--amber);}
+  .highlight-sub{font-size:11px;margin-top:4px;}
+  .highlight-sub.up{color:var(--green);}
+  .highlight-sub.down{color:var(--red);}
+  .highlight-sub.neutral{color:var(--gray-text);}
+  .chart-panel{background:white;border:1.5px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.05);margin-bottom:20px;}
+  .chart-panel-header{padding:12px 18px;background:var(--gray-light);border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .chart-panel-title{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;}
+  .chart-panel-body{padding:16px 18px;}
+  .period-toggle{display:flex;gap:6px;}
+  .period-btn{padding:4px 12px;border-radius:20px;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:1.5px solid var(--border);background:white;color:var(--gray-text);transition:all 0.2s;}
+  .period-btn.active{background:var(--purple);color:white;border-color:var(--purple);}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -172,6 +193,7 @@
     <div class="nav-tab" onclick="switchTab('stores',this)">By Store</div>
     <div class="nav-tab" onclick="switchTab('activity',this)">Store Activity</div>
     <div class="nav-tab" onclick="switchTab('items',this)">Top Items</div>
+    <div class="nav-tab" onclick="switchTab('analytics',this)">Analytics</div>
   </div>
 
   <div class="dash-content">
@@ -231,6 +253,34 @@
       <div class="two-col">
         <div class="panel"><div class="panel-header"><span class="panel-title">Most Ordered Handsets</span></div><div class="panel-body" id="top-handsets"></div></div>
         <div class="panel"><div class="panel-header"><span class="panel-title">Most Ordered Accessories</span></div><div class="panel-body" id="top-accessories"></div></div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-analytics">
+      <div class="analytics-grid-4" id="analytics-highlights"></div>
+      <div class="chart-panel">
+        <div class="chart-panel-header">
+          <span class="chart-panel-title">Spending Over Time</span>
+          <div class="period-toggle">
+            <button class="period-btn active" id="btn-weekly" onclick="setSpendPeriod('weekly')">Weekly</button>
+            <button class="period-btn" id="btn-monthly" onclick="setSpendPeriod('monthly')">Monthly</button>
+          </div>
+        </div>
+        <div class="chart-panel-body"><canvas id="spendChart" height="80"></canvas></div>
+      </div>
+      <div class="two-col">
+        <div class="chart-panel">
+          <div class="chart-panel-header"><span class="chart-panel-title">Orders Submitted Over Time</span></div>
+          <div class="chart-panel-body"><canvas id="ordersChart" height="120"></canvas></div>
+        </div>
+        <div class="chart-panel">
+          <div class="chart-panel-header"><span class="chart-panel-title">Orders by Store Over Time</span></div>
+          <div class="chart-panel-body"><canvas id="storeChart" height="120"></canvas></div>
+        </div>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-panel-header"><span class="chart-panel-title">Most Ordered Items — All Time</span></div>
+        <div class="chart-panel-body"><canvas id="itemsChart" height="60"></canvas></div>
       </div>
     </div>
 
@@ -546,8 +596,124 @@ function switchTab(name,el){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');el.classList.add('active');
+  if(name==='analytics')renderAnalytics();
 }
 function closeModal(e){if(e.target===document.getElementById('modal-bg'))document.getElementById('modal-bg').classList.remove('open');}
+
+let spendPeriod='weekly';
+let spendChartObj=null,ordersChartObj=null,storeChartObj=null,itemsChartObj=null;
+
+function setSpendPeriod(p){
+  spendPeriod=p;
+  document.getElementById('btn-weekly').classList.toggle('active',p==='weekly');
+  document.getElementById('btn-monthly').classList.toggle('active',p==='monthly');
+  renderAnalytics();
+}
+
+function getWeekKey(dateStr){
+  const d=new Date(dateStr);
+  const jan1=new Date(d.getFullYear(),0,1);
+  const week=Math.ceil(((d-jan1)/86400000+jan1.getDay()+1)/7);
+  return d.getFullYear()+'-W'+String(week).padStart(2,'0');
+}
+function getMonthKey(dateStr){
+  const d=new Date(dateStr);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+function formatWeek(key){
+  const [yr,w]=key.split('-W');
+  return 'W'+w+' ''+yr.slice(2);
+}
+function formatMonth(key){
+  const [yr,m]=key.split('-');
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[parseInt(m)-1]+' ''+yr.slice(2);
+}
+
+function renderAnalytics(){
+  if(!orders.length){
+    var wowArrow=wowChange>=0?'up':'down';
+  var momArrow=momChange>=0?'up':'down';
+  var wowColor=wowChange>=0?'green':'amber';
+  var momColor=momChange>=0?'green':'amber';
+  var wowSign=wowChange>=0?'+':'';
+  var momSign=momChange>=0?'+':'';
+  document.getElementById('analytics-highlights').innerHTML=
+    '<div class="highlight-card"><div class="highlight-label">Total Spent (All Time)</div><div class="highlight-value purple">$'+totalSpent.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="highlight-sub neutral">'+deliveredOrders.length+' delivered orders</div></div>'+
+    '<div class="highlight-card"><div class="highlight-label">Avg Order Value</div><div class="highlight-value magenta">$'+avgOrder.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="highlight-sub neutral">Per delivered order</div></div>'+
+    '<div class="highlight-card"><div class="highlight-label">This Week vs Last</div><div class="highlight-value '+wowColor+'">$'+thisWeekSpend.toFixed(2)+'</div><div class="highlight-sub '+wowArrow+'">'+wowSign+wowChange+'% vs last week</div></div>'+
+    '<div class="highlight-card"><div class="highlight-label">This Month vs Last</div><div class="highlight-value '+momColor+'">$'+thisMonthSpend.toFixed(2)+'</div><div class="highlight-sub '+momArrow+'">'+momSign+momChange+'% vs last month</div></div>';
+
+  // Build period data
+  const periodKey=spendPeriod==='weekly'?getWeekKey:getMonthKey;
+  const formatKey=spendPeriod==='weekly'?formatWeek:formatMonth;
+  const periodMap={};
+  orders.forEach(o=>{
+    const k=periodKey(o.date);
+    if(!periodMap[k])periodMap[k]={spend:0,count:0,stores:{}};
+    periodMap[k].count++;
+    if(o.received==='received'&&o.cost)periodMap[k].spend+=parseFloat(o.cost||0);
+    periodMap[k].stores[o.store]=(periodMap[k].stores[o.store]||0)+1;
+  });
+  const sortedKeys=Object.keys(periodMap).sort();
+  const labels=sortedKeys.map(formatKey);
+  const spendData=sortedKeys.map(k=>Math.round(periodMap[k].spend*100)/100);
+  const countData=sortedKeys.map(k=>periodMap[k].count);
+
+  const purpleGrad=function(ctx){
+    const g=ctx.createLinearGradient(0,0,ctx.canvas.width,0);
+    g.addColorStop(0,'#5C2D91');g.addColorStop(1,'#E20074');
+    return g;
+  };
+
+  // Spend chart
+  if(spendChartObj)spendChartObj.destroy();
+  const sc=document.getElementById('spendChart').getContext('2d');
+  spendChartObj=new Chart(sc,{
+    type:'bar',
+    data:{labels,datasets:[{label:'Spending ($)',data:spendData,backgroundColor:function(ctx){return purpleGrad(ctx.chart.ctx);},borderRadius:4}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:'#f0f0f0'}},x:{grid:{display:false}}}}
+  });
+
+  // Orders chart
+  if(ordersChartObj)ordersChartObj.destroy();
+  const oc=document.getElementById('ordersChart').getContext('2d');
+  ordersChartObj=new Chart(oc,{
+    type:'line',
+    data:{labels,datasets:[{label:'Orders',data:countData,borderColor:'#5C2D91',backgroundColor:'rgba(92,45,145,0.08)',fill:true,tension:0.4,pointBackgroundColor:'#E20074',pointRadius:4}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{stepSize:1},grid:{color:'#f0f0f0'}},x:{grid:{display:false}}}}
+  });
+
+  // Store chart — top 5 stores
+  const storeTotals={};
+  orders.forEach(o=>{storeTotals[o.store]=(storeTotals[o.store]||0)+1;});
+  const top5=Object.entries(storeTotals).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const storeColors=['#5C2D91','#E20074','#7b3bb5','#b3005b','#9b59b6'];
+  if(storeChartObj)storeChartObj.destroy();
+  const stc=document.getElementById('storeChart').getContext('2d');
+  storeChartObj=new Chart(stc,{
+    type:'doughnut',
+    data:{labels:top5.map(s=>s[0].split('-')[1]||s[0]),datasets:[{data:top5.map(s=>s[1]),backgroundColor:storeColors,borderWidth:2,borderColor:'white'}]},
+    options:{responsive:true,plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:12}}}}
+  });
+
+  // Top items bar chart
+  const ic={};
+  orders.forEach(o=>{
+    (o.handsets||'').split('|').filter(l=>l.trim()).forEach(l=>{ic[l.trim()]=(ic[l.trim()]||0)+1;});
+    (o.cables||'').split('|').filter(l=>l.trim()).forEach(l=>{ic[l.trim()]=(ic[l.trim()]||0)+1;});
+    (o.audio||'').split('|').filter(l=>l.trim()).forEach(l=>{ic[l.trim()]=(ic[l.trim()]||0)+1;});
+  });
+  const topItems=Object.entries(ic).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  if(itemsChartObj)itemsChartObj.destroy();
+  const itc=document.getElementById('itemsChart').getContext('2d');
+  itemsChartObj=new Chart(itc,{
+    type:'bar',
+    data:{labels:topItems.map(i=>i[0]),datasets:[{label:'Times Ordered',data:topItems.map(i=>i[1]),backgroundColor:function(ctx){const g=ctx.chart.ctx.createLinearGradient(0,0,0,200);g.addColorStop(0,'#5C2D91');g.addColorStop(1,'#E20074');return g;},borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{stepSize:1},grid:{color:'#f0f0f0'}},y:{grid:{display:false},ticks:{font:{size:11}}}}}
+  });
+}
+
 </script>
 </body>
 </html>
