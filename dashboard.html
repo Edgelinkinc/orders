@@ -657,30 +657,8 @@ function renderTopList(cid,cm){
   });
 }
 
-function switchTab(name,el){
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');el.classList.add('active');
-  if(name==='analytics')renderAnalytics();
-}
-function closeModal(e){if(e.target===document.getElementById('modal-bg'))document.getElementById('modal-bg').classList.remove('open');}
 
-let spendPeriod='weekly';
-let spendChartObj=null,ordersChartObj=null,storeChartObj=null,itemsChartObj=null;
 
-function setSpendPeriod(p){
-  spendPeriod=p;
-  document.getElementById('btn-weekly').classList.toggle('active',p==='weekly');
-  document.getElementById('btn-monthly').classList.toggle('active',p==='monthly');
-  renderAnalytics();
-}
-
-function getWeekKey(dateStr){
-  const d=new Date(dateStr);
-  const jan1=new Date(d.getFullYear(),0,1);
-  const week=Math.ceil(((d-jan1)/86400000+jan1.getDay()+1)/7);
-  return d.getFullYear()+'-W'+String(week).padStart(2,'0');
-}
 function getMonthKey(dateStr){
   const d=new Date(dateStr);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
@@ -694,6 +672,61 @@ function formatMonth(key){
   const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   return months[parseInt(m)-1]+" '"+yr.slice(2);
 }
+
+var spendPeriod='weekly';
+var filterFrom=null;
+var filterTo=null;
+
+function getFilteredOrders(){
+  if(!filterFrom&&!filterTo)return orders;
+  return orders.filter(function(o){
+    if(!o.date)return false;
+    var d=new Date(o.date);
+    if(filterFrom&&d<filterFrom)return false;
+    if(filterTo&&d>filterTo)return false;
+    return true;
+  });
+}
+
+function setPreset(preset,btn){
+  document.querySelectorAll('.preset-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  var now=new Date();
+  var from=null;
+  var to=new Date(now.getFullYear(),now.getMonth(),now.getDate(),23,59,59);
+  if(preset==='all'){from=null;to=null;}
+  else if(preset==='this_week'){from=new Date(now);from.setDate(now.getDate()-now.getDay());}
+  else if(preset==='last_week'){
+    from=new Date(now);from.setDate(now.getDate()-now.getDay()-7);
+    to=new Date(now);to.setDate(now.getDate()-now.getDay()-1);to.setHours(23,59,59);
+  }
+  else if(preset==='this_month'){from=new Date(now.getFullYear(),now.getMonth(),1);}
+  else if(preset==='last_month'){
+    from=new Date(now.getFullYear(),now.getMonth()-1,1);
+    to=new Date(now.getFullYear(),now.getMonth(),0,23,59,59);
+  }
+  else if(preset==='last_30'){from=new Date(now);from.setDate(now.getDate()-30);}
+  else if(preset==='last_90'){from=new Date(now);from.setDate(now.getDate()-90);}
+  else if(preset==='ytd'){from=new Date(now.getFullYear(),0,1);}
+  filterFrom=from;
+  filterTo=to;
+  if(from){document.getElementById('filter-from').value=from.toISOString().split('T')[0];}
+  else{document.getElementById('filter-from').value='';}
+  if(to&&preset!=='all'){document.getElementById('filter-to').value=to.toISOString().split('T')[0];}
+  else{document.getElementById('filter-to').value='';}
+  renderAnalytics();
+}
+
+function applyCustomDates(){
+  document.querySelectorAll('.preset-btn').forEach(function(b){b.classList.remove('active');});
+  var fromVal=document.getElementById('filter-from').value;
+  var toVal=document.getElementById('filter-to').value;
+  filterFrom=fromVal?new Date(fromVal):null;
+  filterTo=toVal?new Date(toVal+'T23:59:59'):null;
+  renderAnalytics();
+}
+
+
 
 function renderAnalytics(){
   var filteredOrders=getFilteredOrders();
