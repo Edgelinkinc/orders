@@ -365,6 +365,20 @@ function updateTotals(){
 }
 
 function goTo(page){
+  if(page>0){
+    const empName=document.getElementById('emp-name').value.trim();
+    const storeVal=document.getElementById('store-select').value;
+    if(!empName){
+      alert('Please enter your full name before continuing.');
+      document.getElementById('emp-name').focus();
+      return;
+    }
+    if(!storeVal){
+      alert('Please select your store location before continuing.');
+      document.getElementById('store-select').focus();
+      return;
+    }
+  }
   document.querySelectorAll('.page').forEach((p,i)=>p.classList.toggle('active',i===page));
   document.querySelectorAll('.step-tab').forEach((t,i)=>{t.classList.remove('active','completed');if(i===page)t.classList.add('active');else if(i<page)t.classList.add('completed');});
   if(page===4)buildReview();window.scrollTo(0,0);
