@@ -138,7 +138,7 @@
   .modal-row span:first-child{color:var(--gray-text);}
   .modal-check{color:var(--magenta);font-weight:700;}
   .analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
-  .analytics-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+  .analytics-grid-4{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px;}
   .highlight-card{background:white;border:1.5px solid var(--border);border-radius:10px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
   .highlight-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray-text);margin-bottom:6px;}
   .highlight-value{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;line-height:1;}
@@ -708,6 +708,8 @@ function renderAnalytics(){
   var deliveredOrders=filteredOrders.filter(function(o){return o.received==='received'&&o.cost&&parseFloat(o.cost)>0;});
   var totalSpent=deliveredOrders.reduce(function(s,o){return s+parseFloat(o.cost);},0);
   var avgOrder=deliveredOrders.length?totalSpent/deliveredOrders.length:0;
+  var pendingOrders=filteredOrders.filter(function(o){return (o.received==='in_transit'||o.received==='partial'||o.received==='pending_recv')&&o.cost&&parseFloat(o.cost)>0;});
+  var pendingCost=pendingOrders.reduce(function(s,o){return s+parseFloat(o.cost);},0);
 
   var now=new Date();
   var thisWeekStart=new Date(now);thisWeekStart.setDate(now.getDate()-now.getDay());
@@ -734,10 +736,11 @@ function renderAnalytics(){
   var momSign=momChange>=0?'+':'';
 
   hlEl.innerHTML=
-    '<div class="highlight-card"><div class="highlight-label">Total Spent (All Time)</div><div class="highlight-value purple">$'+totalSpent.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="highlight-sub neutral">'+deliveredOrders.length+' delivered filteredOrders</div></div>'+
+    '<div class="highlight-card"><div class="highlight-label">Total Spent (All Time)</div><div class="highlight-value purple">$'+totalSpent.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="highlight-sub neutral">'+deliveredOrders.length+' delivered orders</div></div>'+
     '<div class="highlight-card"><div class="highlight-label">Avg Order Value</div><div class="highlight-value magenta">$'+avgOrder.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="highlight-sub neutral">Per delivered order</div></div>'+
     '<div class="highlight-card"><div class="highlight-label">This Week vs Last</div><div class="highlight-value '+wowColor+'">$'+thisWeekSpend.toFixed(2)+'</div><div class="highlight-sub '+wowArrow+'">'+wowSign+wowChange+'% vs last week</div></div>'+
-    '<div class="highlight-card"><div class="highlight-label">This Month vs Last</div><div class="highlight-value '+momColor+'">$'+thisMonthSpend.toFixed(2)+'</div><div class="highlight-sub '+momArrow+'">'+momSign+momChange+'% vs last month</div></div>';
+    '<div class="highlight-card"><div class="highlight-label">This Month vs Last</div><div class="highlight-value '+momColor+'">$'+thisMonthSpend.toFixed(2)+'</div><div class="highlight-sub '+momArrow+'">'+momSign+momChange+'% vs last month</div></div>'+
+    '<div class="highlight-card" style="border-left:4px solid var(--amber)"><div class="highlight-label">Pending Order Cost</div><div class="highlight-value amber">$'+pendingCost.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="highlight-sub neutral">'+pendingOrders.length+' orders not yet delivered</div></div>';
 
   var periodKey=spendPeriod==='weekly'?function(d){
     var dt=new Date(d);var jan1=new Date(dt.getFullYear(),0,1);
