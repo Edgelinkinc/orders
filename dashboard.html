@@ -544,8 +544,9 @@ function viewOrder(id){
     '<div class="admin-fields-grid">'+
     '<div class="admin-field-group"><label>Purchase Order #</label><input class="admin-input" type="text" id="edit-po-'+o.id+'" value="'+(o.po||'')+'" placeholder="e.g. PO-2026-042"></div>'+
     '<div class="admin-field-group"><label>Cost of Order ($)</label><input class="admin-input" type="number" id="edit-cost-'+o.id+'" value="'+(o.cost||'')+'" placeholder="0.00" step="0.01"></div>'+
-    '<div class="admin-field-group"><label>Receipt Status</label><select class="admin-select" id="edit-recv-'+o.id+'"><option value="in_transit" '+(o.received==='in_transit'||o.received==='pending_recv'||(!o.received||o.received==='')?'selected':'')+'>In Transit</option><option value="partial" '+(o.received==='partial'?'selected':'')+'>Partially Delivered</option><option value="received" '+(o.received==='received'?'selected':'')+'>Delivered</option></select></div>'+
-    '</div><button class="save-admin-btn" onclick="saveAdminFields(\''+o.id+'\','+o.spId+')">Save Purchasing Details</button></div>';
+    '<div class="admin-field-group"><label>Tracking Status</label><select class="admin-select" id="edit-recv-'+o.id+'"><option value="in_transit" '+(o.received==='in_transit'||o.received==='pending_recv'||(!o.received||o.received==='')?'selected':'')+'>In Transit</option><option value="partial" '+(o.received==='partial'?'selected':'')+'>Partially Delivered</option><option value="received" '+(o.received==='received'?'selected':'')+'>Delivered</option></select></div>'+
+    '<div class="admin-field-group"><label>Order Status</label><select class="admin-select" id="edit-status-'+o.id+'"><option value="pending" '+(o.status==='pending'?'selected':'')+'>Pending</option><option value="fulfilled" '+(o.status==='fulfilled'?'selected':'')+'>Fulfilled</option></select></div>'+
+    '</div><button class="save-admin-btn" data-id="'+o.id+'" data-spid="'+o.spId+'" onclick="handleSaveAdmin(this)">Save &amp; Update All Tabs</button></div>';
   if(o.handsets&&o.handsets!=='None'){
     html+='<div class="modal-section-title">Handsets</div>';
     var hItems=o.handsets.split('|').map(function(l){return l.trim();}).filter(function(l){return l;});
@@ -567,15 +568,39 @@ function viewOrder(id){
   document.getElementById('modal-bg').classList.add('open');
 }
 
+function handleSaveAdmin(btn){
+  var id=btn.getAttribute('data-id');
+  var spId=btn.getAttribute('data-spid');
+  saveAdminFields(id,spId);
+}
 async function saveAdminFields(id,spId){
+  spId=parseInt(spId)||spId;
   const o=orders.find(x=>x.id===id);if(!o)return;
   o.po=document.getElementById('edit-po-'+id).value.trim();
   o.cost=document.getElementById('edit-cost-'+id).value;
   o.received=document.getElementById('edit-recv-'+id).value;
-  if(spId)await updateSharePointItem(spId,{PurchaseOrder:o.po,Cost:o.cost,Received:o.received});
-  updateStats();renderRecentOrders();renderAllOrders();renderStoreBreakdown();
-  const btn=event.target;btn.textContent='Saved ✓';btn.style.background='linear-gradient(90deg,var(--green-dark),var(--green))';
-  setTimeout(()=>{btn.textContent='Save Purchasing Details';btn.style.background='';},2000);
+  o.status=document.getElementById('edit-status-'+id)?document.getElementById('edit-status-'+id).value:o.status;
+  const btn=event.target;
+  btn.textContent='Saving...';btn.disabled=true;
+  if(spId){
+    await updateSharePointItem(spId,{
+      PurchaseOrder:o.po,
+      Cost:o.cost,
+      Received:o.received,
+      Status:o.status
+    });
+  }
+  updateStats();
+  renderStoreChart();
+  renderRecentOrders();
+  renderAllOrders();
+  renderStoreBreakdown();
+  renderActivityTab();
+  renderTopItems();
+  btn.textContent='Saved ✓';
+  btn.disabled=false;
+  btn.style.background='linear-gradient(90deg,var(--green-dark),var(--green))';
+  setTimeout(function(){btn.textContent='Save Purchasing Details';btn.style.background='';},2500);
 }
 
 function renderTopItems(){
