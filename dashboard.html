@@ -668,92 +668,124 @@ function formatMonth(key){
 }
 
 function renderAnalytics(){
+  console.log('renderAnalytics called, orders:',orders.length);
+  var hlEl=document.getElementById('analytics-highlights');
   if(!orders.length){
-    var wowArrow=wowChange>=0?'up':'down';
+    hlEl.innerHTML='<div style="grid-column:1/-1;color:#aaa;font-size:13px;padding:20px;text-align:center">No order data yet</div>';
+    return;
+  }
+
+  var deliveredOrders=orders.filter(function(o){return o.received==='received'&&o.cost&&parseFloat(o.cost)>0;});
+  var totalSpent=deliveredOrders.reduce(function(s,o){return s+parseFloat(o.cost);},0);
+  var avgOrder=deliveredOrders.length?totalSpent/deliveredOrders.length:0;
+
+  var now=new Date();
+  var thisWeekStart=new Date(now);thisWeekStart.setDate(now.getDate()-now.getDay());
+  var lastWeekStart=new Date(thisWeekStart);lastWeekStart.setDate(thisWeekStart.getDate()-7);
+  var thisWeekOrders=orders.filter(function(o){return new Date(o.date)>=thisWeekStart;});
+  var lastWeekOrders=orders.filter(function(o){return new Date(o.date)>=lastWeekStart&&new Date(o.date)<thisWeekStart;});
+  var thisWeekSpend=thisWeekOrders.filter(function(o){return o.received==='received'&&o.cost;}).reduce(function(s,o){return s+parseFloat(o.cost||0);},0);
+  var lastWeekSpend=lastWeekOrders.filter(function(o){return o.received==='received'&&o.cost;}).reduce(function(s,o){return s+parseFloat(o.cost||0);},0);
+  var wowChange=lastWeekSpend>0?Math.round(((thisWeekSpend-lastWeekSpend)/lastWeekSpend)*100):0;
+
+  var thisMonthStart=new Date(now.getFullYear(),now.getMonth(),1);
+  var lastMonthStart=new Date(now.getFullYear(),now.getMonth()-1,1);
+  var thisMonthOrders=orders.filter(function(o){return new Date(o.date)>=thisMonthStart;});
+  var lastMonthOrders=orders.filter(function(o){return new Date(o.date)>=lastMonthStart&&new Date(o.date)<thisMonthStart;});
+  var thisMonthSpend=thisMonthOrders.filter(function(o){return o.received==='received'&&o.cost;}).reduce(function(s,o){return s+parseFloat(o.cost||0);},0);
+  var lastMonthSpend=lastMonthOrders.filter(function(o){return o.received==='received'&&o.cost;}).reduce(function(s,o){return s+parseFloat(o.cost||0);},0);
+  var momChange=lastMonthSpend>0?Math.round(((thisMonthSpend-lastMonthSpend)/lastMonthSpend)*100):0;
+
+  var wowArrow=wowChange>=0?'up':'down';
   var momArrow=momChange>=0?'up':'down';
   var wowColor=wowChange>=0?'green':'amber';
   var momColor=momChange>=0?'green':'amber';
   var wowSign=wowChange>=0?'+':'';
   var momSign=momChange>=0?'+':'';
-  document.getElementById('analytics-highlights').innerHTML=
+
+  hlEl.innerHTML=
     '<div class="highlight-card"><div class="highlight-label">Total Spent (All Time)</div><div class="highlight-value purple">$'+totalSpent.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="highlight-sub neutral">'+deliveredOrders.length+' delivered orders</div></div>'+
     '<div class="highlight-card"><div class="highlight-label">Avg Order Value</div><div class="highlight-value magenta">$'+avgOrder.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="highlight-sub neutral">Per delivered order</div></div>'+
     '<div class="highlight-card"><div class="highlight-label">This Week vs Last</div><div class="highlight-value '+wowColor+'">$'+thisWeekSpend.toFixed(2)+'</div><div class="highlight-sub '+wowArrow+'">'+wowSign+wowChange+'% vs last week</div></div>'+
     '<div class="highlight-card"><div class="highlight-label">This Month vs Last</div><div class="highlight-value '+momColor+'">$'+thisMonthSpend.toFixed(2)+'</div><div class="highlight-sub '+momArrow+'">'+momSign+momChange+'% vs last month</div></div>';
 
-  // Build period data
-  const periodKey=spendPeriod==='weekly'?getWeekKey:getMonthKey;
-  const formatKey=spendPeriod==='weekly'?formatWeek:formatMonth;
-  const periodMap={};
-  orders.forEach(o=>{
-    const k=periodKey(o.date);
-    if(!periodMap[k])periodMap[k]={spend:0,count:0,stores:{}};
-    periodMap[k].count++;
-    if(o.received==='received'&&o.cost)periodMap[k].spend+=parseFloat(o.cost||0);
-    periodMap[k].stores[o.store]=(periodMap[k].stores[o.store]||0)+1;
-  });
-  const sortedKeys=Object.keys(periodMap).sort();
-  const labels=sortedKeys.map(formatKey);
-  const spendData=sortedKeys.map(k=>Math.round(periodMap[k].spend*100)/100);
-  const countData=sortedKeys.map(k=>periodMap[k].count);
+  var periodKey=spendPeriod==='weekly'?function(d){
+    var dt=new Date(d);var jan1=new Date(dt.getFullYear(),0,1);
+    var week=Math.ceil(((dt-jan1)/86400000+jan1.getDay()+1)/7);
+    return dt.getFullYear()+'-W'+String(week).padStart(2,'0');
+  }:function(d){var dt=new Date(d);return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');};
 
-  var purpleGrad=function(context){
-    var chart=context.chart;
-    var g=chart.ctx.createLinearGradient(0,0,chart.width,0);
-    g.addColorStop(0,'#5C2D91');g.addColorStop(1,'#E20074');
-    return g;
+  var formatKey=spendPeriod==='weekly'?function(key){
+    var parts=key.split('-W');return 'W'+parts[1]+" '"+parts[0].slice(2);
+  }:function(key){
+    var parts=key.split('-');
+    var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return months[parseInt(parts[1])-1]+" '"+parts[0].slice(2);
   };
 
-  // Spend chart
+  var periodMap={};
+  orders.forEach(function(o){
+    if(!o.date)return;
+    var k=periodKey(o.date);
+    if(!periodMap[k])periodMap[k]={spend:0,count:0};
+    periodMap[k].count++;
+    if(o.received==='received'&&o.cost)periodMap[k].spend+=parseFloat(o.cost||0);
+  });
+  var sortedKeys=Object.keys(periodMap).sort();
+  var labels=sortedKeys.map(formatKey);
+  var spendData=sortedKeys.map(function(k){return Math.round(periodMap[k].spend*100)/100;});
+  var countData=sortedKeys.map(function(k){return periodMap[k].count;});
+
   try{
-  if(spendChartObj)spendChartObj.destroy();
-  var sc=document.getElementById('spendChart').getContext('2d');
-  spendChartObj=new Chart(sc,{
-    type:'bar',
-    data:{labels,datasets:[{label:'Spending ($)',data:spendData,backgroundColor:function(ctx){return purpleGrad(ctx.chart.ctx);},borderRadius:4}]},
-    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return '$'+v.toLocaleString();}},grid:{color:'#f0f0f0'}},x:{grid:{display:false}}}}
-  });}catch(e){console.error('Spend chart error:',e);}
+    if(spendChartObj)spendChartObj.destroy();
+    var sc=document.getElementById('spendChart').getContext('2d');
+    spendChartObj=new Chart(sc,{
+      type:'bar',
+      data:{labels:labels,datasets:[{label:'Spending ($)',data:spendData,backgroundColor:'#5C2D91',borderRadius:4}]},
+      options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return '$'+v.toLocaleString();}},grid:{color:'#f0f0f0'}},x:{grid:{display:false}}}}
+    });
+  }catch(e){console.error('Spend chart:',e);}
 
-  // Orders chart
-  if(ordersChartObj)ordersChartObj.destroy();
-  const oc=document.getElementById('ordersChart').getContext('2d');
-  ordersChartObj=new Chart(oc,{
-    type:'line',
-    data:{labels,datasets:[{label:'Orders',data:countData,borderColor:'#5C2D91',backgroundColor:'rgba(92,45,145,0.08)',fill:true,tension:0.4,pointBackgroundColor:'#E20074',pointRadius:4}]},
-    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{stepSize:1},grid:{color:'#f0f0f0'}},x:{grid:{display:false}}}}
-  });
+  try{
+    if(ordersChartObj)ordersChartObj.destroy();
+    var oc=document.getElementById('ordersChart').getContext('2d');
+    ordersChartObj=new Chart(oc,{
+      type:'line',
+      data:{labels:labels,datasets:[{label:'Orders',data:countData,borderColor:'#5C2D91',backgroundColor:'rgba(92,45,145,0.08)',fill:true,tension:0.4,pointBackgroundColor:'#E20074',pointRadius:4}]},
+      options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{stepSize:1},grid:{color:'#f0f0f0'}},x:{grid:{display:false}}}}
+    });
+  }catch(e){console.error('Orders chart:',e);}
 
-  // Store chart — top 5 stores
-  const storeTotals={};
-  orders.forEach(o=>{storeTotals[o.store]=(storeTotals[o.store]||0)+1;});
-  const top5=Object.entries(storeTotals).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  var storeColors=['#5C2D91','#E20074','#7b3bb5','#b3005b','#9b59b6'];
-  if(storeChartObj)storeChartObj.destroy();
-  const stc=document.getElementById('storeChart').getContext('2d');
-  storeChartObj=new Chart(stc,{
-    type:'doughnut',
-    data:{labels:top5.map(s=>s[0].split('-')[1]||s[0]),datasets:[{data:top5.map(s=>s[1]),backgroundColor:storeColors,borderWidth:2,borderColor:'white'}]},
-    options:{responsive:true,plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:12}}}}
-  });
+  try{
+    var storeTotals={};
+    orders.forEach(function(o){storeTotals[o.store]=(storeTotals[o.store]||0)+1;});
+    var top5=Object.entries(storeTotals).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
+    var storeColors=['#5C2D91','#E20074','#7b3bb5','#b3005b','#9b59b6'];
+    if(storeChartObj)storeChartObj.destroy();
+    var stc=document.getElementById('storeChart').getContext('2d');
+    storeChartObj=new Chart(stc,{
+      type:'doughnut',
+      data:{labels:top5.map(function(s){return s[0].split('-').slice(1).join('-')||s[0];}),datasets:[{data:top5.map(function(s){return s[1];}),backgroundColor:storeColors,borderWidth:2,borderColor:'white'}]},
+      options:{responsive:true,plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:12}}}}
+    });
+  }catch(e){console.error('Store chart:',e);}
 
-  // Top items bar chart
-  const ic={};
-  orders.forEach(o=>{
-    (o.handsets||'').split('|').filter(l=>l.trim()).forEach(l=>{ic[l.trim()]=(ic[l.trim()]||0)+1;});
-    (o.cables||'').split('|').filter(l=>l.trim()).forEach(l=>{ic[l.trim()]=(ic[l.trim()]||0)+1;});
-    (o.audio||'').split('|').filter(l=>l.trim()).forEach(l=>{ic[l.trim()]=(ic[l.trim()]||0)+1;});
-  });
-  const topItems=Object.entries(ic).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  if(itemsChartObj)itemsChartObj.destroy();
-  const itc=document.getElementById('itemsChart').getContext('2d');
-  itemsChartObj=new Chart(itc,{
-    type:'bar',
-    data:{labels:topItems.map(i=>i[0]),datasets:[{label:'Times Ordered',data:topItems.map(i=>i[1]),backgroundColor:'#5C2D91',borderRadius:4}]},
-    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{stepSize:1},grid:{color:'#f0f0f0'}},y:{grid:{display:false},ticks:{font:{size:11}}}}}
-  });
+  try{
+    var ic={};
+    orders.forEach(function(o){
+      (o.handsets||'').split('|').map(function(l){return l.trim();}).filter(function(l){return l;}).forEach(function(l){ic[l]=(ic[l]||0)+1;});
+      (o.cables||'').split('|').map(function(l){return l.trim();}).filter(function(l){return l;}).forEach(function(l){ic[l]=(ic[l]||0)+1;});
+      (o.audio||'').split('|').map(function(l){return l.trim();}).filter(function(l){return l;}).forEach(function(l){ic[l]=(ic[l]||0)+1;});
+    });
+    var topItems=Object.entries(ic).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
+    if(itemsChartObj)itemsChartObj.destroy();
+    var itc=document.getElementById('itemsChart').getContext('2d');
+    itemsChartObj=new Chart(itc,{
+      type:'bar',
+      data:{labels:topItems.map(function(i){return i[0];}),datasets:[{label:'Times Ordered',data:topItems.map(function(i){return i[1];}),backgroundColor:'#5C2D91',borderRadius:4}]},
+      options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{stepSize:1},grid:{color:'#f0f0f0'}},y:{grid:{display:false},ticks:{font:{size:11}}}}}
+    });
+  }catch(e){console.error('Items chart:',e);}
 }
 
-}
-</script>
-</body>
-</html>
+
