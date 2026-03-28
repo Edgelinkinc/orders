@@ -350,7 +350,7 @@ async function loadFromSharePoint(){
     else if(d.body&&d.body.value&&Array.isArray(d.body.value)) items=d.body.value;
     else if(d.body&&d.body.body&&Array.isArray(d.body.body)) items=d.body.body;
     else{ console.log('Unknown format:', typeof d, Object.keys(d)); items=[]; }
-    orders=items.map(function(item){return{
+    var rawItems=items.map(function(item){return{
       id:item.Title||item.fields&&item.fields.Title||'',
       employee:item.Employee||item.fields&&item.fields.Employee||'',
       store:item.Store||item.fields&&item.fields.Store||'',
@@ -363,9 +363,18 @@ async function loadFromSharePoint(){
       notes:item.OrderNotes||item.fields&&item.fields.OrderNotes||'',
       po:item.PurchaseOrder||item.fields&&item.fields.PurchaseOrder||'',
       cost:item.Cost||item.fields&&item.fields.Cost||'',
-      received:item.Received||item.fields&&item.fields.Received||'pending_recv',
+      received:item.Received||item.fields&&item.fields.Received||'in_transit',
       spId:item.ID||item.Id||item.id||''
     };});
+    // Deduplicate by order ID - keep the one with highest spId (most recent update)
+    var seen={};
+    rawItems.forEach(function(o){
+      if(!o.id)return;
+      if(!seen[o.id]||parseInt(o.spId)>parseInt(seen[o.id].spId)){
+        seen[o.id]=o;
+      }
+    });
+    orders=Object.values(seen).filter(function(o){return o.id;});
     document.getElementById('sync-status').textContent='Live — '+orders.length+' orders';
     document.getElementById('sync-status').style.background='var(--green-light)';
     document.getElementById('sync-status').style.color='var(--green-dark)';
