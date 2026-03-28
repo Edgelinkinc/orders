@@ -350,22 +350,25 @@ async function loadFromSharePoint(){
     else if(d.body&&d.body.value&&Array.isArray(d.body.value)) items=d.body.value;
     else if(d.body&&d.body.body&&Array.isArray(d.body.body)) items=d.body.body;
     else{ console.log('Unknown format:', typeof d, Object.keys(d)); items=[]; }
-    var rawItems=items.map(function(item){return{
-      id:item.Title||item.fields&&item.fields.Title||'',
-      employee:item.Employee||item.fields&&item.fields.Employee||'',
-      store:item.Store||item.fields&&item.fields.Store||'',
-      storeEmail:item.StoreEmail||item.fields&&item.fields.StoreEmail||'',
-      date:item.OrderDate||item.fields&&item.fields.OrderDate||item.Created&&item.Created.split('T')[0]||'',
-      status:item.Status||item.fields&&item.fields.Status||'pending',
-      handsets:item.HandsetItems||item.fields&&item.fields.HandsetItems||'',
-      cables:item.CableItems||item.fields&&item.fields.CableItems||'',
-      audio:item.AudioItems||item.fields&&item.fields.AudioItems||'',
-      notes:item.OrderNotes||item.fields&&item.fields.OrderNotes||'',
-      po:item.PurchaseOrder||item.fields&&item.fields.PurchaseOrder||'',
-      cost:item.Cost||item.fields&&item.fields.Cost||'',
-      received:item.Received||item.fields&&item.fields.Received||'in_transit',
-      spId:item.ID||item.Id||item.id||''
-    };});
+    var rawItems=items.map(function(item){
+      function f(a,b){return item[a]||item[b]||'';}
+      return{
+        id:f('Title','OrderID'),
+        employee:f('Employee','employee'),
+        store:f('Store','store'),
+        storeEmail:f('StoreEmail','store_email'),
+        date:f('OrderDate','order_date')||(item.Created?item.Created.split('T')[0]:''),
+        status:f('Status','status')||'pending',
+        handsets:f('HandsetItems','handset_items'),
+        cables:f('CableItems','cable_items'),
+        audio:f('AudioItems','audio_items'),
+        notes:f('OrderNotes','order_notes'),
+        po:f('PurchaseOrder','po'),
+        cost:f('Cost','cost'),
+        received:f('Received','received')||'in_transit',
+        spId:item.ID||item.Id||item.id||''
+      };
+    });
     // Deduplicate by order ID - keep the one with highest spId (most recent update)
     var seen={};
     rawItems.forEach(function(o){
