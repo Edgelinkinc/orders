@@ -669,20 +669,22 @@ function renderAnalytics(){
   const spendData=sortedKeys.map(k=>Math.round(periodMap[k].spend*100)/100);
   const countData=sortedKeys.map(k=>periodMap[k].count);
 
-  const purpleGrad=function(ctx){
-    const g=ctx.createLinearGradient(0,0,ctx.canvas.width,0);
+  var purpleGrad=function(context){
+    var chart=context.chart;
+    var g=chart.ctx.createLinearGradient(0,0,chart.width,0);
     g.addColorStop(0,'#5C2D91');g.addColorStop(1,'#E20074');
     return g;
   };
 
   // Spend chart
+  try{
   if(spendChartObj)spendChartObj.destroy();
-  const sc=document.getElementById('spendChart').getContext('2d');
+  var sc=document.getElementById('spendChart').getContext('2d');
   spendChartObj=new Chart(sc,{
     type:'bar',
     data:{labels,datasets:[{label:'Spending ($)',data:spendData,backgroundColor:function(ctx){return purpleGrad(ctx.chart.ctx);},borderRadius:4}]},
-    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:'#f0f0f0'}},x:{grid:{display:false}}}}
-  });
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return '$'+v.toLocaleString();}},grid:{color:'#f0f0f0'}},x:{grid:{display:false}}}}
+  });}catch(e){console.error('Spend chart error:',e);}
 
   // Orders chart
   if(ordersChartObj)ordersChartObj.destroy();
@@ -697,7 +699,7 @@ function renderAnalytics(){
   const storeTotals={};
   orders.forEach(o=>{storeTotals[o.store]=(storeTotals[o.store]||0)+1;});
   const top5=Object.entries(storeTotals).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  const storeColors=['#5C2D91','#E20074','#7b3bb5','#b3005b','#9b59b6'];
+  var storeColors=['#5C2D91','#E20074','#7b3bb5','#b3005b','#9b59b6'];
   if(storeChartObj)storeChartObj.destroy();
   const stc=document.getElementById('storeChart').getContext('2d');
   storeChartObj=new Chart(stc,{
@@ -718,7 +720,7 @@ function renderAnalytics(){
   const itc=document.getElementById('itemsChart').getContext('2d');
   itemsChartObj=new Chart(itc,{
     type:'bar',
-    data:{labels:topItems.map(i=>i[0]),datasets:[{label:'Times Ordered',data:topItems.map(i=>i[1]),backgroundColor:function(ctx){const g=ctx.chart.ctx.createLinearGradient(0,0,0,200);g.addColorStop(0,'#5C2D91');g.addColorStop(1,'#E20074');return g;},borderRadius:4}]},
+    data:{labels:topItems.map(i=>i[0]),datasets:[{label:'Times Ordered',data:topItems.map(i=>i[1]),backgroundColor:'#5C2D91',borderRadius:4}]},
     options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{stepSize:1},grid:{color:'#f0f0f0'}},y:{grid:{display:false},ticks:{font:{size:11}}}}}
   });
 }
