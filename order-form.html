@@ -541,17 +541,20 @@ async function loadFormData(){
     audioMisc=d.audio;
     // Build store dropdown dynamically
     const sel=document.getElementById('store-select');
-    // Clear existing options except first
-    while(sel.options.length>1)sel.remove(1);
+    // Clear ALL existing options
+    sel.innerHTML='<option value="">-- Select Your Store --</option>';
     // Group by state
     const stateMap={};
     d.stores.forEach(function(s){
       if(!stateMap[s.state])stateMap[s.state]=[];
       stateMap[s.state].push(s);
     });
+    // Get full state names
+    const stateNames={'AR':'ARKANSAS','CT':'CONNECTICUT','MA':'MASSACHUSETTS','RI':'RHODE ISLAND','TN':'TENNESSEE'};
     Object.keys(stateMap).sort().forEach(function(state){
       const og=document.createElement('optgroup');
-      og.label='── '+state+' ──';
+      const fullName=stateNames[state]||state;
+      og.label='── '+fullName+' ('+state+') ──';
       stateMap[state].sort(function(a,b){return a.name.localeCompare(b.name);}).forEach(function(s){
         const opt=document.createElement('option');
         opt.value=s.state+'-'+s.name+'|'+s.email;
