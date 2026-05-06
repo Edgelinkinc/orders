@@ -383,20 +383,5 @@
       "email": "westernavetn@edgelinkinc.com"
     }
   ],
-  "announcements": [
-    {
-      "id": "ann1778101043661",
-      "title": "Accessory Scans 5/12/26 do not miss your scan ",
-      "message": "https://edgelinkinc.github.io/orders/order-form.html",
-      "expires": "",
-      "highlight": true
-    },
-    {
-      "id": "ann1778101128635",
-      "title": "TCL IS EOL",
-      "message": "Enter your message here.",
-      "expires": "2026-05-08",
-      "highlight": true
-    }
-  ]
+  "announcements": []
 }
