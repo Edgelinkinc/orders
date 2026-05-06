@@ -3,53 +3,130 @@
     {
       "brand": "iPhone",
       "models": [
-        "iPhone 13",
-        "iPhone 14",
-        "iPhone 15",
-        "iPhone 16E",
-        "iPhone 17E",
-        "iPhone 17",
-        "iPhone 17 Pro",
-        "iPhone 17 ProMax",
-        "iPhone Air",
-        "Apple Watch"
+        {
+          "name": "iPhone 13",
+          "eol": false
+        },
+        {
+          "name": "iPhone 14",
+          "eol": false
+        },
+        {
+          "name": "iPhone 15",
+          "eol": false
+        },
+        {
+          "name": "iPhone 16E",
+          "eol": false
+        },
+        {
+          "name": "iPhone 17E",
+          "eol": false
+        },
+        {
+          "name": "iPhone 17",
+          "eol": false
+        },
+        {
+          "name": "iPhone 17 Pro",
+          "eol": false
+        },
+        {
+          "name": "iPhone 17 ProMax",
+          "eol": false
+        },
+        {
+          "name": "iPhone Air",
+          "eol": false
+        },
+        {
+          "name": "Apple Watch",
+          "eol": false
+        }
       ]
     },
     {
       "brand": "Samsung",
       "models": [
-        "Samsung A16",
-        "Samsung A17",
-        "Samsung A36",
-        "Samsung S24FE",
-        "Samsung Tab 9",
-        "Samsung Watch"
+        {
+          "name": "Samsung A16",
+          "eol": false
+        },
+        {
+          "name": "Samsung A17",
+          "eol": false
+        },
+        {
+          "name": "Samsung A36",
+          "eol": false
+        },
+        {
+          "name": "Samsung S24FE",
+          "eol": false
+        },
+        {
+          "name": "Samsung Tab 9",
+          "eol": false
+        },
+        {
+          "name": "Samsung Watch",
+          "eol": false
+        }
       ]
     },
     {
       "brand": "Motorola",
       "models": [
-        "Moto G 2026",
-        "Moto G Play 2026",
-        "Moto Razr",
-        "Moto Edge 2025"
+        {
+          "name": "Moto G 2026",
+          "eol": false
+        },
+        {
+          "name": "Moto G Play 2026",
+          "eol": false
+        },
+        {
+          "name": "Moto Razr",
+          "eol": false
+        },
+        {
+          "name": "Moto Edge 2025",
+          "eol": false
+        }
       ]
     },
     {
       "brand": "T-Mobile REVVL",
       "models": [
-        "REVVL 8",
-        "REVVL 8 Pro",
-        "REVVL Tab 2"
+        {
+          "name": "REVVL 8",
+          "eol": false
+        },
+        {
+          "name": "REVVL 8 Pro",
+          "eol": false
+        },
+        {
+          "name": "REVVL Tab 2",
+          "eol": false
+        }
       ]
     },
     {
       "brand": "TCL",
       "models": [
-        "TCL Flip 4",
-        "TCL K11",
-        "TCL K32",
-        "TCL 50 AIR"
+        {
+          "name": "TCL Flip 4",
+          "eol": false
+        },
+        {
+          "name": "TCL K11",
+          "eol": false
+        },
+        {
+          "name": "TCL K32",
+          "eol": false
+        }
       ]
     }
   ],
@@ -304,6 +381,15 @@
       "state": "TN",
       "name": "WESTERN AVE",
       "email": "westernavetn@edgelinkinc.com"
+    }
+  ],
+  "announcements": [
+    {
+      "id": "ann001",
+      "title": "Welcome to the Edgelink Accessory Order System",
+      "message": "Use this form to submit accessory requests for your store. Orders are processed by the HQ inventory team.",
+      "expires": "",
+      "highlight": false
     }
   ]
 }

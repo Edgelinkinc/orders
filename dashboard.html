@@ -178,6 +178,21 @@
   .unsaved-notice{font-size:11px;font-weight:700;color:var(--amber);}
   .saved-notice{font-size:11px;font-weight:700;color:var(--green-dark);}
   .user-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f5f5f5;}
+  .eol-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;}
+  .eol-switch{width:36px;height:20px;border-radius:10px;background:var(--gray-mid);position:relative;transition:background 0.2s;flex-shrink:0;cursor:pointer;}
+  .eol-switch.on{background:var(--red);}
+  .eol-switch::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:white;top:2px;left:2px;transition:left 0.2s;}
+  .eol-switch.on::after{left:18px;}
+  .eol-label{font-size:9px;font-weight:800;letter-spacing:1px;color:var(--red);}
+  .ann-card-admin{background:#f8f8f8;border:1.5px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px;}
+  .ann-card-admin.highlight-on{background:linear-gradient(135deg,var(--purple-light),var(--magenta-light));border-color:var(--magenta);}
+  .ann-field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+  .ann-input{width:100%;border:1.5px solid var(--border);border-radius:6px;padding:7px 10px;font-family:'Montserrat',sans-serif;font-size:12px;outline:none;}
+  .ann-input:focus{border-color:var(--purple);}
+  .ann-textarea{width:100%;border:1.5px solid var(--border);border-radius:6px;padding:7px 10px;font-family:'Montserrat',sans-serif;font-size:12px;outline:none;resize:vertical;min-height:60px;}
+  .ann-textarea:focus{border-color:var(--purple);}
+  .highlight-toggle-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .highlight-toggle-label{font-size:11px;font-weight:700;color:var(--gray-text);}
   .user-row:last-child{border-bottom:none;}
   .user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--magenta));color:white;font-family:'Bebas Neue',sans-serif;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
@@ -431,12 +446,14 @@
           <div class="admin-section-tab" onclick="switchAdminSection('cables',this)">Cables &amp; Chargers</div>
           <div class="admin-section-tab" onclick="switchAdminSection('audio',this)">Audio &amp; Misc</div>
           <div class="admin-section-tab" onclick="switchAdminSection('stores',this)">Stores</div>
+          <div class="admin-section-tab" onclick="switchAdminSection('announcements',this)">Announcements</div>
           <div class="admin-section-tab" onclick="switchAdminSection('users',this)" id="users-tab-btn">Users</div>
         </div>
         <div class="admin-content active" id="admin-handsets"></div>
         <div class="admin-content" id="admin-cables"></div>
         <div class="admin-content" id="admin-audio"></div>
         <div class="admin-content" id="admin-stores"></div>
+        <div class="admin-content" id="admin-announcements"></div>
         <div class="admin-content" id="admin-users"></div>
       </div>
     </div>
@@ -1117,6 +1134,7 @@ async function loadAdminData(){
     renderAdminCables();
     renderAdminAudio();
     renderAdminStores();
+    renderAdminAnnouncements();
     renderAdminUsers();
     document.getElementById('admin-save-status').textContent='Loaded from GitHub';
   }catch(e){
@@ -1314,6 +1332,151 @@ async function saveAndPublish(){
   }
   btn.textContent='\u2191 Save & Publish to Order Form';btn.disabled=false;
 }
+
+function renderAdminAnnouncements(){
+  var c=document.getElementById('admin-announcements');c.innerHTML='';
+  var anns=adminData.announcements||[];
+
+  // Existing announcements
+  anns.forEach(function(ann,ai){
+    var card=document.createElement('div');
+    card.className='ann-card-admin'+(ann.highlight?' highlight-on':'');
+    card.innerHTML=
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">'+
+        '<span style="font-size:12px;font-weight:700;color:var(--purple)">Announcement '+(ai+1)+'</span>'+
+        '<button class="btn-xs-danger" data-ai="'+ai+'" onclick="removeAnnouncement('+ai+')">Remove</button>'+
+      '</div>'+
+      '<div class="ann-field-row">'+
+        '<div><label style="font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--gray-text);display:block;margin-bottom:3px;">Title</label>'+
+        '<input class="ann-input" type="text" value="'+ann.title+'" data-ai="'+ai+'" data-field="title" onchange="updateAnnField(this)"></div>'+
+        '<div><label style="font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--gray-text);display:block;margin-bottom:3px;">Expires (leave blank = never)</label>'+
+        '<input class="ann-input" type="date" value="'+(ann.expires||'')+'" data-ai="'+ai+'" data-field="expires" onchange="updateAnnField(this)"></div>'+
+      '</div>'+
+      '<div style="margin-bottom:8px;"><label style="font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--gray-text);display:block;margin-bottom:3px;">Message</label>'+
+      '<textarea class="ann-textarea" data-ai="'+ai+'" data-field="message" onchange="updateAnnField(this)">'+ann.message+'</textarea></div>'+
+      '<div class="highlight-toggle-row">'+
+        '<div class="eol-switch'+(ann.highlight?' on':'')+'" onclick="toggleAnnHighlight('+ai+',this)"></div>'+
+        '<span class="highlight-toggle-label">Highlight this announcement</span>'+
+        (ann.highlight?'<span class="highlight-pill" style="background:var(--magenta);color:white;font-size:9px;font-weight:800;letter-spacing:1px;padding:2px 8px;border-radius:20px;">HIGHLIGHTED</span>':'')+'</div>';
+    c.appendChild(card);
+  });
+
+  // Add new announcement button
+  var addBtn=document.createElement('button');addBtn.className='btn btn-primary';addBtn.style.marginTop='8px';
+  addBtn.innerHTML='+ Add Announcement';
+  addBtn.addEventListener('click',addAnnouncement);
+  c.appendChild(addBtn);
+}
+
+function updateAnnField(el){
+  var ai=parseInt(el.getAttribute('data-ai'));
+  var field=el.getAttribute('data-field');
+  updateAnn(ai,field,el.value);
+}
+function updateAnn(ai,field,val){
+  if(!adminData.announcements)adminData.announcements=[];
+  adminData.announcements[ai][field]=val;
+  markAdminChanged();
+}
+
+function toggleAnnHighlight(ai,sw){
+  if(!adminData.announcements)adminData.announcements=[];
+  adminData.announcements[ai].highlight=!adminData.announcements[ai].highlight;
+  markAdminChanged();
+  renderAdminAnnouncements();
+}
+
+function addAnnouncement(){
+  if(!adminData.announcements)adminData.announcements=[];
+  adminData.announcements.push({
+    id:'ann'+Date.now(),
+    title:'New Announcement',
+    message:'Enter your message here.',
+    expires:'',
+    highlight:false
+  });
+  markAdminChanged();
+  renderAdminAnnouncements();
+}
+
+function removeAnnouncement(ai){
+  if(!confirm('Remove this announcement?'))return;
+  adminData.announcements.splice(ai,1);
+  markAdminChanged();
+  renderAdminAnnouncements();
+}
+
+function renderAdminHandsets(){
+  var c=document.getElementById('admin-handsets');c.innerHTML='';
+  adminData.handsets.forEach(function(brand,bi){
+    var panel=document.createElement('div');panel.className='admin-panel-box';
+    var hdr=document.createElement('div');hdr.className='admin-panel-header';
+    hdr.innerHTML='<span class="admin-panel-title">'+brand.brand+'</span>';
+    var rmBrand=document.createElement('button');rmBrand.className='btn-xs-danger';rmBrand.textContent='Remove Brand';
+    (function(b){rmBrand.addEventListener('click',function(){removeBrand(b);});})(bi);
+    hdr.appendChild(rmBrand);
+    var body=document.createElement('div');body.className='admin-panel-body';
+
+    var models=brand.models||[];
+    models.forEach(function(m,mi){
+      var modelName=typeof m==='object'?m.name:m;
+      var modelEol=typeof m==='object'?(m.eol||false):false;
+      var row=document.createElement('div');row.className='admin-item-row';
+      var nameSpan=document.createElement('span');nameSpan.className='admin-item-name';
+      nameSpan.innerHTML=modelName+(modelEol?'<span style="background:#fdecea;color:#e74c3c;border:1px solid #f5a0a0;border-radius:4px;padding:1px 6px;font-size:9px;font-weight:800;letter-spacing:1px;margin-left:6px;">EOL</span>':'');
+      var eolWrap=document.createElement('div');eolWrap.style.display='flex';eolWrap.style.alignItems='center';eolWrap.style.gap='8px';
+      var sw=document.createElement('div');sw.className='eol-switch'+(modelEol?' on':'');
+      sw.title='Toggle EOL';
+      (function(b,m2){sw.addEventListener('click',function(){toggleEol(b,m2,sw);});})(bi,mi);
+      var swLabel=document.createElement('span');swLabel.style.fontSize='9px';swLabel.style.fontWeight='800';swLabel.style.color='#e74c3c';swLabel.textContent='EOL';
+      var rmBtn=document.createElement('button');rmBtn.className='btn-xs-danger';rmBtn.textContent='Remove';
+      (function(b,m2){rmBtn.addEventListener('click',function(){removeModel(b,m2);});})(bi,mi);
+      eolWrap.appendChild(sw);eolWrap.appendChild(swLabel);eolWrap.appendChild(rmBtn);
+      row.appendChild(nameSpan);row.appendChild(eolWrap);body.appendChild(row);
+    });
+
+    // Add model input
+    var addRow=document.createElement('div');addRow.className='admin-add-form';
+    var inp=document.createElement('input');inp.className='admin-add-input';inp.type='text';inp.id='new-model-'+bi;inp.placeholder='New model name';
+    var addBtn=document.createElement('button');addBtn.className='btn-xs-primary';addBtn.textContent='+ Add';
+    (function(b){addBtn.addEventListener('click',function(){addModel(b);});})(bi);
+    addRow.appendChild(inp);addRow.appendChild(addBtn);body.appendChild(addRow);
+    panel.appendChild(hdr);panel.appendChild(body);c.appendChild(panel);
+  });
+
+  var addBrandPanel=document.createElement('div');addBrandPanel.className='admin-panel-box';
+  addBrandPanel.innerHTML='<div class="admin-panel-header"><span class="admin-panel-title">Add New Brand</span></div><div class="admin-panel-body"><div class="admin-add-form"><input class="admin-add-input" type="text" id="new-brand-name" placeholder="Brand name"><button class="btn-xs-primary" onclick="addBrand()">+ Add Brand</button></div></div>';
+  c.appendChild(addBrandPanel);
+}
+
+function toggleEol(bi,mi,sw){
+  var m=adminData.handsets[bi].models[mi];
+  if(typeof m==='string'){
+    adminData.handsets[bi].models[mi]={name:m,eol:true};
+  }else{
+    adminData.handsets[bi].models[mi].eol=!m.eol;
+  }
+  sw.classList.toggle('on');
+  markAdminChanged();
+  renderAdminHandsets();
+}
+
+function addModel(bi){
+  var input=document.getElementById('new-model-'+bi);
+  var name=input.value.trim();if(!name){alert('Enter model name');return;}
+  adminData.handsets[bi].models.push({name:name,eol:false});
+  markAdminChanged();renderAdminHandsets();
+}
+
+function removeBrand(bi){
+  if(!confirm('Remove brand "'+adminData.handsets[bi].brand+'"?'))return;
+  adminData.handsets.splice(bi,1);markAdminChanged();renderAdminHandsets();
+}
+
+function removeModel(bi,mi){
+  adminData.handsets[bi].models.splice(mi,1);markAdminChanged();renderAdminHandsets();
+}
+
 // ============ END ADMIN PANEL ============
 
 function closeModal(e){
