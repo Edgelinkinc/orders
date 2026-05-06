@@ -137,6 +137,49 @@
   .modal-row:last-child{border-bottom:none;}
   .modal-row span:first-child{color:var(--gray-text);}
   .modal-check{color:var(--magenta);font-weight:700;}
+  .pin-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;align-items:center;justify-content:center;}
+  .pin-overlay.open{display:flex;}
+  .pin-box{background:white;border-radius:16px;padding:36px;width:320px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
+  .pin-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--purple);margin-bottom:4px;}
+  .pin-sub{font-size:11px;color:var(--gray-text);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:20px;}
+  .pin-dots{display:flex;justify-content:center;gap:10px;margin-bottom:20px;}
+  .pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border);background:white;transition:all 0.15s;}
+  .pin-dot.filled{background:var(--purple);border-color:var(--purple);}
+  .pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+  .pin-key{background:var(--gray-light);border:1.5px solid var(--border);border-radius:8px;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:20px;cursor:pointer;transition:all 0.15s;}
+  .pin-key:hover{background:var(--purple-light);border-color:var(--purple);}
+  .pin-key:active{transform:scale(0.95);}
+  .pin-key.wide{grid-column:span 2;}
+  .pin-err{color:var(--magenta);font-size:11px;font-weight:700;margin-top:4px;min-height:16px;}
+  .admin-welcome{background:linear-gradient(90deg,var(--purple),var(--magenta));color:white;border-radius:8px;padding:10px 16px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
+  .admin-welcome-name{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;}
+  .admin-lock-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:white;border-radius:20px;padding:4px 12px;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;cursor:pointer;}
+  .admin-section-tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px;}
+  .admin-section-tab{padding:10px 16px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray-text);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all 0.2s;}
+  .admin-section-tab:hover{color:var(--purple);}
+  .admin-section-tab.active{color:var(--purple);border-bottom-color:var(--purple);}
+  .admin-content{display:none;}.admin-content.active{display:block;}
+  .admin-panel-box{background:white;border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+  .admin-panel-header{padding:11px 16px;background:var(--gray-light);border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .admin-panel-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;}
+  .admin-panel-body{padding:14px 16px;}
+  .admin-item-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f5f5f5;gap:8px;}
+  .admin-item-row:last-child{border-bottom:none;}
+  .admin-item-name{font-size:12px;font-weight:500;flex:1;}
+  .admin-add-form{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+  .admin-add-input{flex:1;min-width:140px;border:1.5px solid var(--border);border-radius:6px;padding:7px 10px;font-family:'Montserrat',sans-serif;font-size:12px;outline:none;}
+  .admin-add-input:focus{border-color:var(--purple);}
+  .admin-add-select{border:1.5px solid var(--border);border-radius:6px;padding:7px 10px;font-family:'Montserrat',sans-serif;font-size:12px;outline:none;cursor:pointer;}
+  .btn-xs-danger{background:var(--red-light);border:1px solid #f5a0a0;color:var(--red);border-radius:4px;padding:3px 8px;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;cursor:pointer;}
+  .btn-xs-danger:hover{background:var(--red);color:white;}
+  .btn-xs-primary{background:var(--purple-light);border:1px solid #c9a8f4;color:var(--purple);border-radius:4px;padding:3px 8px;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;cursor:pointer;}
+  .btn-xs-primary:hover{background:var(--purple);color:white;}
+  .save-publish-bar{background:white;border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+  .unsaved-notice{font-size:11px;font-weight:700;color:var(--amber);}
+  .saved-notice{font-size:11px;font-weight:700;color:var(--green-dark);}
+  .user-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f5f5f5;}
+  .user-row:last-child{border-bottom:none;}
+  .user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--magenta));color:white;font-family:'Bebas Neue',sans-serif;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
   .analytics-grid-4{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px;}
   .highlight-card{background:white;border:1.5px solid var(--border);border-radius:10px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
@@ -202,6 +245,7 @@
     <div class="nav-tab" onclick="switchTab('activity',this)">Store Activity</div>
     <div class="nav-tab" onclick="switchTab('items',this)">Top Items</div>
     <div class="nav-tab" onclick="switchTab('analytics',this)">Analytics</div>
+    <div class="nav-tab" id="admin-tab-btn" onclick="handleAdminTab(this)" style="color:var(--magenta);font-weight:800;">&#9881; Admin</div>
   </div>
 
   <div class="dash-content">
@@ -300,6 +344,71 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+
+    <div class="tab-panel" id="tab-admin">
+      <div id="admin-locked" style="text-align:center;padding:60px 20px;">
+        <div style="font-size:48px;margin-bottom:16px;">&#128274;</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--purple);margin-bottom:8px;">Admin Access Required</div>
+        <div style="font-size:13px;color:var(--gray-text);margin-bottom:24px;">Enter your PIN to access the admin panel</div>
+        <button class="btn btn-primary" onclick="openPinOverlay()">Enter PIN</button>
+      </div>
+      <div id="admin-unlocked" style="display:none;">
+        <div class="admin-welcome">
+          <div>
+            <div class="admin-welcome-name" id="admin-user-name">Welcome</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.7);letter-spacing:1px;">ADMIN ACCESS GRANTED</div>
+          </div>
+          <button class="admin-lock-btn" onclick="lockAdmin()">&#128274; Lock</button>
+        </div>
+        <div class="save-publish-bar">
+          <span class="unsaved-notice" id="admin-unsaved" style="display:none;">&#9679; Unsaved changes</span>
+          <span class="saved-notice" id="admin-saved" style="display:none;">&#10003; Saved & published!</span>
+          <span id="admin-save-status" style="font-size:11px;color:var(--gray-text);"></span>
+          <button class="btn btn-primary" onclick="saveAndPublish()" id="admin-save-btn" style="padding:9px 24px;">&#8679; Save &amp; Publish to Order Form</button>
+        </div>
+        <div class="admin-section-tabs">
+          <div class="admin-section-tab active" onclick="switchAdminSection('handsets',this)">Handsets</div>
+          <div class="admin-section-tab" onclick="switchAdminSection('cables',this)">Cables &amp; Chargers</div>
+          <div class="admin-section-tab" onclick="switchAdminSection('audio',this)">Audio &amp; Misc</div>
+          <div class="admin-section-tab" onclick="switchAdminSection('stores',this)">Stores</div>
+          <div class="admin-section-tab" onclick="switchAdminSection('users',this)" id="users-tab-btn">Users</div>
+        </div>
+        <div class="admin-content active" id="admin-handsets"></div>
+        <div class="admin-content" id="admin-cables"></div>
+        <div class="admin-content" id="admin-audio"></div>
+        <div class="admin-content" id="admin-stores"></div>
+        <div class="admin-content" id="admin-users"></div>
+      </div>
+    </div>
+
+<div class="pin-overlay" id="pin-overlay">
+  <div class="pin-box">
+    <div class="pin-title">EDGELINK INC.</div>
+    <div class="pin-sub">Admin PIN Required</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-keypad">
+      <div class="pin-key" onclick="pinKey('1')">1</div>
+      <div class="pin-key" onclick="pinKey('2')">2</div>
+      <div class="pin-key" onclick="pinKey('3')">3</div>
+      <div class="pin-key" onclick="pinKey('4')">4</div>
+      <div class="pin-key" onclick="pinKey('5')">5</div>
+      <div class="pin-key" onclick="pinKey('6')">6</div>
+      <div class="pin-key" onclick="pinKey('7')">7</div>
+      <div class="pin-key" onclick="pinKey('8')">8</div>
+      <div class="pin-key" onclick="pinKey('9')">9</div>
+      <div class="pin-key" onclick="pinClear()">&#8592;</div>
+      <div class="pin-key" onclick="pinKey('0')">0</div>
+      <div class="pin-key" onclick="closePinOverlay()">&#10005;</div>
+    </div>
+    <div class="pin-err" id="pin-err"></div>
   </div>
 </div>
 
@@ -835,6 +944,320 @@ function switchTab(name,el){
   el.classList.add('active');
   if(name==='analytics')renderAnalytics();
 }
+
+
+// ============ ADMIN PANEL ============
+var adminUsers=[
+  {name:'Cheryl Birchfield',pin:'3833',master:true},
+  {name:'Joel Montero',pin:'5635',master:false},
+  {name:'Sasha Melendez-Wright',pin:'6866',master:false}
+];
+var currentAdminUser=null;
+var pinEntry='';
+var adminData={handsets:[],cables:[],audio:[],stores:[]};
+var adminHasChanges=false;
+var MASTER_PIN='3833';
+var UPDATE_FLOW_URL2='https://defaultebc8d7eeee3a4821b739b0b060e735.7f.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7dff4f57d5b444e89a19c943767b7c77/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=k-i2Nd8cDCy-4oq6DBFV2UEjoTxXGI09v4f7-fbacxQ';
+var DATA_URL2='https://raw.githubusercontent.com/edgelinkinc/orders/main/data.json';
+var GITHUB_API_URL='https://api.github.com/repos/edgelinkinc/orders/contents/data.json';
+
+function handleAdminTab(el){
+  if(currentAdminUser){
+    switchTab('admin',el);
+  }else{
+    openPinOverlay();
+  }
+}
+
+function openPinOverlay(){
+  pinEntry='';
+  updatePinDots();
+  document.getElementById('pin-err').textContent='';
+  document.getElementById('pin-overlay').classList.add('open');
+}
+
+function closePinOverlay(){
+  document.getElementById('pin-overlay').classList.remove('open');
+  pinEntry='';
+  updatePinDots();
+}
+
+function pinKey(k){
+  if(pinEntry.length>=4)return;
+  pinEntry+=k;
+  updatePinDots();
+  if(pinEntry.length===4)checkPin();
+}
+
+function pinClear(){
+  pinEntry=pinEntry.slice(0,-1);
+  updatePinDots();
+  document.getElementById('pin-err').textContent='';
+}
+
+function updatePinDots(){
+  for(var i=0;i<4;i++){
+    var dot=document.getElementById('pd'+i);
+    if(dot)dot.classList.toggle('filled',i<pinEntry.length);
+  }
+}
+
+function checkPin(){
+  var matched=null;
+  for(var i=0;i<adminUsers.length;i++){
+    if(adminUsers[i].pin===pinEntry){matched=adminUsers[i];break;}
+  }
+  if(matched){
+    currentAdminUser=matched;
+    closePinOverlay();
+    document.getElementById('admin-user-name').textContent=matched.name;
+    document.getElementById('admin-locked').style.display='none';
+    document.getElementById('admin-unlocked').style.display='block';
+    // Show users tab only for master
+    document.getElementById('users-tab-btn').style.display=matched.master?'block':'none';
+    loadAdminData();
+    // Switch to admin tab
+    document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active');});
+    document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
+    document.getElementById('tab-admin').classList.add('active');
+    document.getElementById('admin-tab-btn').classList.add('active');
+  }else{
+    document.getElementById('pin-err').textContent='Incorrect PIN. Try again.';
+    pinEntry='';
+    updatePinDots();
+  }
+}
+
+function lockAdmin(){
+  currentAdminUser=null;
+  document.getElementById('admin-locked').style.display='block';
+  document.getElementById('admin-unlocked').style.display='none';
+  adminHasChanges=false;
+}
+
+function switchAdminSection(name,el){
+  document.querySelectorAll('.admin-section-tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.admin-content').forEach(function(c){c.classList.remove('active');});
+  el.classList.add('active');
+  document.getElementById('admin-'+name).classList.add('active');
+}
+
+function markAdminChanged(){
+  adminHasChanges=true;
+  document.getElementById('admin-unsaved').style.display='inline';
+  document.getElementById('admin-saved').style.display='none';
+}
+
+async function loadAdminData(){
+  try{
+    var r=await fetch(DATA_URL2+'?t='+Date.now());
+    var d=await r.json();
+    adminData.handsets=d.handsets||[];
+    adminData.cables=d.cables||[];
+    adminData.audio=d.audio||[];
+    adminData.stores=d.stores||[];
+    renderAdminHandsets();
+    renderAdminCables();
+    renderAdminAudio();
+    renderAdminStores();
+    renderAdminUsers();
+    document.getElementById('admin-save-status').textContent='Loaded from GitHub';
+  }catch(e){
+    document.getElementById('admin-save-status').textContent='Load error: '+e.message;
+  }
+}
+
+function renderAdminHandsets(){
+  var c=document.getElementById('admin-handsets');c.innerHTML='';
+  adminData.handsets.forEach(function(brand,bi){
+    var panel=document.createElement('div');panel.className='admin-panel-box';
+    var items=brand.models.map(function(m,mi){
+      return '<div class="admin-item-row"><span class="admin-item-name">'+m+'</span><button class="btn-xs-danger" onclick="removeModel('+bi+','+mi+')">Remove</button></div>';
+    }).join('');
+    panel.innerHTML='<div class="admin-panel-header"><span class="admin-panel-title">'+brand.brand+'</span><button class="btn-xs-danger" onclick="removeBrand('+bi+')">Remove Brand</button></div><div class="admin-panel-body">'+items+'<div class="admin-add-form"><input class="admin-add-input" type="text" id="new-model-'+bi+'" placeholder="New model name"><button class="btn-xs-primary" onclick="addModel('+bi+')">+ Add</button></div></div>';
+    c.appendChild(panel);
+  });
+  var addBrand=document.createElement('div');addBrand.className='admin-panel-box';
+  addBrand.innerHTML='<div class="admin-panel-header"><span class="admin-panel-title">Add New Brand</span></div><div class="admin-panel-body"><div class="admin-add-form"><input class="admin-add-input" type="text" id="new-brand-name" placeholder="Brand name"><button class="btn-xs-primary" onclick="addBrand()">+ Add Brand</button></div></div>';
+  c.appendChild(addBrand);
+}
+
+function addBrand(){
+  var name=document.getElementById('new-brand-name').value.trim();
+  if(!name){alert('Enter brand name');return;}
+  adminData.handsets.push({brand:name,models:[]});
+  markAdminChanged();renderAdminHandsets();
+}
+function removeBrand(bi){
+  if(!confirm('Remove brand "'+adminData.handsets[bi].brand+'"?'))return;
+  adminData.handsets.splice(bi,1);markAdminChanged();renderAdminHandsets();
+}
+function addModel(bi){
+  var input=document.getElementById('new-model-'+bi);
+  var name=input.value.trim();if(!name){alert('Enter model name');return;}
+  adminData.handsets[bi].models.push(name);markAdminChanged();renderAdminHandsets();
+}
+function removeModel(bi,mi){
+  adminData.handsets[bi].models.splice(mi,1);markAdminChanged();renderAdminHandsets();
+}
+
+function renderAdminSection(containerId,data,prefix){
+  var c=document.getElementById(containerId);c.innerHTML='';
+  data.forEach(function(group,gi){
+    var panel=document.createElement('div');panel.className='admin-panel-box';
+    var panelHdr=document.createElement('div');panelHdr.className='admin-panel-header';
+    panelHdr.innerHTML='<span class="admin-panel-title">'+group.section+'</span>';
+    var panelBody=document.createElement('div');panelBody.className='admin-panel-body';
+    group.items.forEach(function(item,ii){
+      var irow=document.createElement('div');irow.className='admin-item-row';
+      var ispan=document.createElement('span');ispan.className='admin-item-name';ispan.textContent=item;
+      var ibtn=document.createElement('button');ibtn.className='btn-xs-danger';ibtn.textContent='Remove';
+      (function(p,g,i){ibtn.addEventListener('click',function(){removeAccItem(p,g,i);});})(prefix,gi,ii);
+      irow.appendChild(ispan);irow.appendChild(ibtn);panelBody.appendChild(irow);
+    });
+    panel.appendChild(panelHdr);panel.appendChild(panelBody);c.appendChild(panel);
+  });
+  // Add new item form
+  var sections=data.map(function(g){return g.section;});
+  var opts=sections.map(function(s){return '<option value="'+s+'">'+s+'</option>';}).join('');
+  var addPanel=document.createElement('div');addPanel.className='admin-panel-box';
+  var apHdr=document.createElement('div');apHdr.className='admin-panel-header';
+  apHdr.innerHTML='<span class="admin-panel-title">Add Item</span>';
+  var apBody=document.createElement('div');apBody.className='admin-panel-body';
+  var apForm=document.createElement('div');apForm.className='admin-add-form';
+  var secSel=document.createElement('select');secSel.className='admin-add-select';secSel.id='new-'+prefix+'-sec';
+  data.forEach(function(g){var opt=document.createElement('option');opt.value=g.section;opt.textContent=g.section;secSel.appendChild(opt);});
+  var itemInp=document.createElement('input');itemInp.className='admin-add-input';itemInp.type='text';itemInp.id='new-'+prefix+'-item';itemInp.placeholder='Item name';
+  var addBtn=document.createElement('button');addBtn.className='btn-xs-primary';addBtn.textContent='+ Add';
+  (function(p){addBtn.addEventListener('click',function(){addAccItem(p);});})(prefix);
+  apForm.appendChild(secSel);apForm.appendChild(itemInp);apForm.appendChild(addBtn);
+  apBody.appendChild(apForm);addPanel.appendChild(apHdr);addPanel.appendChild(apBody);
+  c.appendChild(addPanel);
+}
+
+function renderAdminCables(){renderAdminSection('admin-cables',adminData.cables,'cable');}
+function renderAdminAudio(){renderAdminSection('admin-audio',adminData.audio,'audio');}
+
+function removeAccItemBtn(btn){
+  var prefix=btn.getAttribute('data-prefix');
+  var gi=parseInt(btn.getAttribute('data-gi'));
+  var ii=parseInt(btn.getAttribute('data-ii'));
+  removeAccItem(prefix,gi,ii);
+}
+function addAccItem(prefix){
+  var data=prefix==='cable'?adminData.cables:adminData.audio;
+  var sec=document.getElementById('new-'+prefix+'-sec').value;
+  var item=document.getElementById('new-'+prefix+'-item').value.trim();
+  if(!item){alert('Enter item name');return;}
+  var group=data.find(function(g){return g.section===sec;});
+  if(group)group.items.push(item);
+  markAdminChanged();
+  if(prefix==='cable')renderAdminCables();else renderAdminAudio();
+  document.getElementById('new-'+prefix+'-item').value='';
+}
+
+function removeAccItem(prefix,gi,ii){
+  var data=prefix==='cable'?adminData.cables:adminData.audio;
+  data[gi].items.splice(ii,1);
+  markAdminChanged();
+  if(prefix==='cable')renderAdminCables();else renderAdminAudio();
+}
+
+function renderAdminStores(){
+  var c=document.getElementById('admin-stores');c.innerHTML='';
+  var panel=document.createElement('div');panel.className='admin-panel-box';
+  var rows=adminData.stores.map(function(store,si){
+    return '<div class="admin-item-row"><span class="admin-item-name"><strong>'+store.state+'</strong> — '+store.name+'<br><span style="font-size:10px;color:var(--purple)">'+store.email+'</span></span><button class="btn-xs-danger" onclick="removeStore('+si+')">Remove</button></div>';
+  }).join('');
+  panel.innerHTML='<div class="admin-panel-header"><span class="admin-panel-title">Store Locations ('+adminData.stores.length+')</span></div><div class="admin-panel-body">'+rows+'<div class="admin-add-form"><input class="admin-add-input" type="text" id="new-store-state" placeholder="State (TN)" style="max-width:80px"><input class="admin-add-input" type="text" id="new-store-name" placeholder="Store name"><input class="admin-add-input" type="email" id="new-store-email" placeholder="email@edgelinkinc.com"><button class="btn-xs-primary" onclick="addStore2()">+ Add</button></div></div>';
+  c.appendChild(panel);
+}
+
+function addStore2(){
+  var state=document.getElementById('new-store-state').value.trim().toUpperCase();
+  var name=document.getElementById('new-store-name').value.trim().toUpperCase();
+  var email=document.getElementById('new-store-email').value.trim();
+  if(!state||!name||!email){alert('Fill in all fields');return;}
+  adminData.stores.push({state:state,name:name,email:email});
+  markAdminChanged();renderAdminStores();
+  document.getElementById('new-store-state').value='';
+  document.getElementById('new-store-name').value='';
+  document.getElementById('new-store-email').value='';
+}
+
+function removeStore(si){
+  if(!confirm('Remove store "'+adminData.stores[si].name+'"?'))return;
+  adminData.stores.splice(si,1);markAdminChanged();renderAdminStores();
+}
+
+function renderAdminUsers(){
+  var c=document.getElementById('admin-users');c.innerHTML='';
+  var panel=document.createElement('div');panel.className='admin-panel-box';
+  var rows=adminUsers.map(function(u,ui){
+    return '<div class="user-row"><div class="user-avatar">'+u.name.charAt(0)+'</div><div style="flex:1"><div style="font-weight:600;font-size:13px">'+u.name+'</div><div style="font-size:11px;color:var(--gray-text)">PIN: '+u.pin+(u.master?' &nbsp;<span style="background:var(--magenta-light);color:var(--magenta);border-radius:4px;padding:1px 6px;font-size:9px;font-weight:700;">MASTER</span>':'')+'</div></div><button class="btn-xs-danger" onclick="removeUser('+ui+')">'+(u.master?'':'Remove')+'</button></div>';
+  }).join('');
+  panel.innerHTML='<div class="admin-panel-header"><span class="admin-panel-title">Admin Users</span></div><div class="admin-panel-body">'+rows+'<div class="admin-add-form" style="margin-top:14px;border-top:1px solid #f0f0f0;padding-top:14px"><input class="admin-add-input" type="text" id="new-user-name" placeholder="Full name"><input class="admin-add-input" type="text" id="new-user-pin" placeholder="4-digit PIN" maxlength="4"><button class="btn-xs-primary" onclick="addUser()">+ Add User</button></div></div>';
+  c.appendChild(panel);
+}
+
+function addUser(){
+  var name=document.getElementById('new-user-name').value.trim();
+  var pin=document.getElementById('new-user-pin').value.trim();
+  if(!name||pin.length!==4){alert('Enter name and 4-digit PIN');return;}
+  if(adminUsers.find(function(u){return u.pin===pin;})){alert('That PIN is already in use');return;}
+  adminUsers.push({name:name,pin:pin,master:false});
+  renderAdminUsers();
+  document.getElementById('new-user-name').value='';
+  document.getElementById('new-user-pin').value='';
+}
+
+function removeUser(ui){
+  if(adminUsers[ui].master){alert('Cannot remove master user');return;}
+  if(!confirm('Remove user "'+adminUsers[ui].name+'"?'))return;
+  if(currentAdminUser===adminUsers[ui])currentAdminUser=adminUsers[0];
+  adminUsers.splice(ui,1);renderAdminUsers();
+}
+
+async function saveAndPublish(){
+  var btn=document.getElementById('admin-save-btn');
+  btn.textContent='Publishing...';btn.disabled=true;
+  document.getElementById('admin-save-status').textContent='Fetching current file SHA...';
+  try{
+    // Step 1: Get current SHA from GitHub
+    var shaR=await fetch(GITHUB_API_URL+'?t='+Date.now());
+    var shaD=await shaR.json();
+    var sha=shaD.sha;
+    if(!sha)throw new Error('Could not get file SHA');
+    document.getElementById('admin-save-status').textContent='Got SHA, uploading...';
+    // Step 2: Build base64 content
+    var jsonStr=JSON.stringify(adminData,null,2);
+    var encoded=btoa(unescape(encodeURIComponent(jsonStr)));
+    // Step 3: Send to Power Automate flow with message, content, sha
+    var r=await fetch(UPDATE_FLOW_URL2,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        message:'Update accessory data',
+        content:encoded,
+        sha:sha
+      })
+    });
+    if(r.ok||r.status===202){
+      adminHasChanges=false;
+      document.getElementById('admin-unsaved').style.display='none';
+      document.getElementById('admin-saved').style.display='inline';
+      document.getElementById('admin-save-status').textContent='Published! Order form will update in ~1 minute.';
+      setTimeout(function(){document.getElementById('admin-saved').style.display='none';},5000);
+    }else{
+      throw new Error('Flow returned status '+r.status);
+    }
+  }catch(e){
+    document.getElementById('admin-save-status').textContent='Error: '+e.message;
+    alert('Save failed: '+e.message);
+  }
+  btn.textContent='\u2191 Save & Publish to Order Form';btn.disabled=false;
+}
+// ============ END ADMIN PANEL ============
 
 function closeModal(e){
   if(e.target===document.getElementById('modal-bg'))document.getElementById('modal-bg').classList.remove('open');
