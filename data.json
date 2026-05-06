@@ -385,11 +385,11 @@
   ],
   "announcements": [
     {
-      "id": "ann001",
-      "title": "Welcome to the Edgelink Accessory Order System",
-      "message": "Use this form to submit accessory requests for your store. Orders are processed by the HQ inventory team.",
-      "expires": "",
-      "highlight": false
+      "id": "ann1778100826264",
+      "title": "Dashboard is functional",
+      "message": "Use this to order",
+      "expires": "2026-05-07",
+      "highlight": true
     }
   ]
 }
