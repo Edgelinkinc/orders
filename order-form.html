@@ -113,6 +113,45 @@
   .total-item{display:flex;gap:8px;align-items:center;}
   .total-item .val{color:var(--magenta);font-size:16px;font-family:'Bebas Neue',sans-serif;}
   .store-email-display{font-size:11px;color:var(--purple);font-weight:600;margin-top:4px;}
+
+  /* ===== TABLET & MOBILE RESPONSIVE ===== */
+  @media (max-width: 1024px) {
+    .info-grid{grid-template-columns:1fr 1fr;}
+    .content{padding:16px 20px;}
+  }
+  @media (max-width: 768px) {
+    .header{height:56px;padding:0 14px;}
+    .header-title{font-size:16px;}
+    .logo-box{padding:4px 8px;}
+    .logo-text{font-size:16px;}
+    .order-badge{font-size:10px;padding:4px 10px;}
+    .steps-nav{padding:0 12px;}
+    .step-tab{padding:10px 10px;font-size:9px;letter-spacing:1px;}
+    .content{padding:14px 16px;}
+    .info-grid{grid-template-columns:1fr;}
+    .device-table th,.device-table td{padding:7px 6px;font-size:11px;}
+    .device-name{min-width:90px;font-size:11px;}
+    .special-input{min-width:80px;font-size:10px;}
+    .cb-box{width:26px;height:26px;}
+    .acc-grid{grid-template-columns:1fr;}
+    .btn{padding:10px 18px;font-size:11px;}
+    .btn-row{flex-wrap:wrap;gap:8px;}
+    .total-bar{padding:8px 14px;font-size:10px;}
+    .total-item .val{font-size:14px;}
+    .review-section{margin-bottom:12px;}
+    .store-review{grid-template-columns:1fr 1fr;}
+    .notes-area{min-height:60px;}
+    .success-screen{padding:32px 16px;}
+    .success-title{font-size:28px;}
+  }
+  @media (max-width:480px){
+    .info-grid{grid-template-columns:1fr;}
+    .step-tab span.step-dot{display:none;}
+    .device-table th:nth-child(4),.device-table td:nth-child(4){display:none;}
+    .store-review{grid-template-columns:1fr;}
+    .btn-row{flex-direction:column;}
+    .btn{width:100%;text-align:center;}
+  }
 </style>
 </head>
 <body>
