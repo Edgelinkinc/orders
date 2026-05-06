@@ -397,13 +397,6 @@
       "message": "Enter your message here.",
       "expires": "2026-05-08",
       "highlight": true
-    },
-    {
-      "id": "ann1778101144414",
-      "title": "New Announcement",
-      "message": "Enter your message here.",
-      "expires": "",
-      "highlight": false
     }
   ]
 }
