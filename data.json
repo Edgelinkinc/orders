@@ -9,7 +9,7 @@
         },
         {
           "name": "iPhone 14",
-          "eol": true
+          "eol": false
         },
         {
           "name": "iPhone 15",
@@ -70,7 +70,7 @@
         },
         {
           "name": "Samsung Watch",
-          "eol": true
+          "eol": false
         }
       ]
     },
@@ -125,10 +125,6 @@
         },
         {
           "name": "TCL K32",
-          "eol": false
-        },
-        {
-          "name": "TCL 50 AIR",
           "eol": false
         }
       ]
