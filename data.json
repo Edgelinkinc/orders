@@ -9,7 +9,7 @@
         },
         {
           "name": "iPhone 14",
-          "eol": false
+          "eol": true
         },
         {
           "name": "iPhone 15",
@@ -125,6 +125,10 @@
         },
         {
           "name": "TCL K32",
+          "eol": false
+        },
+        {
+          "name": "TCL 50 AIR",
           "eol": false
         }
       ]
