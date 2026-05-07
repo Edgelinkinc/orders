@@ -9,7 +9,7 @@
         },
         {
           "name": "iPhone 14",
-          "eol": false
+          "eol": true
         },
         {
           "name": "iPhone 15",
@@ -70,7 +70,7 @@
         },
         {
           "name": "Samsung Watch",
-          "eol": false
+          "eol": true
         }
       ]
     },
@@ -381,15 +381,6 @@
       "state": "TN",
       "name": "WESTERN AVE",
       "email": "westernavetn@edgelinkinc.com"
-    }
-  ],
-  "announcements": [
-    {
-      "id": "ann1778159770384",
-      "title": "New Announcement",
-      "message": "test!",
-      "expires": "",
-      "highlight": false
     }
   ]
 }
