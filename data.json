@@ -126,6 +126,10 @@
         {
           "name": "TCL K32",
           "eol": false
+        },
+        {
+          "name": "TCL 50 AIR",
+          "eol": false
         }
       ]
     }
