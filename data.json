@@ -385,11 +385,11 @@
   ],
   "announcements": [
     {
-      "id": "ann1778102837282",
-      "title": "Dashboard Is Active",
-      "message": "Enter your message here.",
+      "id": "ann1778159770384",
+      "title": "New Announcement",
+      "message": "test!",
       "expires": "",
-      "highlight": true
+      "highlight": false
     }
   ]
 }
