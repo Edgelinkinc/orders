@@ -818,6 +818,45 @@ function buildPlainText(){
   return{handsetText:hLines.join(' | ')||'None',cableText:cLines.join(' | ')||'None',audioText:aLines.join(' | ')||'None'};
 }
 
+function escHtml(s){return (''+(s==null?'':s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function itemsToHtml(t){if(!t||t==='None')return '<span style="color:#9aa0a6;">None</span>';return escHtml(t).split(' | ').join('<br>');}
+function sectionHtml(title,text){
+  return '<tr><td style="padding:0 24px;"><div style="border:1px solid #ececf1;border-radius:8px;margin-bottom:12px;overflow:hidden;">'+
+    '<div style="background:#f6f4fa;padding:8px 14px;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#5C2D91;">'+escHtml(title)+'</div>'+
+    '<div style="padding:12px 14px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#222;line-height:1.6;">'+itemsToHtml(text)+'</div>'+
+    '</div></td></tr>';
+}
+function detailRow(label,val){
+  return '<tr><td style="padding:3px 0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#777;width:120px;">'+escHtml(label)+'</td>'+
+    '<td style="padding:3px 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#111;font-weight:bold;">'+escHtml(val)+'</td></tr>';
+}
+function buildEmailHtml(o){
+  var notesBlock=o.notes?('<tr><td style="padding:4px 24px 0;"><div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#777;">Notes</div><div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#222;line-height:1.6;">'+escHtml(o.notes)+'</div></td></tr>'):'';
+  return ''+
+  '<div style="background:#f4f4f6;padding:24px 0;font-family:Arial,Helvetica,sans-serif;">'+
+    '<table role="presentation" width="600" cellpadding="0" cellspacing="0" align="center" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;margin:0 auto;box-shadow:0 2px 8px rgba(0,0,0,.06);">'+
+      '<tr><td style="background:#E20074;padding:20px 24px;">'+
+        '<div style="font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:bold;letter-spacing:2px;color:#ffffff;">EDGELINK INC.</div>'+
+        '<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.85);">Accessory Order</div>'+
+      '</td></tr>'+
+      '<tr><td style="padding:18px 24px 6px;">'+
+        '<div style="display:inline-block;background:#f6f4fa;color:#5C2D91;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:bold;padding:6px 12px;border-radius:6px;">Order '+escHtml(o.orderId)+'</div>'+
+      '</td></tr>'+
+      '<tr><td style="padding:10px 24px 4px;"><table role="presentation" cellpadding="0" cellspacing="0" width="100%">'+
+        detailRow('Employee',o.employee)+detailRow('NTID',o.ntid)+detailRow('Store',o.store)+detailRow('Order Date',o.orderDate)+
+      '</table></td></tr>'+
+      '<tr><td style="padding:10px 0 2px;"></td></tr>'+
+      sectionHtml('Handsets',o.handset)+
+      sectionHtml('Cables & Chargers',o.cable)+
+      sectionHtml('Audio & Misc',o.audio)+
+      notesBlock+
+      '<tr><td style="padding:16px 24px 22px;">'+
+        '<div style="border-top:1px solid #ececf1;padding-top:12px;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#9aa0a6;">This order was submitted through the Edgelink accessory order form. Reply to this email to reach the person who placed it.</div>'+
+      '</td></tr>'+
+    '</table>'+
+  '</div>';
+}
+
 async function submitOrder(){
   var empName=document.getElementById('emp-name').value.trim();
   var ntid=document.getElementById('emp-ntid').value.trim().toUpperCase();
@@ -828,7 +867,8 @@ async function submitOrder(){
   if(!currentStoreName){alert('Please select your store location.');goFormTo(0);return;}
   var btn=document.getElementById('submit-btn');btn.disabled=true;btn.textContent='Submitting...';
   var pt=buildPlainText();
-  var payload={order_id:formOrderId,employee:empName,ntid:ntid,store:currentStoreName,store_email:currentStoreEmail,manager_email:currentManagerEmail,coach_email:currentCoachEmail,order_date:orderDate,handset_items:pt.handsetText,cable_items:pt.cableText,audio_items:pt.audioText,order_notes:notes,inventory_email:adminData.settings.inventoryEmail||'INVENTORYHELPTEAM@EVOLUTIONWIRELESS.NET',notify_store:adminData.settings.notifyStore!==false,notify_manager:adminData.settings.notifyManager!==false,notify_coach:adminData.settings.notifyCoach!==false};
+  var emailHtml=buildEmailHtml({orderId:formOrderId,employee:empName,ntid:ntid,store:currentStoreName,orderDate:orderDate,handset:pt.handsetText,cable:pt.cableText,audio:pt.audioText,notes:notes});
+  var payload={order_id:formOrderId,employee:empName,ntid:ntid,store:currentStoreName,store_email:currentStoreEmail,manager_email:currentManagerEmail,coach_email:currentCoachEmail,order_date:orderDate,handset_items:pt.handsetText,cable_items:pt.cableText,audio_items:pt.audioText,order_notes:notes,email_html:emailHtml,inventory_email:adminData.settings.inventoryEmail||'INVENTORYHELPTEAM@EVOLUTIONWIRELESS.NET',notify_store:adminData.settings.notifyStore!==false,notify_manager:adminData.settings.notifyManager!==false,notify_coach:adminData.settings.notifyCoach!==false};
   try{
     var r=await fetch(FLOW_SAVE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     if(r.ok||r.status===202){
