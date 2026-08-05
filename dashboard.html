@@ -656,9 +656,9 @@ function rosterField(s,keys){
   for(var i=0;i<keys.length;i++){var v=s[keys[i]];if(v!==undefined&&v!==null&&(''+v).trim()!=='')return(''+v).trim();}
   return '';
 }
-function rStoreEmail(s){return rosterField(s,['StoreEmail','Store_x0020_Email','Store Email','field_5']);}
+function rStoreEmail(s){return rosterField(s,['StoreEmail','Store_x0020_Email','Store Email','field_6']);}
 function rManagerEmail(s){return rosterField(s,['field_4','ManagerEmail','Manager_x0020_Email','Manager Email']);}
-function rCoachEmail(s){return rosterField(s,['field_6','CoachEmail','Coach_x0020_Email','Coach Email']);}
+function rCoachEmail(s){return rosterField(s,['field_5','CoachEmail','Coach_x0020_Email','Coach Email']);}
 function buildStoreDropdown(roster){
   var sel=document.getElementById('store-select');
   while(sel.options.length>1)sel.remove(1);
