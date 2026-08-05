@@ -603,7 +603,7 @@ async function loadConfig(){
     if(annItem&&annItem.ConfigValue){formData.announcements=JSON.parse(annItem.ConfigValue);adminData.announcements=formData.announcements;}
     if(settingsItem&&settingsItem.ConfigValue)adminData.settings=JSON.parse(settingsItem.ConfigValue);
     buildStoreDropdown(roster);
-    formData.stores=roster.map(function(s){return{state:deriveMarket(s),name:s.Title||s.StoreName||'',email:s.StoreEmail||'',managerEmail:s.ManagerEmail||'',coachEmail:s.CoachEmail||''};});
+    formData.stores=roster.map(function(s){return{state:deriveMarket(s),name:s.Title||s.StoreName||'',email:rStoreEmail(s),managerEmail:rManagerEmail(s),coachEmail:rCoachEmail(s)};});
     adminData.stores=formData.stores;
     renderAnnouncements(formData.announcements);
     buildHandsets();buildAccGrid('cables-grid',formData.cables);buildAccGrid('audio-grid',formData.audio);
@@ -650,13 +650,22 @@ function deriveMarket(s){
   var mt=nm.match(/^([A-Za-z]{2})-/);
   return mt?mt[1].toUpperCase():'Other';
 }
+// Read a roster column value across every internal name SharePoint might return
+// (e.g. "Manager Email" -> ManagerEmail, Manager_x0020_Email, "Manager Email", OData_ManagerEmail).
+function rosterField(s,keys){
+  for(var i=0;i<keys.length;i++){var v=s[keys[i]];if(v!==undefined&&v!==null&&(''+v).trim()!=='')return(''+v).trim();}
+  return '';
+}
+function rStoreEmail(s){return rosterField(s,['StoreEmail','Store_x0020_Email','Store Email','OData__x0053_toreEmail']);}
+function rManagerEmail(s){return rosterField(s,['ManagerEmail','Manager_x0020_Email','Manager Email','OData_ManagerEmail']);}
+function rCoachEmail(s){return rosterField(s,['CoachEmail','Coach_x0020_Email','Coach Email','OData_CoachEmail']);}
 function buildStoreDropdown(roster){
   var sel=document.getElementById('store-select');
   while(sel.options.length>1)sel.remove(1);
   var useRoster=roster&&roster.length>0;
   var stateMap={};
   if(useRoster){
-    roster.forEach(function(s){var state=deriveMarket(s);var name=s.Title||s.StoreName||'';if(!stateMap[state])stateMap[state]=[];stateMap[state].push({name:name,email:s.StoreEmail||'',managerEmail:s.ManagerEmail||'',coachEmail:s.CoachEmail||''});});
+    roster.forEach(function(s){var state=deriveMarket(s);var name=s.Title||s.StoreName||'';if(!stateMap[state])stateMap[state]=[];stateMap[state].push({name:name,email:rStoreEmail(s),managerEmail:rManagerEmail(s),coachEmail:rCoachEmail(s)});});
   }else{
     HARDCODED_STORES.forEach(function(s){if(!stateMap[s.state])stateMap[s.state]=[];stateMap[s.state].push({name:s.name,email:s.email,managerEmail:'',coachEmail:''});});
   }
@@ -1178,7 +1187,7 @@ async function loadAdminData(){
     if(settingsItem&&settingsItem.ConfigValue)adminData.settings=JSON.parse(settingsItem.ConfigValue);
     if(notifItem&&notifItem.ConfigValue)adminData.notifications=JSON.parse(notifItem.ConfigValue);
     if(hqItem&&hqItem.ConfigValue){try{var hu=JSON.parse(hqItem.ConfigValue);if(Array.isArray(hu))adminData.hqUsers=hu;}catch(e){}}
-    if(roster&&roster.length){adminData.stores=roster.map(function(s){return{state:deriveMarket(s),name:s.Title||s.StoreName||'',email:s.StoreEmail||'',managerEmail:s.ManagerEmail||'',coachEmail:s.CoachEmail||''};});}
+    if(roster&&roster.length){adminData.stores=roster.map(function(s){return{state:deriveMarket(s),name:s.Title||s.StoreName||'',email:rStoreEmail(s),managerEmail:rManagerEmail(s),coachEmail:rCoachEmail(s)};});}
     document.getElementById('admin-status').textContent='Loaded';
   }catch(e){document.getElementById('admin-status').textContent='Using local data';}
   applyAdminRights();applyAdminTabState();
