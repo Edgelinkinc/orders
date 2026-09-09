@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- BUILD 2026-08-05 coachfix rCoach=CoachEmail rMgr=field_4 -->
+<!-- BUILD 2026-09-09 accnotes+trk rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edgelink Inc. — Accessory Order System</title>
@@ -54,6 +54,7 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
 .badge-pending{background:var(--am-l);color:var(--am);border:1px solid #f6d860;}
 .badge-fulfilled{background:var(--gn-l);color:var(--gn-d);border:1px solid #a5d6a7;}
 .badge-transit{background:var(--am-l);color:var(--am);border:1px solid #f6d860;}
+.badge-await{background:#eceff1;color:#546e7a;border:1px solid #cfd8dc;}
 .badge-partial{background:#fff3e0;color:#e65100;border:1px solid #ffcc80;}
 .badge-delivered{background:var(--gn-l);color:var(--gn-d);border:1px solid #a5d6a7;}
 .badge-eol{background:var(--rd-l);color:var(--rd);border:1px solid #f5a0a0;font-size:8px;padding:1px 5px;border-radius:3px;margin-left:5px;}
@@ -124,9 +125,13 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
 .acc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;}
 .acc-card{background:#fff;border:1.5px solid var(--bd);border-radius:10px;overflow:hidden;}
 .acc-card-header{background:linear-gradient(90deg,var(--pu),var(--mg));padding:8px 14px;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:#fff;}
-.acc-item{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid #f5f5f5;}
+.acc-item{display:block;padding:9px 14px;border-bottom:1px solid #f5f5f5;}
 .acc-item:last-child{border-bottom:none;}
+.acc-item-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
 .acc-item-name{font-size:12px;font-weight:500;flex:1;}
+.acc-note-wrap{display:none;margin-top:7px;}
+.acc-note-wrap.show{display:block;}
+.acc-note-input{font-size:11px;}
 .review-card{background:#fff;border:1.5px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:12px;}
 .review-header{background:linear-gradient(90deg,var(--pu),var(--mg));padding:9px 16px;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:#fff;}
 .review-body{padding:12px 16px;}
@@ -392,7 +397,7 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
       <div class="filter-bar">
         <input class="search-input" type="text" placeholder="Search store, employee, NTID, order ID, PO#..." oninput="renderAllOrders()" id="search-orders">
         <select class="filter-select" onchange="renderAllOrders()" id="filter-status"><option value="">All Statuses</option><option value="pending">Pending</option><option value="fulfilled">Fulfilled</option></select>
-        <select class="filter-select" onchange="renderAllOrders()" id="filter-recv"><option value="">All Tracking</option><option value="in_transit">In Transit</option><option value="partial">Partially Delivered</option><option value="received">Delivered</option></select>
+        <select class="filter-select" onchange="renderAllOrders()" id="filter-recv"><option value="">All Tracking</option><option value="pending">Pending</option><option value="in_transit">In Transit</option><option value="partial">Partially Delivered</option><option value="received">Delivered</option></select>
         <select class="filter-select" onchange="renderAllOrders()" id="filter-store-o"><option value="">All Stores</option></select>
       </div>
       <div class="card"><div class="card-header"><span class="card-title">All Orders</span><span id="order-count" style="font-size:11px;color:var(--gt);"></span></div><div class="card-body" style="padding:0;overflow-x:auto;"><table class="tbl"><thead><tr><th>Order ID</th><th>Employee</th><th>NTID</th><th>Store</th><th>Date</th><th>PO #</th><th>Cost</th><th>Tracking</th><th>Status</th><th>Action</th></tr></thead><tbody id="all-tbody"></tbody></table></div></div>
@@ -714,10 +719,10 @@ function goFormTo(page){
   window.scrollTo(0,0);
 }
 
-function makeCheckbox(key){
+function makeCheckbox(key,onToggle){
   var wrap=document.createElement('div');wrap.className='cb-wrap';
   var cb=document.createElement('div');cb.className='cb';checks[key]=false;
-  cb.addEventListener('click',function(){checks[key]=!checks[key];cb.classList.toggle('checked',checks[key]);updateTotals();});
+  cb.addEventListener('click',function(){checks[key]=!checks[key];cb.classList.toggle('checked',checks[key]);if(onToggle)onToggle(checks[key]);updateTotals();});
   wrap.appendChild(cb);return wrap;
 }
 
@@ -787,8 +792,18 @@ function buildAccGrid(containerId,data){
     group.items.forEach(function(item){
       var key=group.section+'__'+item;
       var row=document.createElement('div');row.className='acc-item';
+      var top=document.createElement('div');top.className='acc-item-top';
       var name=document.createElement('span');name.className='acc-item-name';name.textContent=item;
-      row.appendChild(name);row.appendChild(makeCheckbox(key));card.appendChild(row);
+      var noteWrap=document.createElement('div');noteWrap.className='acc-note-wrap';
+      var note=document.createElement('input');note.type='text';note.className='spec-input acc-note-input';note.placeholder='Notes for '+item+'...';
+      note.addEventListener('input',function(){specials[key]=note.value;updateTotals();});
+      noteWrap.appendChild(note);
+      top.appendChild(name);
+      top.appendChild(makeCheckbox(key,function(on){
+        if(on)noteWrap.classList.add('show');
+        else if(!note.value)noteWrap.classList.remove('show');
+      }));
+      row.appendChild(top);row.appendChild(noteWrap);card.appendChild(row);
     });
     container.appendChild(card);
   });
@@ -796,7 +811,7 @@ function buildAccGrid(containerId,data){
 
 function updateTotals(){
   var total=0,cats={};
-  for(var k in checks){if(checks[k]){total++;cats[k.split('__')[0]]=1;}}
+  for(var k in checks){if(checks[k]||(specials[k]&&(''+specials[k]).trim())){total++;cats[k.split('__')[0]]=1;}}
   formData.handsets.forEach(function(brand){(customRows[brand.brand]||[]).forEach(function(r){var d=r.data;if(d.device){if(d.glass){total++;cats[brand.brand+'_c']=1;}if(d.male){total++;cats[brand.brand+'_c']=1;}if(d.female){total++;cats[brand.brand+'_c']=1;}}});});
   document.getElementById('total-items').textContent=total;
   document.getElementById('total-cats').textContent=Object.keys(cats).length;
@@ -819,7 +834,7 @@ function buildReview(){
   });
   if(hRows)c.innerHTML+='<div class="review-card"><div class="review-header">Handsets</div><div class="review-body">'+hRows+'</div></div>';
   [{data:formData.cables,title:'Cables & Chargers'},{data:formData.audio,title:'Audio & Misc'}].forEach(function(x){
-    var rows='';x.data.forEach(function(g){g.items.forEach(function(item){if(checks[g.section+'__'+item])rows+='<div class="review-row"><span>'+g.section+' — '+item+'</span><span class="review-check">✓</span></div>';});});
+    var rows='';x.data.forEach(function(g){g.items.forEach(function(item){var k=g.section+'__'+item;var sp=(specials[k]||'').trim();if(checks[k]||sp)rows+='<div class="review-row"><span>'+g.section+' — '+item+'</span><span>'+(checks[k]?'<span class="review-check">✓</span>':'<span style="color:#aaa;font-size:10px;">note only</span>')+(sp?' 📝 '+sp:'')+'</span></div>';});});
     if(rows)c.innerHTML+='<div class="review-card"><div class="review-header">'+x.title+'</div><div class="review-body">'+rows+'</div></div>';
   });
 }
@@ -830,8 +845,8 @@ function buildPlainText(){
     brand.models.forEach(function(m){var mn=typeof m==='object'?m.name:m;var g=checks[mn+'__glass'],ml=checks[mn+'__male'],f=checks[mn+'__female'],sp=specials[mn]||'';if(g||ml||f||sp){var parts=[];if(g)parts.push('Glass');if(ml)parts.push('Male');if(f)parts.push('Female');hLines.push(mn+': '+parts.join(', ')+(sp?' ('+sp+')':''));}});
     (customRows[brand.brand]||[]).forEach(function(r){var d=r.data;if(d.device){var parts=[];if(d.glass)parts.push('Glass');if(d.male)parts.push('Male');if(d.female)parts.push('Female');if(parts.length)hLines.push(d.device+' (custom): '+parts.join(', ')+(d.special?' ('+d.special+')':''));}});
   });
-  formData.cables.forEach(function(g){g.items.forEach(function(item){if(checks[g.section+'__'+item])cLines.push(g.section+': '+item);});});
-  formData.audio.forEach(function(g){g.items.forEach(function(item){if(checks[g.section+'__'+item])aLines.push(g.section+': '+item);});});
+  formData.cables.forEach(function(g){g.items.forEach(function(item){var k=g.section+'__'+item;var sp=(specials[k]||'').trim();if(checks[k]||sp)cLines.push(g.section+': '+item+(sp?' ('+sp+')':''));});});
+  formData.audio.forEach(function(g){g.items.forEach(function(item){var k=g.section+'__'+item;var sp=(specials[k]||'').trim();if(checks[k]||sp)aLines.push(g.section+': '+item+(sp?' ('+sp+')':''));});});
   return{handsetText:hLines.join(' | ')||'None',cableText:cLines.join(' | ')||'None',audioText:aLines.join(' | ')||'None'};
 }
 
@@ -952,7 +967,7 @@ async function loadOrders(){
     if(Array.isArray(d))items=d;else if(d.value&&Array.isArray(d.value))items=d.value;else if(d.body&&Array.isArray(d.body.value))items=d.body.value;else if(d.body&&Array.isArray(d.body))items=d.body;
     var raw=items.map(function(item){
       function f(a,b){return item[a]||item[b]||'';}
-      return{id:f('Title','OrderID'),employee:f('Employee','employee'),ntid:f('NTID','ntid'),store:f('Store','store'),storeEmail:f('StoreEmail','store_email'),date:f('OrderDate','order_date')||(item.Created?item.Created.split('T')[0]:''),status:f('Status','status')||'pending',handsets:f('HandsetItems','handset_items'),cables:f('CableItems','cable_items'),audio:f('AudioItems','audio_items'),notes:f('OrderNotes','order_notes'),po:f('PurchaseOrder','po'),cost:f('Cost','cost'),received:f('Received','received')||'in_transit',spId:item.ID||item.Id||item.id||''};
+      return{id:f('Title','OrderID'),employee:f('Employee','employee'),ntid:f('NTID','ntid'),store:f('Store','store'),storeEmail:f('StoreEmail','store_email'),date:f('OrderDate','order_date')||(item.Created?item.Created.split('T')[0]:''),status:f('Status','status')||'pending',handsets:f('HandsetItems','handset_items'),cables:f('CableItems','cable_items'),audio:f('AudioItems','audio_items'),notes:f('OrderNotes','order_notes'),po:f('PurchaseOrder','po'),cost:f('Cost','cost'),trackingNo:f('TrackingNumber','tracking_number')||'',received:f('Received','received')||'pending',spId:item.ID||item.Id||item.id||''};
     });
     var seen={};
     raw.forEach(function(o){if(!o.id)return;if(!seen[o.id]||parseInt(o.spId)>parseInt(seen[o.id].spId))seen[o.id]=o;});
@@ -1008,8 +1023,8 @@ function renderAllOrders(){
   var tbody=document.getElementById('all-tbody');tbody.innerHTML='';
   if(!filtered.length){tbody.innerHTML='<tr><td colspan="10" style="padding:14px;text-align:center;color:#aaa;">No orders found</td></tr>';return;}
   filtered.slice().sort(function(a,b){return b.date.localeCompare(a.date);}).forEach(function(o){
-    var recvLabel=o.received==='received'?'Delivered':o.received==='partial'?'Partial':'In Transit';
-    var recvClass=o.received==='received'?'badge-delivered':o.received==='partial'?'badge-partial':'badge-transit';
+    var recvLabel=o.received==='received'?'Delivered':o.received==='partial'?'Partial':o.received==='in_transit'?'In Transit':'Pending';
+    var recvClass=o.received==='received'?'badge-delivered':o.received==='partial'?'badge-partial':o.received==='in_transit'?'badge-transit':'badge-await';
     var tr=document.createElement('tr');
     tr.innerHTML='<td style="font-family:\'Bebas Neue\',sans-serif;font-size:12px;color:var(--pu)">'+o.id+'</td><td style="font-weight:600">'+o.employee+'</td><td style="color:var(--gt)">'+o.ntid+'</td><td>'+o.store+'</td><td style="color:var(--gt)">'+o.date+'</td><td>'+(o.po?'<span class="po-badge">'+o.po+'</span>':'<span style="color:#ccc;font-size:11px">—</span>')+'</td><td>'+(o.cost?'<span class="cost-badge">$'+parseFloat(o.cost).toFixed(2)+'</span>':'<span style="color:#ccc;font-size:11px">—</span>')+'</td><td><span class="badge '+recvClass+'">'+recvLabel+'</span></td><td><span class="badge badge-'+o.status+'">'+o.status+'</span></td><td style="display:flex;gap:5px;"><button class="fulfill-btn" onclick="viewOrder(\''+o.id+'\')">View</button>'+(o.status==='pending'?'<button class="fulfill-btn" style="background:var(--gn-l);border-color:var(--gn-d);color:var(--gn-d);" onclick="quickFulfill(\''+o.id+'\')">Fulfill</button>':'')+'</td>';
     tbody.appendChild(tr);
@@ -1081,11 +1096,11 @@ function renderTopList(cid,cm){
 function viewOrder(id){
   var o=orders.find(function(x){return x.id===id;});if(!o)return;
   document.getElementById('modal-title').textContent=o.id+' — '+o.store;
-  var recvLabel=o.received==='received'?'Delivered':o.received==='partial'?'Partially Delivered':'In Transit';
+  var recvLabel=o.received==='received'?'Delivered':o.received==='partial'?'Partially Delivered':o.received==='in_transit'?'In Transit':'Pending';
   var lbl='font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#aaa;display:block;margin-bottom:2px;';
   var html='<div class="form-grid-3" style="margin-bottom:10px;"><div><label style="'+lbl+'">Employee</label><div style="font-weight:600">'+o.employee+'</div></div><div><label style="'+lbl+'">NTID</label><div style="font-weight:600">'+o.ntid+'</div></div><div><label style="'+lbl+'">Date</label><div style="font-weight:600">'+o.date+'</div></div></div>';
-  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;"><div><label style="'+lbl+'">Order Status</label><span class="badge badge-'+o.status+'">'+o.status+'</span></div><div><label style="'+lbl+'">Tracking Status</label><span class="badge badge-'+(o.received==='received'?'delivered':o.received==='partial'?'partial':'transit')+'">'+recvLabel+'</span></div></div>';
-  html+='<div class="admin-section"><div class="admin-section-title"><span class="admin-banner">🔒 ADMIN ONLY</span> Purchasing Details</div><div class="admin-fields-grid"><div class="admin-field"><label>Purchase Order #</label><input class="admin-input" type="text" id="edit-po-'+o.id+'" value="'+(o.po||'')+'" placeholder="PO-2026-001"></div><div class="admin-field"><label>Cost ($)</label><input class="admin-input" type="number" id="edit-cost-'+o.id+'" value="'+(o.cost||'')+'" placeholder="0.00" step="0.01"></div><div class="admin-field"><label>Tracking Status</label><select class="admin-select" id="edit-recv-'+o.id+'"><option value="in_transit"'+(o.received!=='received'&&o.received!=='partial'?' selected':'')+'>In Transit</option><option value="partial"'+(o.received==='partial'?' selected':'')+'>Partially Delivered</option><option value="received"'+(o.received==='received'?' selected':'')+'>Delivered</option></select></div><div class="admin-field"><label>Order Status</label><select class="admin-select" id="edit-status-'+o.id+'"><option value="pending"'+(o.status==='pending'?' selected':'')+'>Pending</option><option value="fulfilled"'+(o.status==='fulfilled'?' selected':'')+'>Fulfilled</option></select></div></div><button class="save-admin-btn" data-id="'+o.id+'" data-spid="'+o.spId+'" onclick="handleSaveAdmin(this)">Save &amp; Update All Tabs</button></div>';
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;"><div><label style="'+lbl+'">Order Status</label><span class="badge badge-'+o.status+'">'+o.status+'</span></div><div><label style="'+lbl+'">Tracking Status</label><span class="badge badge-'+(o.received==='received'?'delivered':o.received==='partial'?'partial':o.received==='in_transit'?'transit':'await')+'">'+recvLabel+'</span>'+(o.trackingNo?'<div style="font-size:11px;font-weight:600;color:var(--pu);margin-top:4px;word-break:break-all;">#'+escHtml(o.trackingNo)+'</div>':'')+'</div></div>';
+  html+='<div class="admin-section"><div class="admin-section-title"><span class="admin-banner">🔒 ADMIN ONLY</span> Purchasing Details</div><div class="admin-fields-grid"><div class="admin-field"><label>Purchase Order #</label><input class="admin-input" type="text" id="edit-po-'+o.id+'" value="'+(o.po||'')+'" placeholder="PO-2026-001"></div><div class="admin-field"><label>Cost ($)</label><input class="admin-input" type="number" id="edit-cost-'+o.id+'" value="'+(o.cost||'')+'" placeholder="0.00" step="0.01"></div><div class="admin-field"><label>Tracking #</label><input class="admin-input" type="text" id="edit-trk-'+o.id+'" value="'+(o.trackingNo||'').replace(/"/g,'&quot;')+'" placeholder="1Z999AA10123456784"></div><div class="admin-field"><label>Tracking Status</label><select class="admin-select" id="edit-recv-'+o.id+'"><option value="pending"'+(o.received!=='received'&&o.received!=='partial'&&o.received!=='in_transit'?' selected':'')+'>Pending</option><option value="in_transit"'+(o.received==='in_transit'?' selected':'')+'>In Transit</option><option value="partial"'+(o.received==='partial'?' selected':'')+'>Partially Delivered</option><option value="received"'+(o.received==='received'?' selected':'')+'>Delivered</option></select></div><div class="admin-field"><label>Order Status</label><select class="admin-select" id="edit-status-'+o.id+'"><option value="pending"'+(o.status==='pending'?' selected':'')+'>Pending</option><option value="fulfilled"'+(o.status==='fulfilled'?' selected':'')+'>Fulfilled</option></select></div></div><button class="save-admin-btn" data-id="'+o.id+'" data-spid="'+o.spId+'" onclick="handleSaveAdmin(this)">Save &amp; Update All Tabs</button></div>';
   if(o.handsets&&o.handsets!=='None'){html+='<div class="modal-section">Handsets</div>';o.handsets.split('|').map(function(l){return l.trim();}).filter(Boolean).forEach(function(l){html+='<div class="modal-row"><span style="font-weight:500">'+l+'</span></div>';});}
   if(o.cables&&o.cables!=='None'){html+='<div class="modal-section">Cables &amp; Chargers</div>';o.cables.split('|').map(function(l){return l.trim();}).filter(Boolean).forEach(function(l){html+='<div class="modal-row"><span style="font-weight:500">'+l+'</span></div>';});}
   if(o.audio&&o.audio!=='None'){html+='<div class="modal-section">Audio &amp; Misc</div>';o.audio.split('|').map(function(l){return l.trim();}).filter(Boolean).forEach(function(l){html+='<div class="modal-row"><span style="font-weight:500">'+l+'</span></div>';});}
@@ -1098,10 +1113,10 @@ function handleSaveAdmin(btn){saveAdminFields(btn.getAttribute('data-id'),btn.ge
 
 async function saveAdminFields(id,spId){
   var o=orders.find(function(x){return x.id===id;});if(!o)return;
-  o.po=document.getElementById('edit-po-'+id).value.trim();o.cost=document.getElementById('edit-cost-'+id).value;o.received=document.getElementById('edit-recv-'+id).value;o.status=document.getElementById('edit-status-'+id).value;
+  o.po=document.getElementById('edit-po-'+id).value.trim();o.cost=document.getElementById('edit-cost-'+id).value;o.trackingNo=document.getElementById('edit-trk-'+id).value.trim();o.received=document.getElementById('edit-recv-'+id).value;o.status=document.getElementById('edit-status-'+id).value;
   var btn=document.querySelector('[data-id="'+id+'"]');
   if(btn){btn.textContent='Saving...';btn.disabled=true;}
-  if(spId){try{await fetch(FLOW_UPDATE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sp_id:spId,po:o.po,cost:o.cost,received:o.received,status:o.status})});}catch(e){console.error('Update error:',e);}}
+  if(spId){try{await fetch(FLOW_UPDATE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sp_id:spId,po:o.po,cost:o.cost,tracking_number:o.trackingNo,received:o.received,status:o.status})});}catch(e){console.error('Update error:',e);}}
   updateStats();renderStoreChart();renderRecentOrders();renderAllOrders();renderStoreBreakdown();renderActivityTab();renderTopItems();
   if(btn){btn.textContent='Saved ✓';btn.style.background='linear-gradient(90deg,var(--gn-d),var(--gn))';setTimeout(function(){btn.textContent='Save & Update All Tabs';btn.style.background='';btn.disabled=false;},2500);}
 }
@@ -1124,7 +1139,7 @@ function renderAnalytics(){
   var hlEl=document.getElementById('analytics-highlights');
   if(!fo.length){hlEl.innerHTML='<div style="grid-column:1/-1;color:#aaa;font-size:13px;padding:20px;text-align:center;">No order data for this period</div>';document.getElementById('spend-chart').innerHTML='';document.getElementById('orders-chart').innerHTML='';return;}
   var delivered=fo.filter(function(o){return o.received==='received'&&o.cost&&parseFloat(o.cost)>0;});
-  var pending=fo.filter(function(o){return(o.received==='in_transit'||o.received==='partial')&&o.cost&&parseFloat(o.cost)>0;});
+  var pending=fo.filter(function(o){return(o.received==='pending'||o.received==='in_transit'||o.received==='partial')&&o.cost&&parseFloat(o.cost)>0;});
   var totalSpent=delivered.reduce(function(s,o){return s+parseFloat(o.cost);},0);
   var pendingCost=pending.reduce(function(s,o){return s+parseFloat(o.cost);},0);
   var avgOrder=delivered.length?totalSpent/delivered.length:0;
