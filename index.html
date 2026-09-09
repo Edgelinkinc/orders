@@ -17,8 +17,7 @@ a{color:var(--mg);}
 .hero h1{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:3px;color:#fff;margin:0 0 6px;font-weight:400;}
 .hero p{margin:0;color:rgba(255,255,255,.9);font-size:14px;max-width:520px;margin:0 auto;}
 .wrap{max-width:900px;margin:0 auto;padding:0 18px 60px;}
-.choices{display:grid;grid-template-columns:1fr;gap:16px;margin-top:-26px;max-width:520px;margin-left:auto;margin-right:auto;}
-.choice{text-align:center;}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:-26px;}
 .choice{background:#fff;border:1.5px solid var(--bd);border-radius:13px;padding:24px;text-decoration:none;color:inherit;display:block;box-shadow:0 3px 14px rgba(0,0,0,.07);transition:transform .12s,box-shadow .12s;}
 .choice:hover{transform:translateY(-2px);box-shadow:0 7px 22px rgba(0,0,0,.11);}
 .choice .ico{font-size:30px;line-height:1;margin-bottom:10px;}
@@ -49,7 +48,7 @@ ol.steps span{font-size:13px;color:var(--gt);}
 .help h3{margin-bottom:8px;}
 .help p{margin:0;font-size:13px;color:var(--gt);}
 .foot{text-align:center;font-size:11px;color:#9a9aa8;margin-top:26px;}
-@media(max-width:640px){.tips{grid-template-columns:1fr;}.after{grid-template-columns:1fr;}.hero h1{font-size:30px;}.card{padding:20px;}}
+@media(max-width:640px){.choices,.tips{grid-template-columns:1fr;}.after{grid-template-columns:1fr;}.hero h1{font-size:30px;}.card{padding:20px;}}
 </style>
 </head>
 <body>
@@ -66,8 +65,14 @@ ol.steps span{font-size:13px;color:var(--gt);}
     <a class="choice" href="order-form.html">
       <div class="ico">&#128230;</div>
       <h2>Place an Order</h2>
-      <p>Pick your store, choose what you need, and submit. No login required &mdash; it takes about two minutes.</p>
+      <p>For store employees. Pick your store, choose what you need, and submit. No login required.</p>
       <span class="go">Start an order &rarr;</span>
+    </a>
+    <a class="choice" href="hq.html">
+      <div class="ico">&#128202;</div>
+      <h2>HQ Portal<span class="tag">HQ only</span></h2>
+      <p>For the inventory team. Review orders, add purchasing details and tracking, and manage the catalog.</p>
+      <span class="go">Go to HQ &rarr;</span>
     </a>
   </div>
 
