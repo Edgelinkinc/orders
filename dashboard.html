@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- BUILD 2026-09-09 accnotes+trk+statusmail2 rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber -->
+<!-- BUILD 2026-09-09 accnotes+multitrk rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber(multi CARRIER:NUM per line) -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edgelink Inc. — Accessory Order System</title>
@@ -55,6 +55,9 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
 .badge-fulfilled{background:var(--gn-l);color:var(--gn-d);border:1px solid #a5d6a7;}
 .badge-transit{background:var(--am-l);color:var(--am);border:1px solid #f6d860;}
 .badge-await{background:#eceff1;color:#546e7a;border:1px solid #cfd8dc;}
+.trk-row{display:flex;gap:6px;align-items:center;margin-bottom:6px;}
+.trk-row .trk-carrier{width:92px;flex:0 0 92px;}
+.trk-row .trk-num{flex:1;min-width:0;}
 .badge-partial{background:#fff3e0;color:#e65100;border:1px solid #ffcc80;}
 .badge-delivered{background:var(--gn-l);color:var(--gn-d);border:1px solid #a5d6a7;}
 .badge-eol{background:var(--rd-l);color:var(--rd);border:1px solid #f5a0a0;font-size:8px;padding:1px 5px;border-radius:3px;margin-left:5px;}
@@ -892,6 +895,109 @@ function buildEmailShell(o,opts){
 }
 // Tracking-status label used by the status-update email.
 function recvLabelOf(r){return r==='received'?'Delivered':r==='partial'?'Partially Delivered':r==='in_transit'?'In Transit':'Pending';}
+/* ---- Tracking numbers: multi-box, per-carrier, stored one per line as CARRIER:NUMBER ---- */
+var CARRIERS=['UPS','FEDEX','USPS','OTHER'];
+function carrierLabel(c){return c==='FEDEX'?'FedEx':c==='USPS'?'USPS':c==='UPS'?'UPS':'Other';}
+function normNum(n){return (''+(n||'')).replace(/[\s-]/g,'').toUpperCase();}
+function detectCarrier(n){
+  var v=normNum(n);
+  if(/^1Z[0-9A-Z]{16}$/.test(v))return 'UPS';
+  if(/^[0-9]{12}$/.test(v)||/^[0-9]{15}$/.test(v))return 'FEDEX';
+  if(/^[0-9]{20,22}$/.test(v))return 'USPS';
+  return 'OTHER';
+}
+function trackingUrl(c,n){
+  var v=encodeURIComponent(normNum(n));
+  if(c==='UPS')return 'https://www.ups.com/track?loc=en_US&tracknum='+v;
+  if(c==='FEDEX')return 'https://www.fedex.com/fedextrack/?trknbr='+v;
+  if(c==='USPS')return 'https://tools.usps.com/go/TrackConfirmAction?tLabels='+v;
+  return '';
+}
+// Accepts newline, comma or semicolon separated entries, with or without a CARRIER: prefix.
+// Legacy bare numbers still parse — carrier is inferred from the format.
+function parseTracking(s){
+  var out=[];
+  (''+(s||'')).split(/[\r\n,;]+/).forEach(function(line){
+    var t=(''+line).trim();if(!t)return;
+    var c='',n=t,m=t.match(/^([A-Za-z]+)\s*:\s*(.+)$/);
+    if(m){
+      var k=m[1].toUpperCase();
+      if(k==='UPS')c='UPS';else if(k==='FEDEX'||k==='FDX')c='FEDEX';else if(k==='USPS')c='USPS';else if(k==='OTHER')c='OTHER';
+      if(c)n=m[2].trim();
+    }
+    if(!n)return;
+    out.push({carrier:c||detectCarrier(n),num:n});
+  });
+  return out;
+}
+function serializeTracking(list){
+  var out=[];
+  for(var i=0;i<list.length;i++){var t=list[i];if(t.num&&(''+t.num).trim())out.push(t.carrier+':'+(''+t.num).trim());}
+  return out.join('\n');
+}
+function trackingNums(s){return parseTracking(s).map(function(t){return normNum(t.num);});}
+// Email: one linked line per box.
+function trackingEmailHtml(s){
+  var list=parseTracking(s);if(!list.length)return '';
+  var h='<br><br><b>Tracking'+(list.length>1?' ('+list.length+' boxes)':'')+':</b>';
+  list.forEach(function(t,i){
+    var u=trackingUrl(t.carrier,t.num);
+    var pre=(list.length>1?'Box '+(i+1)+' of '+list.length+' &middot; ':'')+escHtml(carrierLabel(t.carrier))+' ';
+    h+='<br><span style="font-size:12px;color:#777;">'+pre+'</span>'+
+      (u?'<a href="'+u+'" style="color:#E20074;font-weight:bold;text-decoration:underline;">'+escHtml(t.num)+'</a>':'<b>'+escHtml(t.num)+'</b>');
+  });
+  return h;
+}
+// Order-detail modal: same list, clickable.
+function trackingModalHtml(s){
+  var list=parseTracking(s);if(!list.length)return '';
+  var h='<div style="margin-top:4px;">';
+  list.forEach(function(t,i){
+    var u=trackingUrl(t.carrier,t.num);
+    h+='<div style="font-size:11px;font-weight:600;word-break:break-all;line-height:1.5;">'+
+      (list.length>1?'<span style="color:#aaa;">Box '+(i+1)+'</span> ':'')+
+      '<span style="color:#aaa;">'+escHtml(carrierLabel(t.carrier))+'</span> '+
+      (u?'<a href="'+u+'" target="_blank" rel="noopener" style="color:var(--pu);">'+escHtml(t.num)+'</a>':escHtml(t.num))+'</div>';
+  });
+  return h+'</div>';
+}
+/* ---- Admin panel: repeating tracking rows with smart paste ---- */
+function addTrackingRow(id,carrier,num){
+  var c=document.getElementById('trk-rows-'+id);if(!c)return;
+  var row=document.createElement('div');row.className='trk-row';
+  var sel=document.createElement('select');sel.className='admin-select trk-carrier';
+  CARRIERS.forEach(function(k){var op=document.createElement('option');op.value=k;op.textContent=carrierLabel(k);if(k===(carrier||'UPS'))op.selected=true;sel.appendChild(op);});
+  var inp=document.createElement('input');inp.type='text';inp.className='admin-input trk-num';inp.value=num||'';inp.placeholder='1Z999AA10123456784';
+  inp.addEventListener('input',function(){var d=detectCarrier(inp.value);if(d!=='OTHER')sel.value=d;});
+  inp.addEventListener('paste',function(e){
+    var cd=e.clipboardData||window.clipboardData;if(!cd)return;
+    var txt=cd.getData('text')||'';
+    if(!/[\r\n,;]/.test(txt))return;
+    e.preventDefault();
+    var items=parseTracking(txt);if(!items.length)return;
+    inp.value=items[0].num;sel.value=items[0].carrier;
+    for(var i=1;i<items.length;i++)addTrackingRow(id,items[i].carrier,items[i].num);
+  });
+  var rm=document.createElement('button');rm.type='button';rm.className='remove-row-btn';rm.textContent='✕';
+  rm.addEventListener('click',function(){row.parentNode.removeChild(row);if(!c.children.length)addTrackingRow(id,'UPS','');});
+  row.appendChild(sel);row.appendChild(inp);row.appendChild(rm);c.appendChild(row);
+}
+function renderTrackingRows(id,s){
+  var c=document.getElementById('trk-rows-'+id);if(!c)return;
+  c.innerHTML='';
+  var list=parseTracking(s);
+  if(!list.length){addTrackingRow(id,'UPS','');return;}
+  list.forEach(function(t){addTrackingRow(id,t.carrier,t.num);});
+}
+function readTrackingRows(id){
+  var c=document.getElementById('trk-rows-'+id);if(!c)return '';
+  var list=[];
+  for(var i=0;i<c.children.length;i++){
+    var r=c.children[i],sel=r.querySelector('.trk-carrier'),inp=r.querySelector('.trk-num');
+    if(inp&&inp.value.trim())list.push({carrier:sel?sel.value:'OTHER',num:inp.value.trim()});
+  }
+  return serializeTracking(list);
+}
 // Find a roster row by store name, so we can address the status email.
 function storeRosterRow(storeName){
   var want=(''+(storeName||'')).trim().toLowerCase();
@@ -904,44 +1010,56 @@ function storeRosterRow(storeName){
 }
 // Store / manager / coach: "your order status changed" message.
 // Covers a tracking-status change, an order marked Fulfilled, or both in one email.
-function buildStatusEmailHtml(o,recvChanged,oldRecv,nowFulfilled){
+function buildStatusEmailHtml(o,f,oldRecv){
   var intro='';
-  if(nowFulfilled)intro+='<b>This order has been marked <span style="color:#2e7d32;">Fulfilled</span>.</b> HQ has finished processing it.';
-  if(recvChanged){
+  if(f.nowFulfilled)intro+='<b>This order has been marked <span style="color:#2e7d32;">Fulfilled</span>.</b> HQ has finished processing it.';
+  if(f.recvChanged){
     var lbl=recvLabelOf(o.received);
     var color=o.received==='received'?'#2e7d32':o.received==='partial'?'#e65100':o.received==='in_transit'?'#b8860b':'#546e7a';
     if(intro)intro+='<br><br>';
     intro+='<b>Tracking status updated:</b> '+escHtml(recvLabelOf(oldRecv))+' &rarr; <span style="color:'+color+';font-weight:bold;">'+escHtml(lbl)+'</span>';
   }
-  if(o.trackingNo)intro+='<br><br><b>Tracking #:</b> '+escHtml(o.trackingNo);
-  if(recvChanged){
+  if(f.addedCount&&!f.recvChanged&&!f.nowFulfilled){
+    intro+='<b>'+(f.addedCount>1?f.addedCount+' new tracking numbers have':'A new tracking number has')+' been added to this order.</b> The full list is below.';
+  }else if(f.addedCount){
+    if(intro)intro+='<br><br>';
+    intro+=(f.addedCount>1?f.addedCount+' new tracking numbers were':'A new tracking number was')+' added.';
+  }
+  intro+=trackingEmailHtml(o.trackingNo);
+  if(f.recvChanged){
     if(o.received==='in_transit')intro+='<br><br>Your order has shipped and is on its way.';
     else if(o.received==='partial')intro+='<br><br>Part of this order has arrived. The rest is still in transit.';
     else if(o.received==='received')intro+='<br><br>This order is marked delivered. Please confirm everything below arrived and tell HQ if anything is missing.';
   }
+  var eyebrow='Order Status Update';
+  if(f.nowFulfilled&&!f.recvChanged&&!f.addedCount)eyebrow='Order Fulfilled';
+  else if(f.addedCount&&!f.recvChanged&&!f.nowFulfilled)eyebrow='Tracking Update';
   return buildEmailShell({orderId:o.id,employee:o.employee,ntid:o.ntid,store:o.store,orderDate:o.date,handset:o.handsets,cable:o.cables,audio:o.audio,notes:o.notes},{
-    eyebrow:(nowFulfilled&&!recvChanged)?'Order Fulfilled':'Order Status Update',
+    eyebrow:eyebrow,
     introHtml:intro,
     footerText:'Sent automatically by the Edgelink accessory order system when HQ updated this order. Reply to this email with any questions.'
   });
 }
 // Shared notify builder: one email covering whichever of the two statuses changed.
 // Returns the extra FLOW_UPDATE payload fields; notify stays false when nothing changed.
-function buildNotifyPayload(o,prevRecv,prevStatus){
-  var recvChanged=(prevRecv!==o.received);
-  var nowFulfilled=(prevStatus!=='fulfilled'&&o.status==='fulfilled');
-  if(!recvChanged&&!nowFulfilled)return{notify:false,to_email:'',cc_email:'',email_subject:'',email_html:''};
+function buildNotifyPayload(o,prevRecv,prevStatus,prevTracking){
+  var none={notify:false,to_email:'',cc_email:'',email_subject:'',email_html:''};
+  var f={recvChanged:(prevRecv!==o.received),nowFulfilled:(prevStatus!=='fulfilled'&&o.status==='fulfilled'),addedCount:0};
+  var prevNums=trackingNums(prevTracking),nowList=parseTracking(o.trackingNo);
+  nowList.forEach(function(t){if(prevNums.indexOf(normNum(t.num))<0)f.addedCount++;});
+  if(!f.recvChanged&&!f.nowFulfilled&&!f.addedCount)return none;
   var row=storeRosterRow(o.store);
   var toEmail=(row?rStoreEmail(row):'')||o.storeEmail||'';
+  if(!toEmail){console.warn('No store email found for '+o.store+' — status email skipped.');return none;}
   var cc=[];
   if(row){var me=rManagerEmail(row);var ce=rCoachEmail(row);if(me)cc.push(me);if(ce)cc.push(ce);}
-  if(!toEmail){console.warn('No store email found for '+o.store+' — status email skipped.');return{notify:false,to_email:'',cc_email:'',email_subject:'',email_html:''};}
   var subj='Order '+o.id+' — ';
-  if(recvChanged&&nowFulfilled)subj+='Fulfilled, '+recvLabelOf(o.received);
-  else if(nowFulfilled)subj+='Fulfilled';
-  else subj+=recvLabelOf(o.received);
-  if(o.trackingNo)subj+=' — Tracking '+o.trackingNo;
-  return{notify:true,to_email:toEmail,cc_email:cc.join(';'),email_subject:subj,email_html:buildStatusEmailHtml(o,recvChanged,prevRecv,nowFulfilled)};
+  if(f.recvChanged&&f.nowFulfilled)subj+='Fulfilled, '+recvLabelOf(o.received);
+  else if(f.nowFulfilled)subj+='Fulfilled';
+  else if(f.recvChanged)subj+=recvLabelOf(o.received);
+  else subj+=(f.addedCount>1?'New tracking numbers added':'New tracking number added');
+  if(nowList.length)subj+=' — Tracking '+nowList[0].num+(nowList.length>1?' (+'+(nowList.length-1)+' more)':'');
+  return{notify:true,to_email:toEmail,cc_email:cc.join(';'),email_subject:subj,email_html:buildStatusEmailHtml(o,f,prevRecv)};
 }
 // Inventory team: internal "new order to fulfill" message.
 function buildEmailHtml(o){
@@ -1152,13 +1270,14 @@ function viewOrder(id){
   var recvLabel=o.received==='received'?'Delivered':o.received==='partial'?'Partially Delivered':o.received==='in_transit'?'In Transit':'Pending';
   var lbl='font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#aaa;display:block;margin-bottom:2px;';
   var html='<div class="form-grid-3" style="margin-bottom:10px;"><div><label style="'+lbl+'">Employee</label><div style="font-weight:600">'+o.employee+'</div></div><div><label style="'+lbl+'">NTID</label><div style="font-weight:600">'+o.ntid+'</div></div><div><label style="'+lbl+'">Date</label><div style="font-weight:600">'+o.date+'</div></div></div>';
-  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;"><div><label style="'+lbl+'">Order Status</label><span class="badge badge-'+o.status+'">'+o.status+'</span></div><div><label style="'+lbl+'">Tracking Status</label><span class="badge badge-'+(o.received==='received'?'delivered':o.received==='partial'?'partial':o.received==='in_transit'?'transit':'await')+'">'+recvLabel+'</span>'+(o.trackingNo?'<div style="font-size:11px;font-weight:600;color:var(--pu);margin-top:4px;word-break:break-all;">#'+escHtml(o.trackingNo)+'</div>':'')+'</div></div>';
-  html+='<div class="admin-section"><div class="admin-section-title"><span class="admin-banner">🔒 ADMIN ONLY</span> Purchasing Details</div><div class="admin-fields-grid"><div class="admin-field"><label>Purchase Order #</label><input class="admin-input" type="text" id="edit-po-'+o.id+'" value="'+(o.po||'')+'" placeholder="PO-2026-001"></div><div class="admin-field"><label>Cost ($)</label><input class="admin-input" type="number" id="edit-cost-'+o.id+'" value="'+(o.cost||'')+'" placeholder="0.00" step="0.01"></div><div class="admin-field"><label>Tracking #</label><input class="admin-input" type="text" id="edit-trk-'+o.id+'" value="'+(o.trackingNo||'').replace(/"/g,'&quot;')+'" placeholder="1Z999AA10123456784"></div><div class="admin-field"><label>Tracking Status</label><select class="admin-select" id="edit-recv-'+o.id+'"><option value="pending"'+(o.received!=='received'&&o.received!=='partial'&&o.received!=='in_transit'?' selected':'')+'>Pending</option><option value="in_transit"'+(o.received==='in_transit'?' selected':'')+'>In Transit</option><option value="partial"'+(o.received==='partial'?' selected':'')+'>Partially Delivered</option><option value="received"'+(o.received==='received'?' selected':'')+'>Delivered</option></select></div><div class="admin-field"><label>Order Status</label><select class="admin-select" id="edit-status-'+o.id+'"><option value="pending"'+(o.status==='pending'?' selected':'')+'>Pending</option><option value="fulfilled"'+(o.status==='fulfilled'?' selected':'')+'>Fulfilled</option></select></div></div><button class="save-admin-btn" data-id="'+o.id+'" data-spid="'+o.spId+'" onclick="handleSaveAdmin(this)">Save &amp; Update All Tabs</button></div>';
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;"><div><label style="'+lbl+'">Order Status</label><span class="badge badge-'+o.status+'">'+o.status+'</span></div><div><label style="'+lbl+'">Tracking Status</label><span class="badge badge-'+(o.received==='received'?'delivered':o.received==='partial'?'partial':o.received==='in_transit'?'transit':'await')+'">'+recvLabel+'</span>'+trackingModalHtml(o.trackingNo)+'</div></div>';
+  html+='<div class="admin-section"><div class="admin-section-title"><span class="admin-banner">🔒 ADMIN ONLY</span> Purchasing Details</div><div class="admin-fields-grid"><div class="admin-field"><label>Purchase Order #</label><input class="admin-input" type="text" id="edit-po-'+o.id+'" value="'+(o.po||'')+'" placeholder="PO-2026-001"></div><div class="admin-field"><label>Cost ($)</label><input class="admin-input" type="number" id="edit-cost-'+o.id+'" value="'+(o.cost||'')+'" placeholder="0.00" step="0.01"></div><div class="admin-field" style="grid-column:1/-1;"><label>Tracking # <span style="font-weight:400;color:#aaa;">— paste several at once to fill multiple rows</span></label><div id="trk-rows-'+o.id+'"></div><button type="button" class="add-row-btn" onclick="addTrackingRow(\''+o.id+'\')">+ Add tracking #</button></div><div class="admin-field"><label>Tracking Status</label><select class="admin-select" id="edit-recv-'+o.id+'"><option value="pending"'+(o.received!=='received'&&o.received!=='partial'&&o.received!=='in_transit'?' selected':'')+'>Pending</option><option value="in_transit"'+(o.received==='in_transit'?' selected':'')+'>In Transit</option><option value="partial"'+(o.received==='partial'?' selected':'')+'>Partially Delivered</option><option value="received"'+(o.received==='received'?' selected':'')+'>Delivered</option></select></div><div class="admin-field"><label>Order Status</label><select class="admin-select" id="edit-status-'+o.id+'"><option value="pending"'+(o.status==='pending'?' selected':'')+'>Pending</option><option value="fulfilled"'+(o.status==='fulfilled'?' selected':'')+'>Fulfilled</option></select></div></div><button class="save-admin-btn" data-id="'+o.id+'" data-spid="'+o.spId+'" onclick="handleSaveAdmin(this)">Save &amp; Update All Tabs</button></div>';
   if(o.handsets&&o.handsets!=='None'){html+='<div class="modal-section">Handsets</div>';o.handsets.split('|').map(function(l){return l.trim();}).filter(Boolean).forEach(function(l){html+='<div class="modal-row"><span style="font-weight:500">'+l+'</span></div>';});}
   if(o.cables&&o.cables!=='None'){html+='<div class="modal-section">Cables &amp; Chargers</div>';o.cables.split('|').map(function(l){return l.trim();}).filter(Boolean).forEach(function(l){html+='<div class="modal-row"><span style="font-weight:500">'+l+'</span></div>';});}
   if(o.audio&&o.audio!=='None'){html+='<div class="modal-section">Audio &amp; Misc</div>';o.audio.split('|').map(function(l){return l.trim();}).filter(Boolean).forEach(function(l){html+='<div class="modal-row"><span style="font-weight:500">'+l+'</span></div>';});}
   if(o.notes)html+='<div class="modal-section">Notes</div><div style="font-size:13px;color:var(--gt);padding:8px 0;">'+o.notes+'</div>';
   document.getElementById('modal-body').innerHTML=html;
+  renderTrackingRows(o.id,o.trackingNo);
   document.getElementById('modal-bg').classList.add('open');
 }
 
@@ -1166,12 +1285,12 @@ function handleSaveAdmin(btn){saveAdminFields(btn.getAttribute('data-id'),btn.ge
 
 async function saveAdminFields(id,spId){
   var o=orders.find(function(x){return x.id===id;});if(!o)return;
-  var prevRecv=o.received,prevStatus=o.status;
-  o.po=document.getElementById('edit-po-'+id).value.trim();o.cost=document.getElementById('edit-cost-'+id).value;o.trackingNo=document.getElementById('edit-trk-'+id).value.trim();o.received=document.getElementById('edit-recv-'+id).value;o.status=document.getElementById('edit-status-'+id).value;
+  var prevRecv=o.received,prevStatus=o.status,prevTracking=o.trackingNo;
+  o.po=document.getElementById('edit-po-'+id).value.trim();o.cost=document.getElementById('edit-cost-'+id).value;o.trackingNo=readTrackingRows(id);o.received=document.getElementById('edit-recv-'+id).value;o.status=document.getElementById('edit-status-'+id).value;
   var btn=document.querySelector('[data-id="'+id+'"]');
   if(btn){btn.textContent='Saving...';btn.disabled=true;}
-  // Notify store (To) + manager & coach (CC) on a tracking-status change or on Fulfilled.
-  var n=buildNotifyPayload(o,prevRecv,prevStatus);
+  // Notify store (To) + manager & coach (CC) on a tracking-status change, Fulfilled, or a new tracking number.
+  var n=buildNotifyPayload(o,prevRecv,prevStatus,prevTracking);
   if(spId){try{await fetch(FLOW_UPDATE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sp_id:spId,po:o.po,cost:o.cost,tracking_number:o.trackingNo,received:o.received,status:o.status,notify:n.notify,to_email:n.to_email,cc_email:n.cc_email,email_subject:n.email_subject,email_html:n.email_html})});}catch(e){console.error('Update error:',e);}}
   updateStats();renderStoreChart();renderRecentOrders();renderAllOrders();renderStoreBreakdown();renderActivityTab();renderTopItems();
   if(btn){btn.textContent='Saved ✓';btn.style.background='linear-gradient(90deg,var(--gn-d),var(--gn))';setTimeout(function(){btn.textContent='Save & Update All Tabs';btn.style.background='';btn.disabled=false;},2500);}
@@ -1180,7 +1299,7 @@ async function saveAdminFields(id,spId){
 async function quickFulfill(id){
   var o=orders.find(function(x){return x.id===id;});if(!o)return;
   var prevStatus=o.status;o.status='fulfilled';
-  var n=buildNotifyPayload(o,o.received,prevStatus);
+  var n=buildNotifyPayload(o,o.received,prevStatus,o.trackingNo);
   if(o.spId){try{await fetch(FLOW_UPDATE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sp_id:o.spId,status:'fulfilled',notify:n.notify,to_email:n.to_email,cc_email:n.cc_email,email_subject:n.email_subject,email_html:n.email_html})});}catch(e){}}
   updateStats();renderRecentOrders();renderAllOrders();renderStoreBreakdown();renderActivityTab();
 }
