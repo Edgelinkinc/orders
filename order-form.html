@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- BUILD 2026-09-09 accnotes+trk rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber -->
+<!-- BUILD 2026-09-09 accnotes+trk+statusmail2 rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edgelink Inc. — Accessory Order System</title>
@@ -890,6 +890,59 @@ function buildEmailShell(o,opts){
     '</table>'+
   '</div>';
 }
+// Tracking-status label used by the status-update email.
+function recvLabelOf(r){return r==='received'?'Delivered':r==='partial'?'Partially Delivered':r==='in_transit'?'In Transit':'Pending';}
+// Find a roster row by store name, so we can address the status email.
+function storeRosterRow(storeName){
+  var want=(''+(storeName||'')).trim().toLowerCase();
+  if(!want)return null;
+  for(var i=0;i<rosterData.length;i++){
+    var s=rosterData[i];var n=(''+(s.Title||s.StoreName||'')).trim().toLowerCase();
+    if(n&&n===want)return s;
+  }
+  return null;
+}
+// Store / manager / coach: "your order status changed" message.
+// Covers a tracking-status change, an order marked Fulfilled, or both in one email.
+function buildStatusEmailHtml(o,recvChanged,oldRecv,nowFulfilled){
+  var intro='';
+  if(nowFulfilled)intro+='<b>This order has been marked <span style="color:#2e7d32;">Fulfilled</span>.</b> HQ has finished processing it.';
+  if(recvChanged){
+    var lbl=recvLabelOf(o.received);
+    var color=o.received==='received'?'#2e7d32':o.received==='partial'?'#e65100':o.received==='in_transit'?'#b8860b':'#546e7a';
+    if(intro)intro+='<br><br>';
+    intro+='<b>Tracking status updated:</b> '+escHtml(recvLabelOf(oldRecv))+' &rarr; <span style="color:'+color+';font-weight:bold;">'+escHtml(lbl)+'</span>';
+  }
+  if(o.trackingNo)intro+='<br><br><b>Tracking #:</b> '+escHtml(o.trackingNo);
+  if(recvChanged){
+    if(o.received==='in_transit')intro+='<br><br>Your order has shipped and is on its way.';
+    else if(o.received==='partial')intro+='<br><br>Part of this order has arrived. The rest is still in transit.';
+    else if(o.received==='received')intro+='<br><br>This order is marked delivered. Please confirm everything below arrived and tell HQ if anything is missing.';
+  }
+  return buildEmailShell({orderId:o.id,employee:o.employee,ntid:o.ntid,store:o.store,orderDate:o.date,handset:o.handsets,cable:o.cables,audio:o.audio,notes:o.notes},{
+    eyebrow:(nowFulfilled&&!recvChanged)?'Order Fulfilled':'Order Status Update',
+    introHtml:intro,
+    footerText:'Sent automatically by the Edgelink accessory order system when HQ updated this order. Reply to this email with any questions.'
+  });
+}
+// Shared notify builder: one email covering whichever of the two statuses changed.
+// Returns the extra FLOW_UPDATE payload fields; notify stays false when nothing changed.
+function buildNotifyPayload(o,prevRecv,prevStatus){
+  var recvChanged=(prevRecv!==o.received);
+  var nowFulfilled=(prevStatus!=='fulfilled'&&o.status==='fulfilled');
+  if(!recvChanged&&!nowFulfilled)return{notify:false,to_email:'',cc_email:'',email_subject:'',email_html:''};
+  var row=storeRosterRow(o.store);
+  var toEmail=(row?rStoreEmail(row):'')||o.storeEmail||'';
+  var cc=[];
+  if(row){var me=rManagerEmail(row);var ce=rCoachEmail(row);if(me)cc.push(me);if(ce)cc.push(ce);}
+  if(!toEmail){console.warn('No store email found for '+o.store+' — status email skipped.');return{notify:false,to_email:'',cc_email:'',email_subject:'',email_html:''};}
+  var subj='Order '+o.id+' — ';
+  if(recvChanged&&nowFulfilled)subj+='Fulfilled, '+recvLabelOf(o.received);
+  else if(nowFulfilled)subj+='Fulfilled';
+  else subj+=recvLabelOf(o.received);
+  if(o.trackingNo)subj+=' — Tracking '+o.trackingNo;
+  return{notify:true,to_email:toEmail,cc_email:cc.join(';'),email_subject:subj,email_html:buildStatusEmailHtml(o,recvChanged,prevRecv,nowFulfilled)};
+}
 // Inventory team: internal "new order to fulfill" message.
 function buildEmailHtml(o){
   return buildEmailShell(o,{
@@ -1113,17 +1166,22 @@ function handleSaveAdmin(btn){saveAdminFields(btn.getAttribute('data-id'),btn.ge
 
 async function saveAdminFields(id,spId){
   var o=orders.find(function(x){return x.id===id;});if(!o)return;
+  var prevRecv=o.received,prevStatus=o.status;
   o.po=document.getElementById('edit-po-'+id).value.trim();o.cost=document.getElementById('edit-cost-'+id).value;o.trackingNo=document.getElementById('edit-trk-'+id).value.trim();o.received=document.getElementById('edit-recv-'+id).value;o.status=document.getElementById('edit-status-'+id).value;
   var btn=document.querySelector('[data-id="'+id+'"]');
   if(btn){btn.textContent='Saving...';btn.disabled=true;}
-  if(spId){try{await fetch(FLOW_UPDATE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sp_id:spId,po:o.po,cost:o.cost,tracking_number:o.trackingNo,received:o.received,status:o.status})});}catch(e){console.error('Update error:',e);}}
+  // Notify store (To) + manager & coach (CC) on a tracking-status change or on Fulfilled.
+  var n=buildNotifyPayload(o,prevRecv,prevStatus);
+  if(spId){try{await fetch(FLOW_UPDATE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sp_id:spId,po:o.po,cost:o.cost,tracking_number:o.trackingNo,received:o.received,status:o.status,notify:n.notify,to_email:n.to_email,cc_email:n.cc_email,email_subject:n.email_subject,email_html:n.email_html})});}catch(e){console.error('Update error:',e);}}
   updateStats();renderStoreChart();renderRecentOrders();renderAllOrders();renderStoreBreakdown();renderActivityTab();renderTopItems();
   if(btn){btn.textContent='Saved ✓';btn.style.background='linear-gradient(90deg,var(--gn-d),var(--gn))';setTimeout(function(){btn.textContent='Save & Update All Tabs';btn.style.background='';btn.disabled=false;},2500);}
 }
 
 async function quickFulfill(id){
-  var o=orders.find(function(x){return x.id===id;});if(!o)return;o.status='fulfilled';
-  if(o.spId){try{await fetch(FLOW_UPDATE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sp_id:o.spId,status:'fulfilled'})});}catch(e){}}
+  var o=orders.find(function(x){return x.id===id;});if(!o)return;
+  var prevStatus=o.status;o.status='fulfilled';
+  var n=buildNotifyPayload(o,o.received,prevStatus);
+  if(o.spId){try{await fetch(FLOW_UPDATE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sp_id:o.spId,status:'fulfilled',notify:n.notify,to_email:n.to_email,cc_email:n.cc_email,email_subject:n.email_subject,email_html:n.email_html})});}catch(e){}}
   updateStats();renderRecentOrders();renderAllOrders();renderStoreBreakdown();renderActivityTab();
 }
 
