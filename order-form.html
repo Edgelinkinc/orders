@@ -344,11 +344,11 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
         <p>For store employees. Pick your store, choose what you need, and submit. No login required.</p>
         <span class="ld-go">Start an order &rarr;</span>
       </button>
-      <button class="ld-choice" type="button" onclick="openView('hq')">
+      <button class="ld-choice" type="button" onclick="openView('dashboard')">
         <div class="ld-ico">&#128202;</div>
         <h2>HQ Portal<span class="ld-tag">HQ only</span></h2>
-        <p>For the inventory team. Review orders, add purchasing details and tracking, and manage the catalog.</p>
-        <span class="ld-go">Go to HQ &rarr;</span>
+        <p>For the inventory team. Sign in with your Microsoft account to review orders, add purchasing details and tracking, and manage the catalog.</p>
+        <span class="ld-go">Sign in &rarr;</span>
       </button>
     </div>
 
@@ -408,9 +408,9 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
   <div class="ld-wrap">
     <div class="ld-card" style="margin-top:-26px;text-align:center;">
       <div class="ld-ico" style="font-size:29px;line-height:1;margin-bottom:10px;">&#128202;</div>
-      <h3>Open the HQ Dashboard</h3>
-      <p class="ld-sub">You'll be asked to sign in with your Microsoft account. Access is limited to assigned users &mdash; if you're blocked, ask an admin to add you.</p>
-      <button class="ld-go" type="button" style="border:none;cursor:pointer;font-family:'Montserrat',sans-serif;" onclick="openView('dashboard')">Sign in &rarr;</button>
+      <h3>Back to the Dashboard</h3>
+      <p class="ld-sub">You're signed in. This guide stays available from the <b>? Guide</b> button in the dashboard top bar.</p>
+      <button class="ld-go" type="button" style="border:none;cursor:pointer;font-family:'Montserrat',sans-serif;" onclick="openView('dashboard')">Open dashboard &rarr;</button>
     </div>
 
     <div class="ld-card">
@@ -486,7 +486,7 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
       </div>
     </div>
 
-    <div class="ld-foot">Edgelink Inc. &middot; HQ Inventory Portal &middot; Internal use only &middot; <button class="ld-back" type="button" onclick="openView('landing')">Back to home</button></div>
+    <div class="ld-foot">Edgelink Inc. &middot; HQ Inventory Portal &middot; Internal use only &middot; <button class="ld-back" type="button" onclick="openView('dashboard')">Back to dashboard</button></div>
   </div>
  </div>
 </div>
@@ -582,6 +582,7 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
       <div id="dash-date" style="color:rgba(255,255,255,.8);font-size:11px;font-weight:600;"></div>
       <div id="current-user-label" style="color:#fff;font-size:11px;font-weight:700;"></div>
       <button class="tb-btn" id="btn-refresh" onclick="loadOrders(this)">&#8635; Refresh</button>
+      <button class="tb-btn" onclick="openView('hq')">&#63; Guide</button>
       <button class="tb-btn white" onclick="openView('form')">Order Form</button>
       <button class="tb-btn" onclick="msSignOut()">Sign Out</button>
     </div>
@@ -800,7 +801,10 @@ function openView(name){
       loadOrders();
     }else{showView('view-login');}
   }else if(name==='form'){showView('view-form');}
-  else if(name==='hq'){showView('view-hq');}
+  else if(name==='hq'){
+    // The HQ guide is gated: nothing about the HQ side is visible until an admin has signed in.
+    if(currentUser){showView('view-hq');}else{showView('view-login');}
+  }
   else{showView('view-landing');}
 }
 
