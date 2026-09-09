@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- BUILD 2026-09-09 accnotes+multitrk rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber(multi CARRIER:NUM per line) -->
+<!-- BUILD 2026-09-09 accnotes+multitrk+refreshui rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber(multi CARRIER:NUM per line) -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edgelink Inc. — Accessory Order System</title>
@@ -28,6 +28,10 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
 .tb-btn:hover{background:rgba(255,255,255,0.25);}
 .tb-btn.white{background:#fff;color:var(--pu);}
 .tb-btn.white:hover{background:var(--pu-l);}
+.tb-btn[disabled]{opacity:.75;cursor:default;}
+.tb-btn .spin{display:inline-block;animation:tbspin .8s linear infinite;}
+@keyframes tbspin{to{transform:rotate(360deg);}}
+.tb-btn.done{background:rgba(255,255,255,.32);border-color:rgba(255,255,255,.55);}
 .nav-tabs{background:#fff;border-bottom:2px solid var(--bd);display:flex;padding:0 24px;overflow-x:auto;position:sticky;top:62px;z-index:40;}
 .nav-tab{padding:13px 16px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gt);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .2s;}
 .nav-tab:hover{color:var(--pu);}
@@ -369,7 +373,7 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
     <div class="topbar-right">
       <div id="dash-date" style="color:rgba(255,255,255,.8);font-size:11px;font-weight:600;"></div>
       <div id="current-user-label" style="color:#fff;font-size:11px;font-weight:700;"></div>
-      <button class="tb-btn" onclick="loadOrders()">&#8635; Refresh</button>
+      <button class="tb-btn" id="btn-refresh" onclick="loadOrders(this)">&#8635; Refresh</button>
       <button class="tb-btn white" onclick="openView('form')">Order Form</button>
       <button class="tb-btn" onclick="msSignOut()">Sign Out</button>
     </div>
@@ -1128,8 +1132,21 @@ function switchDashTab(name,el){
 }
 function daysDiff(d){return Math.floor((TODAY-new Date(d))/(1000*60*60*24));}
 
-async function loadOrders(){
+// Visible feedback on the top-bar Refresh button: spins while loading, confirms, then resets.
+// The sync badge lives on the Overview tab, so without this the button looks dead from any other tab.
+function setRefreshState(btn,state,msg){
+  if(!btn)btn=document.getElementById('btn-refresh');
+  if(!btn)return;
+  btn.classList.remove('done');
+  if(state==='loading'){btn.disabled=true;btn.innerHTML='<span class="spin">&#8635;</span> Refreshing...';}
+  else if(state==='done'){btn.disabled=false;btn.classList.add('done');btn.innerHTML='&#10003; '+(msg||'Updated');
+    setTimeout(function(){btn.classList.remove('done');btn.innerHTML='&#8635; Refresh';},2200);}
+  else{btn.disabled=false;btn.innerHTML='&#9888; Retry';
+    setTimeout(function(){btn.innerHTML='&#8635; Refresh';},3000);}
+}
+async function loadOrders(btn){
   setSyncStatus('loading','Syncing...');
+  setRefreshState(btn,'loading');
   try{
     var r=await fetch(FLOW_GET,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
     if(!r.ok)throw new Error('Status '+r.status);
@@ -1145,7 +1162,8 @@ async function loadOrders(){
     orders=Object.keys(seen).map(function(k){return seen[k];}).filter(function(o){return o.id;});
     setSyncStatus('live','Live — '+orders.length+' orders');
     updateStats();renderStoreChart();renderRecentOrders();renderAllOrders();renderStoreBreakdown();renderActivityTab();renderTopItems();populateStoreFilter();
-  }catch(e){console.error('Load orders error:',e);setSyncStatus('err','Sync Error');}
+    setRefreshState(btn,'done',orders.length+' orders');
+  }catch(e){console.error('Load orders error:',e);setSyncStatus('err','Sync Error');setRefreshState(btn,'err');}
 }
 
 function setSyncStatus(type,msg){var el=document.getElementById('sync-status');el.textContent=msg;el.className='sync-badge';if(type==='live')el.classList.add('sync-live');else if(type==='loading')el.classList.add('sync-loading');else el.classList.add('sync-err');}

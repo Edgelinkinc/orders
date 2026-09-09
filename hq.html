@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- BUILD 2026-09-09 hq-landing -->
+<title>Edgelink Inc. — HQ Inventory Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--mg:#E20074;--mg-d:#b8005d;--pu:#5C2D91;--bd:#e4e4ec;--gl:#f7f7fa;--gt:#6b6b7b;
+--gn:#43a047;--gn-d:#2e7d32;--gn-l:#e8f5e9;--am:#c77700;--am-l:#fff8e1;--rd:#c62828;--rd-l:#ffebee;}
+*{box-sizing:border-box;}
+body{margin:0;background:#ececed;font-family:'Montserrat',system-ui,-apple-system,sans-serif;color:#1a1a24;line-height:1.6;}
+a{color:var(--mg);}
+.hero{background:linear-gradient(120deg,#3b1c60,var(--pu));padding:38px 20px 44px;text-align:center;}
+.logo{display:inline-block;font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:4px;color:#fff;background:rgba(0,0,0,.22);padding:5px 18px;border-radius:6px;margin-bottom:14px;}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:3px;color:#fff;margin:0 0 6px;font-weight:400;}
+.hero p{margin:0 auto;color:rgba(255,255,255,.88);font-size:14px;max-width:540px;}
+.lock{display:inline-block;margin-top:12px;font-size:10px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);padding:5px 13px;border-radius:20px;}
+.wrap{max-width:900px;margin:0 auto;padding:0 18px 60px;}
+.enter{background:#fff;border:1.5px solid var(--bd);border-radius:13px;padding:24px;margin-top:-26px;text-align:center;box-shadow:0 3px 14px rgba(0,0,0,.07);max-width:520px;margin-left:auto;margin-right:auto;}
+.enter .ico{font-size:30px;line-height:1;margin-bottom:10px;}
+.enter h2{font-family:'Bebas Neue',sans-serif;font-size:23px;letter-spacing:2px;color:var(--pu);margin:0 0 6px;font-weight:400;}
+.enter p{margin:0 0 14px;font-size:13px;color:var(--gt);}
+.go{display:inline-block;font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:#fff;background:linear-gradient(90deg,var(--pu),var(--mg));padding:11px 20px;border-radius:6px;text-decoration:none;}
+.card{background:#fff;border:1.5px solid var(--bd);border-radius:13px;padding:26px;margin-top:22px;}
+h3{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--pu);margin:0 0 4px;font-weight:400;}
+.sub{font-size:12.5px;color:var(--gt);margin:0 0 20px;}
+ol.steps{list-style:none;counter-reset:s;padding:0;margin:0;}
+ol.steps li{counter-increment:s;position:relative;padding:0 0 20px 46px;}
+ol.steps li:before{content:counter(s);position:absolute;left:0;top:-1px;width:31px;height:31px;border-radius:50%;background:linear-gradient(135deg,var(--pu),var(--mg));color:#fff;font-family:'Bebas Neue',sans-serif;font-size:16px;display:flex;align-items:center;justify-content:center;}
+ol.steps li:after{content:'';position:absolute;left:15px;top:34px;bottom:2px;width:2px;background:var(--bd);}
+ol.steps li:last-child{padding-bottom:0;}
+ol.steps li:last-child:after{display:none;}
+ol.steps b{display:block;font-size:14px;margin-bottom:2px;}
+ol.steps span{font-size:13px;color:var(--gt);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;font-size:9px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:#9a9aa8;padding:0 10px 8px 0;border-bottom:1.5px solid var(--bd);}
+td{padding:10px 10px 10px 0;border-bottom:1px solid #f2f2f6;vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+td b{color:var(--pu);}
+.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:9.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;white-space:nowrap;}
+.p-await{background:#eceff1;color:#546e7a;border:1px solid #cfd8dc;}
+.p-transit{background:var(--am-l);color:var(--am);border:1px solid #f6d860;}
+.p-partial{background:#fff3e0;color:#e65100;border:1px solid #ffcc80;}
+.p-deliv{background:var(--gn-l);color:var(--gn-d);border:1px solid #a5d6a7;}
+.tips{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.tip{background:var(--gl);border:1px solid var(--bd);border-left:3px solid var(--mg);border-radius:8px;padding:13px 15px;}
+.tip b{display:block;font-size:12.5px;margin-bottom:3px;}
+.tip span{font-size:12.5px;color:var(--gt);}
+.warn{background:var(--am-l);border:1px solid #f6d860;border-left:3px solid var(--am);border-radius:8px;padding:14px 16px;font-size:12.5px;margin-top:14px;}
+.warn b{color:#8a5200;}
+.tabs{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.tb{background:var(--gl);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;}
+.tb b{display:block;font-size:12.5px;color:var(--pu);margin-bottom:2px;}
+.tb span{font-size:12px;color:var(--gt);}
+.foot{text-align:center;font-size:11px;color:#9a9aa8;margin-top:26px;}
+@media(max-width:640px){.tips,.tabs{grid-template-columns:1fr;}.hero h1{font-size:30px;}.card{padding:20px;}
+ table,thead,tbody,th,td,tr{display:block;} thead{display:none;} td{border:none;padding:2px 0;} tr{border-bottom:1px solid #f2f2f6;padding:10px 0;}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="logo">EDGELINK INC.</div>
+  <h1>HQ Inventory Portal</h1>
+  <p>Review incoming accessory orders, add purchasing details and tracking, and manage the catalog for all locations.</p>
+  <div class="lock">&#128274; Authorized HQ staff only</div>
+</div>
+
+<div class="wrap">
+
+  <div class="enter">
+    <div class="ico">&#128202;</div>
+    <h2>Open the HQ Dashboard</h2>
+    <p>You'll be asked to sign in with your Microsoft account. Access is limited to assigned users &mdash; if you're blocked, ask an admin to add you.</p>
+    <a class="go" href="dashboard.html">Sign in &rarr;</a>
+  </div>
+
+  <div class="card">
+    <h3>Processing an Order</h3>
+    <p class="sub">The whole job happens in one panel. Everything you enter updates every tab at once.</p>
+    <ol class="steps">
+      <li><b>Find the order</b><span>Go to <b>All Orders</b> and use the search box &mdash; it matches store, employee, NTID, order ID or PO number. The filters narrow by status, tracking state and store. Click <b>View</b> on the row.</span></li>
+      <li><b>Add purchasing details</b><span>In the 🔒 Admin Only panel, enter the <b>Purchase Order #</b> and <b>Cost</b>. Cost is what drives every spend figure on the Analytics tab, so put it in even if the order is small.</span></li>
+      <li><b>Add tracking</b><span>Pick the carrier and paste the tracking number. For a split shipment, hit <b>+ Add tracking #</b> for each box &mdash; or paste all the numbers at once and they'll fill separate rows automatically, one per line.</span></li>
+      <li><b>Set the two statuses</b><span><b>Tracking Status</b> is where the boxes are. <b>Order Status</b> is whether you're done with it. They're independent &mdash; see the table below.</span></li>
+      <li><b>Save &amp; Update All Tabs</b><span>One click writes to SharePoint and refreshes every view. If the status changed, this is also what sends the store their email.</span></li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3>The Two Statuses</h3>
+    <p class="sub">They mean different things and they don't move together. Setting them correctly is what keeps Analytics honest.</p>
+    <table>
+      <thead><tr><th style="width:38%">Tracking Status</th><th>Use it when</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill p-await">Pending</span></td><td>Order received, nothing shipped yet. This is where every new order starts.</td></tr>
+        <tr><td><span class="pill p-transit">In Transit</span></td><td>It's shipped and there's a tracking number. Counts toward Pending Cost.</td></tr>
+        <tr><td><span class="pill p-partial">Partially Delivered</span></td><td>Some boxes arrived, others still moving.</td></tr>
+        <tr><td><span class="pill p-deliv">Delivered</span></td><td>Everything arrived. Only Delivered orders with a cost count as spend.</td></tr>
+      </tbody>
+    </table>
+    <div class="warn"><b>Order Status</b> is separate: <b>Pending</b> means you haven't finished processing it, <b>Fulfilled</b> means you have. An order can be Fulfilled and still In Transit &mdash; that's normal and correct.</div>
+  </div>
+
+  <div class="card">
+    <h3>What Sends an Email</h3>
+    <p class="sub">Stores are notified automatically. You never send anything by hand.</p>
+    <table>
+      <thead><tr><th style="width:38%">Trigger</th><th>Who gets it</th></tr></thead>
+      <tbody>
+        <tr><td><b>Tracking Status changes</b></td><td rowspan="3">Store email in <b>To</b>, manager and coach in <b>CC</b> &mdash; all read from the EdgeLink Store Roster.</td></tr>
+        <tr><td><b>Order Status becomes Fulfilled</b></td></tr>
+        <tr><td><b>A new tracking number is added</b></td></tr>
+      </tbody>
+    </table>
+    <div class="warn">Editing a PO or fixing a cost sends nothing. If two things change in one save, the store gets <b>one</b> email covering both, not two. Removing a tracking number sends nothing &mdash; if you emailed a wrong number, tell the store directly.</div>
+  </div>
+
+  <div class="card">
+    <h3>The Tabs</h3>
+    <p class="sub">Everything above the fold on the dashboard.</p>
+    <div class="tabs">
+      <div class="tb"><b>Overview</b><span>Counts, recent orders and spend at a glance.</span></div>
+      <div class="tb"><b>All Orders</b><span>The working list. Search, filter, open, edit.</span></div>
+      <div class="tb"><b>By Store</b><span>Volume and spend broken out per location.</span></div>
+      <div class="tb"><b>Store Activity</b><span>Who's ordering and who's gone quiet. 14 / 30 / 30+ days, with a Follow Up button.</span></div>
+      <div class="tb"><b>Top Items</b><span>Most-ordered handsets and accessories across all stores.</span></div>
+      <div class="tb"><b>Analytics</b><span>Spend over time, averages, pending cost. Date range and weekly/monthly toggle.</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Admin Tab</h3>
+    <p class="sub">Catalog and settings. Only HQ users with admin-edit rights see this &mdash; everyone else gets a view-only notice.</p>
+    <div class="tips">
+      <div class="tip"><b>Handsets / Cables / Audio</b><span>The catalog reps order from. Add models, mark devices EOL, retire what's gone.</span></div>
+      <div class="tip"><b>Announcements</b><span>A banner on the order form. Use it for shortages and cutoffs.</span></div>
+      <div class="tip"><b>Notifications &amp; Settings</b><span>The inventory team address and who gets copied on new orders by default.</span></div>
+      <div class="tip"><b>HQ Users</b><span>Who can reach this dashboard, and who can edit. The last remaining admin can't be removed.</span></div>
+    </div>
+    <div class="warn"><b>Stores are not edited here.</b> The roster is read live from the <b>EdgeLink Store Roster</b> list in SharePoint. To add a location or change a manager, coach or email, edit that list directly &mdash; changes appear on the next load, no publishing needed.</div>
+  </div>
+
+  <div class="card">
+    <h3>If Something Looks Wrong</h3>
+    <div class="tips">
+      <div class="tip"><b>An edit didn't stick</b><span>Hit Refresh in the top bar. If it's still wrong, the Power Automate flow run history will show what the save actually sent.</span></div>
+      <div class="tip"><b>A store didn't get its email</b><span>Check that store has a Store Email in the roster. No address means the email is skipped silently.</span></div>
+      <div class="tip"><b>The catalog looks stale</b><span>Reps' browsers cache the form. A hard refresh (Ctrl+Shift+R) picks up catalog changes.</span></div>
+      <div class="tip"><b>You can't edit anything</b><span>Your HQ user record doesn't have admin-edit rights. Another admin can toggle it under HQ Users.</span></div>
+    </div>
+  </div>
+
+  <div class="foot">Edgelink Inc. &middot; HQ Inventory Portal &middot; Internal use only</div>
+
+</div>
+</body>
+</html>

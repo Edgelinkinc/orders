@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- BUILD 2026-09-09 landing -->
+<title>Edgelink Inc. — Accessory Orders</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--mg:#E20074;--mg-d:#b8005d;--pu:#5C2D91;--bd:#e4e4ec;--gl:#f7f7fa;--gt:#6b6b7b;
+--gn:#43a047;--gn-d:#2e7d32;--gn-l:#e8f5e9;--am:#c77700;--am-l:#fff8e1;}
+*{box-sizing:border-box;}
+body{margin:0;background:#ececed;font-family:'Montserrat',system-ui,-apple-system,sans-serif;color:#1a1a24;line-height:1.6;}
+a{color:var(--mg);}
+.hero{background:linear-gradient(120deg,var(--pu),var(--mg));padding:38px 20px 44px;text-align:center;}
+.logo{display:inline-block;font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:4px;color:#fff;background:rgba(0,0,0,.18);padding:5px 18px;border-radius:6px;margin-bottom:14px;}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:3px;color:#fff;margin:0 0 6px;font-weight:400;}
+.hero p{margin:0;color:rgba(255,255,255,.9);font-size:14px;max-width:520px;margin:0 auto;}
+.wrap{max-width:900px;margin:0 auto;padding:0 18px 60px;}
+.choices{display:grid;grid-template-columns:1fr;gap:16px;margin-top:-26px;max-width:520px;margin-left:auto;margin-right:auto;}
+.choice{text-align:center;}
+.choice{background:#fff;border:1.5px solid var(--bd);border-radius:13px;padding:24px;text-decoration:none;color:inherit;display:block;box-shadow:0 3px 14px rgba(0,0,0,.07);transition:transform .12s,box-shadow .12s;}
+.choice:hover{transform:translateY(-2px);box-shadow:0 7px 22px rgba(0,0,0,.11);}
+.choice .ico{font-size:30px;line-height:1;margin-bottom:10px;}
+.choice h2{font-family:'Bebas Neue',sans-serif;font-size:23px;letter-spacing:2px;color:var(--pu);margin:0 0 6px;font-weight:400;}
+.choice p{margin:0 0 12px;font-size:13px;color:var(--gt);}
+.go{display:inline-block;font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:#fff;background:linear-gradient(90deg,var(--pu),var(--mg));padding:9px 16px;border-radius:6px;}
+.tag{display:inline-block;font-size:9px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;padding:3px 8px;border-radius:10px;background:var(--am-l);color:var(--am);border:1px solid #f6d860;margin-left:6px;vertical-align:middle;}
+.card{background:#fff;border:1.5px solid var(--bd);border-radius:13px;padding:26px;margin-top:22px;}
+h3{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--pu);margin:0 0 4px;font-weight:400;}
+.sub{font-size:12.5px;color:var(--gt);margin:0 0 20px;}
+ol.steps{list-style:none;counter-reset:s;padding:0;margin:0;}
+ol.steps li{counter-increment:s;position:relative;padding:0 0 20px 46px;}
+ol.steps li:before{content:counter(s);position:absolute;left:0;top:-1px;width:31px;height:31px;border-radius:50%;background:linear-gradient(135deg,var(--pu),var(--mg));color:#fff;font-family:'Bebas Neue',sans-serif;font-size:16px;display:flex;align-items:center;justify-content:center;}
+ol.steps li:after{content:'';position:absolute;left:15px;top:34px;bottom:2px;width:2px;background:var(--bd);}
+ol.steps li:last-child{padding-bottom:0;}
+ol.steps li:last-child:after{display:none;}
+ol.steps b{display:block;font-size:14px;margin-bottom:2px;}
+ol.steps span{font-size:13px;color:var(--gt);}
+.tips{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px;}
+.tip{background:var(--gl);border:1px solid var(--bd);border-left:3px solid var(--mg);border-radius:8px;padding:13px 15px;}
+.tip b{display:block;font-size:12.5px;margin-bottom:3px;}
+.tip span{font-size:12.5px;color:var(--gt);}
+.after{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.aft{background:var(--gl);border:1px solid var(--bd);border-radius:9px;padding:15px;text-align:center;}
+.aft .n{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1.4px;color:var(--pu);margin-bottom:4px;}
+.aft .d{font-size:12px;color:var(--gt);}
+.help{background:#fff;border:1.5px solid var(--bd);border-radius:13px;padding:22px 26px;margin-top:22px;text-align:center;}
+.help h3{margin-bottom:8px;}
+.help p{margin:0;font-size:13px;color:var(--gt);}
+.foot{text-align:center;font-size:11px;color:#9a9aa8;margin-top:26px;}
+@media(max-width:640px){.tips{grid-template-columns:1fr;}.after{grid-template-columns:1fr;}.hero h1{font-size:30px;}.card{padding:20px;}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="logo">EDGELINK INC.</div>
+  <h1>Accessory Order System</h1>
+  <p>Order handsets, cases, cables and accessories for your store. Orders go straight to the HQ inventory team.</p>
+</div>
+
+<div class="wrap">
+
+  <div class="choices">
+    <a class="choice" href="order-form.html">
+      <div class="ico">&#128230;</div>
+      <h2>Place an Order</h2>
+      <p>Pick your store, choose what you need, and submit. No login required &mdash; it takes about two minutes.</p>
+      <span class="go">Start an order &rarr;</span>
+    </a>
+  </div>
+
+  <div class="card">
+    <h3>How to Place an Order</h3>
+    <p class="sub">Five steps, about two minutes. You can move back and forth between steps before submitting.</p>
+    <ol class="steps">
+      <li><b>Store Info</b><span>Choose your store from the dropdown, then enter your first and last name and your NTID. The order date fills in automatically. Picking your store is what routes the confirmation to the right manager and coach, so get this one right.</span></li>
+      <li><b>Handsets</b><span>Brands are grouped in collapsible sections. For each model, tick Glass, Male Case or Female Case. Use the Notes box on the right of any row for quantities or colors. If a device isn't listed, use <b>+ Add Device</b> at the bottom of that brand.</span></li>
+      <li><b>Cables</b><span>Tick what you need. Ticking an item opens a notes box under it &mdash; use it for quantity.</span></li>
+      <li><b>Audio &amp; Misc</b><span>Same as cables. Buds, power banks, mounts and everything else lives here. Ticking an item opens a notes box under it &mdash; use it for quantity.</span></li>
+      <li><b>Review &amp; Submit</b><span>Check the summary, add any overall notes for the inventory team, then hit Submit. You'll see your order number on screen &mdash; write it down.</span></li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3>Before You Submit</h3>
+    <p class="sub">Four things that save everyone a phone call.</p>
+    <div class="tips">
+      <div class="tip"><b>Quantities go in the Notes box</b><span>A tick means "we need this." If you need ten, say so in the notes &mdash; otherwise HQ is guessing.</span></div>
+      <div class="tip"><b>Watch for the EOL badge</b><span>A device marked EOL is end-of-life. Stock may be limited or gone, so add a backup in your notes.</span></div>
+      <div class="tip"><b>One order per run</b><span>Put everything you need in a single order rather than submitting three small ones. It ships together and it's easier to track.</span></div>
+      <div class="tip"><b>Your NTID matters</b><span>It's how HQ knows who to come back to with questions. Use your real one, not the store's.</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>What Happens Next</h3>
+    <p class="sub">You don't need to chase anyone &mdash; updates come to you by email.</p>
+    <div class="after">
+      <div class="aft"><div class="n">1 &middot; Confirmation</div><div class="d">Your store, manager and coach get an email straight away with everything you ordered.</div></div>
+      <div class="aft"><div class="n">2 &middot; Fulfilled</div><div class="d">HQ processes the order and marks it fulfilled. You'll get an email when that happens.</div></div>
+      <div class="aft"><div class="n">3 &middot; Shipped</div><div class="d">When it ships you get tracking numbers you can click straight through to the carrier.</div></div>
+    </div>
+  </div>
+
+  <div class="help">
+    <h3>Need Help?</h3>
+    <p>Questions about an order, a missing item or a device that isn't listed &mdash; email the inventory team at<br>
+    <a href="mailto:INVENTORYHELPTEAM@EVOLUTIONWIRELESS.NET"><b>INVENTORYHELPTEAM@EVOLUTIONWIRELESS.NET</b></a><br>
+    and include your order number if you have one.</p>
+  </div>
+
+  <div class="foot">Edgelink Inc. &middot; Accessory Order System</div>
+
+</div>
+</body>
+</html>
