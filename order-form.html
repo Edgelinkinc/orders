@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- BUILD 2026-09-09 accnotes+multitrk+refreshui+landing rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber(multi CARRIER:NUM per line) -->
+<!-- BUILD 2026-09-10 accnotes+multitrk+refreshui rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber(multi CARRIER:NUM per line) -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edgelink Inc. — Accessory Order System</title>
@@ -18,52 +18,6 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);background:#f0f0f0;min-height:100vh;}
 .view{display:none;}.view.active{display:block;}
-/* ---- Landing + HQ guide screens (ld- prefixed so nothing collides with app styles) ---- */
-.ld-page{background:#ececed;min-height:100vh;padding-bottom:50px;}
-.ld-hero{background:linear-gradient(120deg,var(--pu),var(--mg));padding:36px 20px 42px;text-align:center;}
-.ld-hero.hq{background:linear-gradient(120deg,#3b1c60,var(--pu));}
-.ld-logo{display:inline-block;font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:4px;color:#fff;background:rgba(0,0,0,.2);padding:5px 17px;border-radius:6px;margin-bottom:12px;}
-.ld-hero h1{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:3px;color:#fff;margin:0 0 6px;font-weight:400;}
-.ld-hero p{margin:0 auto;color:rgba(255,255,255,.9);font-size:14px;max-width:530px;line-height:1.6;}
-.ld-lock{display:inline-block;margin-top:12px;font-size:10px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);padding:5px 13px;border-radius:20px;}
-.ld-wrap{max-width:900px;margin:0 auto;padding:0 18px;}
-.ld-choices{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:-26px;}
-.ld-choice{background:#fff;border:1.5px solid var(--bd);border-radius:13px;padding:24px;cursor:pointer;box-shadow:0 3px 14px rgba(0,0,0,.07);transition:transform .12s,box-shadow .12s;text-align:left;font-family:'Montserrat',sans-serif;display:block;width:100%;}
-.ld-choice:hover{transform:translateY(-2px);box-shadow:0 7px 22px rgba(0,0,0,.11);}
-.ld-choice .ld-ico{font-size:29px;line-height:1;margin-bottom:10px;}
-.ld-choice h2{font-family:'Bebas Neue',sans-serif;font-size:23px;letter-spacing:2px;color:var(--pu);margin:0 0 6px;font-weight:400;}
-.ld-choice p{margin:0 0 12px;font-size:13px;color:var(--gt);line-height:1.6;}
-.ld-go{display:inline-block;font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:#fff;background:linear-gradient(90deg,var(--pu),var(--mg));padding:9px 16px;border-radius:6px;}
-.ld-tag{display:inline-block;font-size:9px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;padding:3px 8px;border-radius:10px;background:var(--am-l);color:var(--am);border:1px solid #f6d860;margin-left:6px;vertical-align:middle;}
-.ld-card{background:#fff;border:1.5px solid var(--bd);border-radius:13px;padding:26px;margin-top:22px;}
-.ld-card h3{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--pu);margin:0 0 4px;font-weight:400;}
-.ld-sub{font-size:12.5px;color:var(--gt);margin:0 0 20px;line-height:1.6;}
-.ld-steps{list-style:none;counter-reset:s;padding:0;margin:0;}
-.ld-steps li{counter-increment:s;position:relative;padding:0 0 20px 46px;line-height:1.6;}
-.ld-steps li:before{content:counter(s);position:absolute;left:0;top:-1px;width:31px;height:31px;border-radius:50%;background:linear-gradient(135deg,var(--pu),var(--mg));color:#fff;font-family:'Bebas Neue',sans-serif;font-size:16px;display:flex;align-items:center;justify-content:center;}
-.ld-steps li:after{content:'';position:absolute;left:15px;top:34px;bottom:2px;width:2px;background:var(--bd);}
-.ld-steps li:last-child{padding-bottom:0;}
-.ld-steps li:last-child:after{display:none;}
-.ld-steps b{display:block;font-size:14px;margin-bottom:2px;}
-.ld-steps span{font-size:13px;color:var(--gt);}
-.ld-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.ld-grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
-.ld-tip{background:var(--gl);border:1px solid var(--bd);border-left:3px solid var(--mg);border-radius:8px;padding:13px 15px;}
-.ld-tip b{display:block;font-size:12.5px;margin-bottom:3px;}
-.ld-tip span{font-size:12.5px;color:var(--gt);line-height:1.55;}
-.ld-aft{background:var(--gl);border:1px solid var(--bd);border-radius:9px;padding:15px;text-align:center;}
-.ld-aft .n{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1.4px;color:var(--pu);margin-bottom:4px;}
-.ld-aft .d{font-size:12px;color:var(--gt);line-height:1.55;}
-.ld-warn{background:var(--am-l);border:1px solid #f6d860;border-left:3px solid var(--am);border-radius:8px;padding:14px 16px;font-size:12.5px;margin-top:14px;line-height:1.6;}
-.ld-warn b{color:#8a5200;}
-.ld-tbl{width:100%;border-collapse:collapse;font-size:13px;}
-.ld-tbl th{text-align:left;font-size:9px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:#9a9aa8;padding:0 10px 8px 0;border-bottom:1.5px solid var(--bd);}
-.ld-tbl td{padding:10px 10px 10px 0;border-bottom:1px solid #f2f2f6;vertical-align:top;line-height:1.55;}
-.ld-tbl tr:last-child td{border-bottom:none;}
-.ld-help{background:#fff;border:1.5px solid var(--bd);border-radius:13px;padding:22px 26px;margin-top:22px;text-align:center;font-size:13px;color:var(--gt);line-height:1.7;}
-.ld-foot{text-align:center;font-size:11px;color:#9a9aa8;margin-top:24px;}
-.ld-back{background:none;border:none;color:var(--mg);font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;cursor:pointer;text-decoration:underline;padding:0;}
-@media(max-width:640px){.ld-choices,.ld-grid2,.ld-grid3{grid-template-columns:1fr;}.ld-hero h1{font-size:29px;}.ld-card{padding:20px;}}
 .topbar{background:linear-gradient(90deg,var(--pu),var(--mg));height:62px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
 .topbar-left{display:flex;align-items:center;gap:12px;}
 .logo-box{background:#fff;border-radius:4px;padding:4px 10px;}
@@ -329,169 +283,7 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
 <script>if(typeof msal==='undefined'){document.write('<scr'+'ipt src="https://alcdn.msftauth.net/browser/2.35.0/js/msal-browser.min.js"></scr'+'ipt>');}</script>
 </head>
 <body>
-<div class="view active" id="view-landing">
- <div class="ld-page">
-  <div class="ld-hero">
-    <div class="ld-logo">EDGELINK INC.</div>
-    <h1>Accessory Order System</h1>
-    <p>Order handsets, cases, cables and accessories for your store. Orders go straight to the HQ inventory team.</p>
-  </div>
-  <div class="ld-wrap">
-    <div class="ld-choices">
-      <button class="ld-choice" type="button" onclick="openView('form')">
-        <div class="ld-ico">&#128230;</div>
-        <h2>Place an Order</h2>
-        <p>For store employees. Pick your store, choose what you need, and submit. No login required.</p>
-        <span class="ld-go">Start an order &rarr;</span>
-      </button>
-      <button class="ld-choice" type="button" onclick="openView('dashboard')">
-        <div class="ld-ico">&#128202;</div>
-        <h2>HQ Portal<span class="ld-tag">HQ only</span></h2>
-        <p>For the inventory team. Sign in with your Microsoft account to review orders, add purchasing details and tracking, and manage the catalog.</p>
-        <span class="ld-go">Sign in &rarr;</span>
-      </button>
-    </div>
-
-    <div class="ld-card">
-      <h3>How to Place an Order</h3>
-      <p class="ld-sub">Five steps, about two minutes. You can move back and forth between steps before submitting.</p>
-      <ol class="ld-steps">
-        <li><b>Store Info</b><span>Choose your store from the dropdown, then enter your first and last name and your NTID. The order date fills in automatically. Picking your store is what routes the confirmation to the right manager and coach, so get this one right.</span></li>
-        <li><b>Handsets</b><span>Brands are grouped in collapsible sections. For each model, tick Glass, Male Case or Female Case. Use the Notes box on the right of any row for quantities or colors. If a device isn't listed, use <b>+ Add Device</b> at the bottom of that brand.</span></li>
-        <li><b>Cables</b><span>Tick what you need. Ticking an item opens a notes box under it &mdash; use it for quantity.</span></li>
-        <li><b>Audio &amp; Misc</b><span>Same as cables. Buds, power banks, mounts and everything else lives here. Ticking an item opens a notes box under it &mdash; use it for quantity.</span></li>
-        <li><b>Review &amp; Submit</b><span>Check the summary, add any overall notes for the inventory team, then hit Submit. You'll see your order number on screen &mdash; write it down.</span></li>
-      </ol>
-    </div>
-
-    <div class="ld-card">
-      <h3>Before You Submit</h3>
-      <p class="ld-sub">Four things that save everyone a phone call.</p>
-      <div class="ld-grid2">
-        <div class="ld-tip"><b>Quantities go in the Notes box</b><span>A tick means "we need this." If you need ten, say so in the notes &mdash; otherwise HQ is guessing.</span></div>
-        <div class="ld-tip"><b>Watch for the EOL badge</b><span>A device marked EOL is end-of-life. Stock may be limited or gone, so add a backup in your notes.</span></div>
-        <div class="ld-tip"><b>One order per run</b><span>Put everything you need in a single order rather than submitting three small ones. It ships together and it's easier to track.</span></div>
-        <div class="ld-tip"><b>Your NTID matters</b><span>It's how HQ knows who to come back to with questions. Use your real one, not the store's.</span></div>
-      </div>
-    </div>
-
-    <div class="ld-card">
-      <h3>What Happens Next</h3>
-      <p class="ld-sub">You don't need to chase anyone &mdash; updates come to you by email.</p>
-      <div class="ld-grid3">
-        <div class="ld-aft"><div class="n">1 &middot; Confirmation</div><div class="d">Your store, manager and coach get an email straight away with everything you ordered.</div></div>
-        <div class="ld-aft"><div class="n">2 &middot; Fulfilled</div><div class="d">HQ processes the order and marks it fulfilled. You'll get an email when that happens.</div></div>
-        <div class="ld-aft"><div class="n">3 &middot; Shipped</div><div class="d">When it ships you get tracking numbers you can click straight through to the carrier.</div></div>
-      </div>
-    </div>
-
-    <div class="ld-help">
-      <h3 style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--pu);margin:0 0 8px;font-weight:400;">Need Help?</h3>
-      Questions about an order, a missing item or a device that isn't listed &mdash; email the inventory team at<br>
-      <a href="mailto:INVENTORYHELPTEAM@EVOLUTIONWIRELESS.NET" style="color:var(--mg);font-weight:700;">INVENTORYHELPTEAM@EVOLUTIONWIRELESS.NET</a><br>
-      and include your order number if you have one.
-    </div>
-
-    <div class="ld-foot">Edgelink Inc. &middot; Accessory Order System</div>
-  </div>
- </div>
-</div>
-
-<div class="view" id="view-hq">
- <div class="ld-page">
-  <div class="ld-hero hq">
-    <div class="ld-logo">EDGELINK INC.</div>
-    <h1>HQ Inventory Portal</h1>
-    <p>Review incoming accessory orders, add purchasing details and tracking, and manage the catalog for all locations.</p>
-    <div class="ld-lock">&#128274; Authorized HQ staff only</div>
-  </div>
-  <div class="ld-wrap">
-    <div class="ld-card" style="margin-top:-26px;text-align:center;">
-      <div class="ld-ico" style="font-size:29px;line-height:1;margin-bottom:10px;">&#128202;</div>
-      <h3>Back to the Dashboard</h3>
-      <p class="ld-sub">You're signed in. This guide stays available from the <b>? Guide</b> button in the dashboard top bar.</p>
-      <button class="ld-go" type="button" style="border:none;cursor:pointer;font-family:'Montserrat',sans-serif;" onclick="openView('dashboard')">Open dashboard &rarr;</button>
-    </div>
-
-    <div class="ld-card">
-      <h3>Processing an Order</h3>
-      <p class="ld-sub">The whole job happens in one panel. Everything you enter updates every tab at once.</p>
-      <ol class="ld-steps">
-        <li><b>Find the order</b><span>Go to <b>All Orders</b> and use the search box &mdash; it matches store, employee, NTID, order ID or PO number. The filters narrow by status, tracking state and store. Click <b>View</b> on the row.</span></li>
-        <li><b>Add purchasing details</b><span>In the &#128274; Admin Only panel, enter the <b>Purchase Order #</b> and <b>Cost</b>. Cost drives every spend figure on the Analytics tab, so put it in even if the order is small.</span></li>
-        <li><b>Add tracking</b><span>Pick the carrier and paste the tracking number. For a split shipment, hit <b>+ Add tracking #</b> for each box &mdash; or paste all the numbers at once and they'll fill separate rows automatically, one per line.</span></li>
-        <li><b>Set the two statuses</b><span><b>Tracking Status</b> is where the boxes are. <b>Order Status</b> is whether you're done with it. They're independent &mdash; see the table below.</span></li>
-        <li><b>Save &amp; Update All Tabs</b><span>One click writes to SharePoint and refreshes every view. If a status changed, this is also what sends the store their email.</span></li>
-      </ol>
-    </div>
-
-    <div class="ld-card">
-      <h3>The Two Statuses</h3>
-      <p class="ld-sub">They mean different things and they don't move together. Setting them correctly is what keeps Analytics honest.</p>
-      <table class="ld-tbl">
-        <thead><tr><th style="width:38%">Tracking Status</th><th>Use it when</th></tr></thead>
-        <tbody>
-          <tr><td><span class="badge badge-await">Pending</span></td><td>Order received, nothing shipped yet. Where every new order starts.</td></tr>
-          <tr><td><span class="badge badge-transit">In Transit</span></td><td>It's shipped and there's a tracking number. Counts toward Pending Cost.</td></tr>
-          <tr><td><span class="badge badge-partial">Partially Delivered</span></td><td>Some boxes arrived, others still moving.</td></tr>
-          <tr><td><span class="badge badge-delivered">Delivered</span></td><td>Everything arrived. Only Delivered orders with a cost count as spend.</td></tr>
-        </tbody>
-      </table>
-      <div class="ld-warn"><b>Order Status</b> is separate: <b>Pending</b> means you haven't finished processing it, <b>Fulfilled</b> means you have. An order can be Fulfilled and still In Transit &mdash; that's normal and correct.</div>
-    </div>
-
-    <div class="ld-card">
-      <h3>What Sends an Email</h3>
-      <p class="ld-sub">Stores are notified automatically. You never send anything by hand.</p>
-      <div class="ld-grid3">
-        <div class="ld-aft"><div class="n">Tracking Status changes</div><div class="d">Pending &rarr; In Transit &rarr; Delivered</div></div>
-        <div class="ld-aft"><div class="n">Marked Fulfilled</div><div class="d">Order Status moves to Fulfilled</div></div>
-        <div class="ld-aft"><div class="n">New tracking number</div><div class="d">Including a box added days later</div></div>
-      </div>
-      <div class="ld-warn">Store email in <b>To</b>, manager and coach in <b>CC</b>, all read from the EdgeLink Store Roster. Editing a PO or fixing a cost sends nothing. If two things change in one save the store gets <b>one</b> email covering both. Removing a tracking number sends nothing &mdash; if you emailed a wrong number, tell the store directly.</div>
-    </div>
-
-    <div class="ld-card">
-      <h3>The Tabs</h3>
-      <p class="ld-sub">Everything across the top of the dashboard.</p>
-      <div class="ld-grid2">
-        <div class="ld-tip"><b>Overview</b><span>Counts, recent orders and spend at a glance.</span></div>
-        <div class="ld-tip"><b>All Orders</b><span>The working list. Search, filter, open, edit.</span></div>
-        <div class="ld-tip"><b>By Store</b><span>Volume and spend broken out per location.</span></div>
-        <div class="ld-tip"><b>Store Activity</b><span>Who's ordering and who's gone quiet &mdash; 14 / 30 / 30+ days, with a Follow Up button.</span></div>
-        <div class="ld-tip"><b>Top Items</b><span>Most-ordered handsets and accessories across all stores.</span></div>
-        <div class="ld-tip"><b>Analytics</b><span>Spend over time, averages, pending cost. Date range and weekly/monthly toggle.</span></div>
-      </div>
-    </div>
-
-    <div class="ld-card">
-      <h3>Admin Tab</h3>
-      <p class="ld-sub">Catalog and settings. Only HQ users with admin-edit rights see this &mdash; everyone else gets a view-only notice.</p>
-      <div class="ld-grid2">
-        <div class="ld-tip"><b>Handsets / Cables / Audio</b><span>The catalog reps order from. Add models, mark devices EOL, retire what's gone.</span></div>
-        <div class="ld-tip"><b>Announcements</b><span>A banner on the order form. Use it for shortages and cutoffs.</span></div>
-        <div class="ld-tip"><b>Notifications &amp; Settings</b><span>The inventory team address and who gets copied on new orders by default.</span></div>
-        <div class="ld-tip"><b>HQ Users</b><span>Who can reach this dashboard, and who can edit. The last remaining admin can't be removed.</span></div>
-      </div>
-      <div class="ld-warn"><b>Stores are not edited here.</b> The roster is read live from the <b>EdgeLink Store Roster</b> list in SharePoint. To add a location or change a manager, coach or email, edit that list directly &mdash; changes appear on the next load, no publishing needed.</div>
-    </div>
-
-    <div class="ld-card">
-      <h3>If Something Looks Wrong</h3>
-      <div class="ld-grid2">
-        <div class="ld-tip"><b>An edit didn't stick</b><span>Hit Refresh in the top bar. If it's still wrong, the Power Automate run history shows what the save actually sent.</span></div>
-        <div class="ld-tip"><b>A store didn't get its email</b><span>Check that store has a Store Email in the roster. No address means the email is skipped silently.</span></div>
-        <div class="ld-tip"><b>The catalog looks stale</b><span>Reps' browsers cache the form. A hard refresh (Ctrl+Shift+R) picks up catalog changes.</span></div>
-        <div class="ld-tip"><b>You can't edit anything</b><span>Your HQ user record doesn't have admin-edit rights. Another admin can toggle it under HQ Users.</span></div>
-      </div>
-    </div>
-
-    <div class="ld-foot">Edgelink Inc. &middot; HQ Inventory Portal &middot; Internal use only &middot; <button class="ld-back" type="button" onclick="openView('dashboard')">Back to dashboard</button></div>
-  </div>
- </div>
-</div>
-
-<div class="view" id="view-form">
+<div class="view active" id="view-form">
   <div class="topbar">
     <div class="topbar-left">
       <div class="logo-box"><span class="logo-text">EDGELINK INC.</span></div>
@@ -499,7 +291,7 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
     </div>
     <div class="topbar-right">
       <div class="tb-btn" id="form-order-badge">ORDER #—</div>
-      <button class="tb-btn white" onclick="openView('landing')">&#8962; Home</button>
+      <button class="tb-btn white" onclick="openView('dashboard')">HQ Dashboard</button>
     </div>
   </div>
   <div class="form-steps" id="form-steps-nav">
@@ -570,7 +362,7 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
       </button>
       <div id="login-status" style="font-size:11px;font-weight:700;color:var(--gt);margin-top:12px;display:none;">Signing in…</div>
       <div id="login-err" style="color:var(--mg);font-size:11px;font-weight:700;margin-top:8px;display:none;"></div>
-      <div style="margin-top:16px;"><button class="btn btn-ghost btn-sm" onclick="openView('landing')">← Back to Home</button></div>
+      <div style="margin-top:16px;"><button class="btn btn-ghost btn-sm" onclick="openView('form')">← Back to Order Form</button></div>
     </div>
   </div>
 </div>
@@ -582,7 +374,6 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
       <div id="dash-date" style="color:rgba(255,255,255,.8);font-size:11px;font-weight:600;"></div>
       <div id="current-user-label" style="color:#fff;font-size:11px;font-weight:700;"></div>
       <button class="tb-btn" id="btn-refresh" onclick="loadOrders(this)">&#8635; Refresh</button>
-      <button class="tb-btn" onclick="openView('hq')">&#63; Guide</button>
       <button class="tb-btn white" onclick="openView('form')">Order Form</button>
       <button class="tb-btn" onclick="msSignOut()">Sign Out</button>
     </div>
@@ -787,7 +578,7 @@ function applyAdminRights(){
   var who=document.getElementById('current-user-label');if(who&&currentUser)who.textContent=currentUser.name;
 }
 
-var ALL_VIEWS=['view-landing','view-hq','view-form','view-login','view-dashboard'];
+var ALL_VIEWS=['view-form','view-login','view-dashboard'];
 function hideAllViews(){
   ALL_VIEWS.forEach(function(v){var el=document.getElementById(v);if(el)el.classList.remove('active');});
 }
@@ -800,12 +591,7 @@ function openView(name){
       document.getElementById('dash-date').textContent=TODAY.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
       loadOrders();
     }else{showView('view-login');}
-  }else if(name==='form'){showView('view-form');}
-  else if(name==='hq'){
-    // The HQ guide is gated: nothing about the HQ side is visible until an admin has signed in.
-    if(currentUser){showView('view-hq');}else{showView('view-login');}
-  }
-  else{showView('view-landing');}
+  }else{showView('view-form');}
 }
 
 // On page load, silently restore an existing Microsoft session if there is one.
@@ -1845,15 +1631,12 @@ loadConfig();
   if(acct){currentUser={name:acct.name||acct.username,email:(acct.username||'').toLowerCase()};}
 })();
 
-// Entry-point routing. The landing screen is the default on EVERY link — dashboard.html and
-// order-form.html are the same file, so both land here first and the user picks a side.
-// ?view=dashboard / ?view=form / ?view=hq deep-link straight through for anyone who bookmarks.
+// Entry-point routing: opening dashboard.html (or ?view=dashboard) goes to the HQ side;
+// order-form.html (or the site root) shows the employee order form.
 (function(){
+  var p=(location.pathname||'').toLowerCase();
   var q=(location.search||'').toLowerCase();
-  if(q.indexOf('view=dashboard')>-1){openView('dashboard');}
-  else if(q.indexOf('view=form')>-1){openView('form');}
-  else if(q.indexOf('view=hq')>-1){openView('hq');}
-  else{openView('landing');}
+  if(p.indexOf('dashboard')>-1||q.indexOf('view=dashboard')>-1){openView('dashboard');}
 })();
 </script>
 </body>
