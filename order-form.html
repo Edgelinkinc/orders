@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- BUILD 2026-09-17 accnotes+multitrk+refreshui+qty+lockdate rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber(multi CARRIER:NUM per line) -->
+<!-- BUILD 2026-09-17 accnotes+multitrk+qty+lockdate+qtyordered+actwindow rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber(multi CARRIER:NUM per line) -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edgelink Inc. — Accessory Order System</title>
@@ -129,6 +129,20 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
 .acc-rev{display:none;margin-top:7px;gap:8px;align-items:center;}
 .acc-rev.show{display:flex;}
 .acc-qty-lbl{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#aaa;}
+.qty-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:12px 0;}
+.qty-tile{background:var(--gl);border:1.5px solid var(--bd);border-radius:9px;padding:11px 13px;}
+.qty-tile.req{border-left:3px solid var(--pu);}
+.qty-tile.ord{border-left:3px solid var(--mg);}
+.qty-tile.varr{border-left:3px solid var(--gn);}
+.qty-tile.varr.short{border-left-color:var(--rd);background:var(--rd-l);}
+.qty-tile .l{font-size:9px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:#9a9aa8;margin-bottom:3px;}
+.qty-tile .v{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1;color:var(--pu);}
+.qty-tile.ord .v{color:var(--mg);}
+.qty-tile.varr .v{color:var(--gn-d);}
+.qty-tile.varr.short .v{color:var(--rd);}
+.qty-tile .s{font-size:10px;color:var(--gt);margin-top:2px;}
+.admin-input.hi{border-color:var(--mg);border-width:2px;background:var(--mg-l);font-weight:700;}
+.it-q{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--pu);margin-left:10px;white-space:nowrap;}
 .acc-qty{width:52px;flex:0 0 52px;background:#fff;border:1.5px solid var(--mg);border-radius:5px;padding:4px 5px;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:700;text-align:center;color:var(--pu);outline:none;}
 .custom-row-wrap{margin-top:12px;border-top:1.5px dashed var(--bd);padding-top:12px;}
 .custom-row{display:flex;gap:8px;margin-bottom:6px;align-items:center;flex-wrap:wrap;}
@@ -423,13 +437,19 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
       <div class="card"><div class="card-header"><span class="card-title">Orders per Store</span></div><div class="card-body" style="padding:0;overflow-x:auto;"><table class="tbl"><thead><tr><th>Store</th><th>Total</th><th>Pending</th><th>Fulfilled</th><th>Spent</th><th>Last Order</th><th>Days Since</th></tr></thead><tbody id="stores-tbody"></tbody></table></div></div>
     </div>
     <div class="tab-panel" id="tab-activity">
-      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;">
-        <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--gt);"><div style="width:10px;height:10px;border-radius:50%;background:var(--gn-d);"></div>Last 14 days</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--gt);"><div style="width:10px;height:10px;border-radius:50%;background:var(--am);"></div>Last 30 days</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--gt);"><div style="width:10px;height:10px;border-radius:50%;background:var(--rd);"></div>30+ days / never</div>
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-header">
+          <span class="card-title">Store Activity</span>
+          <div class="period-toggle">
+            <button class="period-btn active" id="actwin-14" onclick="setActivityWindow(14,this)">14 Days</button>
+            <button class="period-btn" id="actwin-30" onclick="setActivityWindow(30,this)">30 Days</button>
+            <button class="period-btn" id="actwin-0" onclick="setActivityWindow(0,this)">All Time</button>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--gt);padding:9px 16px;background:var(--pu-l);border-top:1px solid #d9c8f0;" id="actwin-hint"></div>
       </div>
       <div class="activity-grid" id="activity-cards"></div>
-      <div class="card"><div class="card-header"><span class="card-title">Store Activity Detail</span><select class="filter-select" onchange="renderActivityDetail(this.value)" id="activity-filter" style="font-size:10px;padding:4px 8px;"><option value="all">All Stores</option><option value="14">Active 14d</option><option value="30">Active 30d</option><option value="inactive">Inactive</option></select></div><div id="activity-detail"></div></div>
+      <div class="card"><div class="card-header"><span class="card-title">Store Activity Detail</span><select class="filter-select" onchange="renderActivityDetail(this.value)" id="activity-filter" style="font-size:10px;padding:4px 8px;"><option value="all">All Stores</option><option value="ordered">Ordered</option><option value="lapsed">No orders in window</option><option value="never">Never ordered</option></select></div><div id="activity-detail"></div></div>
     </div>
     <div class="tab-panel" id="tab-items">
       <div class="two-col"><div class="card"><div class="card-header"><span class="card-title">Most Ordered Handsets</span></div><div class="card-body" id="top-handsets"></div></div><div class="card"><div class="card-header"><span class="card-title">Most Ordered Accessories</span></div><div class="card-body" id="top-accessories"></div></div></div>
@@ -519,6 +539,7 @@ var formData={handsets:[],cables:[],audio:[],stores:[],announcements:[]};
 var rosterData=[];
 var adminData={handsets:[],cables:[],audio:[],stores:[],announcements:[],notifications:[],hqUsers:[],settings:{inventoryEmail:'INVENTORYHELPTEAM@EVOLUTIONWIRELESS.NET',notifyManager:true,notifyCoach:true,notifyStore:true}};
 var checks={},specials={},customRows={},qtys={};
+var ACT_WINDOW=14; // Store Activity window: 14 / 30 days, or 0 for all time
 // Local-date string. Never use toISOString() here — after ~8pm Eastern that returns tomorrow.
 function localISO(d){var m=d.getMonth()+1,dy=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dy<10?'0':'')+dy;}
 function qtyOf(key){var v=parseInt(qtys[key],10);return v>0?v:1;}
@@ -1211,7 +1232,7 @@ async function loadOrders(btn){
     if(Array.isArray(d))items=d;else if(d.value&&Array.isArray(d.value))items=d.value;else if(d.body&&Array.isArray(d.body.value))items=d.body.value;else if(d.body&&Array.isArray(d.body))items=d.body;
     var raw=items.map(function(item){
       function f(a,b){return item[a]||item[b]||'';}
-      return{id:f('Title','OrderID'),employee:f('Employee','employee'),ntid:f('NTID','ntid'),store:f('Store','store'),storeEmail:f('StoreEmail','store_email'),date:f('OrderDate','order_date')||(item.Created?item.Created.split('T')[0]:''),status:f('Status','status')||'pending',handsets:f('HandsetItems','handset_items'),cables:f('CableItems','cable_items'),audio:f('AudioItems','audio_items'),notes:f('OrderNotes','order_notes'),po:f('PurchaseOrder','po'),cost:f('Cost','cost'),trackingNo:f('TrackingNumber','tracking_number')||'',received:f('Received','received')||'pending',spId:item.ID||item.Id||item.id||''};
+      return{id:f('Title','OrderID'),employee:f('Employee','employee'),ntid:f('NTID','ntid'),store:f('Store','store'),storeEmail:f('StoreEmail','store_email'),date:f('OrderDate','order_date')||(item.Created?item.Created.split('T')[0]:''),status:f('Status','status')||'pending',handsets:f('HandsetItems','handset_items'),cables:f('CableItems','cable_items'),audio:f('AudioItems','audio_items'),notes:f('OrderNotes','order_notes'),po:f('PurchaseOrder','po'),cost:f('Cost','cost'),qtyOrdered:f('QtyOrdered','qty_ordered'),trackingNo:f('TrackingNumber','tracking_number')||'',received:f('Received','received')||'pending',spId:item.ID||item.Id||item.id||''};
     });
     var seen={};
     raw.forEach(function(o){if(!o.id)return;if(!seen[o.id]||parseInt(o.spId)>parseInt(seen[o.id].spId))seen[o.id]=o;});
@@ -1293,27 +1314,87 @@ function renderStoreBreakdown(){
 }
 
 function renderActivityTab(){
-  var slo={};orders.forEach(function(o){if(!slo[o.store]||o.date>slo[o.store].date)slo[o.store]={date:o.date,employee:o.employee,orderId:o.id};});
-  var a14=[],a30=[],inactive=[];
-  getStoreList().forEach(function(store){var last=slo[store];if(!last){inactive.push({store:store,last:null,days:null});}else{var days=daysDiff(last.date);if(days<=14)a14.push({store:store,last:last,days:days});else if(days<=30)a30.push({store:store,last:last,days:days});else inactive.push({store:store,last:last,days:days});}});
+  var W=ACT_WINDOW;
+  var cutoff=null;
+  if(W>0){cutoff=new Date(TODAY.getTime()-W*86400000);}
+  // Per store: last order, orders inside the window, items requested inside the window.
+  var stats={};
+  getStoreList().forEach(function(st){stats[st]={last:null,inWin:0,items:0,total:0};});
+  orders.forEach(function(o){
+    if(!stats[o.store])stats[o.store]={last:null,inWin:0,items:0,total:0};
+    var st=stats[o.store];
+    st.total++;
+    if(!st.last||o.date>st.last.date)st.last={date:o.date,employee:o.employee,orderId:o.id};
+    if(!cutoff||(o.date&&new Date(o.date)>=cutoff)){st.inWin++;st.items+=requestedTotal(o);}
+  });
+  var ordered=[],lapsed=[],never=[];
+  getStoreList().forEach(function(store){
+    var st=stats[store]||{last:null,inWin:0,items:0,total:0};
+    var days=st.last?daysDiff(st.last.date):null;
+    var row={store:store,last:st.last,days:days,inWin:st.inWin,items:st.items,total:st.total};
+    if(st.total===0)never.push(row);
+    else if(st.inWin>0)ordered.push(row);
+    else lapsed.push(row);
+  });
+  lapsed.sort(function(a,b){return (b.days||0)-(a.days||0);});
+  ordered.sort(function(a,b){return b.items-a.items;});
+  var winLbl=W>0?('last '+W+' days'):'all time';
+  var hint=document.getElementById('actwin-hint');
+  if(hint)hint.innerHTML=W>0
+    ? 'Showing <b>'+winLbl+'</b>. Stores with no order in '+W+' days are flagged for follow-up.'
+    : 'Showing <b>every order on record</b>. No window applied.';
   var cards=document.getElementById('activity-cards');
-  cards.innerHTML='<div class="act-card green"><div class="act-hdr"><div class="act-hdr-title">Active — Last 14 Days</div><div class="act-count">'+a14.length+'</div></div>'+a14.map(function(s){return '<div class="act-store-row"><div style="font-weight:600;font-size:12px;">'+s.store+'</div><span class="days-ago green">'+s.days+'d</span></div>';}).join('')+'</div>'+'<div class="act-card amber"><div class="act-hdr"><div class="act-hdr-title">Active — Last 30 Days</div><div class="act-count">'+a30.length+'</div></div>'+a30.map(function(s){return '<div class="act-store-row"><div style="font-weight:600;font-size:12px;">'+s.store+'</div><span class="days-ago amber">'+s.days+'d</span></div>';}).join('')+'</div>'+'<div class="act-card red"><div class="act-hdr"><div class="act-hdr-title">No Order 30+ Days</div><div class="act-count">'+inactive.length+'</div></div>'+inactive.map(function(s){return '<div class="act-store-row"><div style="font-weight:600;font-size:12px;">'+s.store+'<div style="font-size:10px;color:var(--gt);">'+(s.last?'Last: '+s.last.date:'Never ordered')+'</div></div><button class="nudge-btn" onclick="nudgeStore(\''+s.store+'\')">Follow Up</button></div>';}).join('')+'</div>';
-  renderActivityDetail('all');
+  cards.innerHTML=
+    '<div class="act-card green"><div class="act-hdr"><div class="act-hdr-title">Ordered &mdash; '+winLbl+'</div><div class="act-count">'+ordered.length+'</div></div>'+
+      (ordered.length?ordered.map(function(s){return '<div class="act-store-row"><div style="font-weight:600;font-size:12px;">'+s.store+'<div style="font-size:10px;color:var(--gt);font-weight:400;">'+s.inWin+' order'+(s.inWin===1?'':'s')+' &middot; '+s.items+' item'+(s.items===1?'':'s')+'</div></div><span class="days-ago green">'+s.days+'d</span></div>';}).join('')
+        :'<div class="act-store-row" style="color:#bbb;font-weight:400;">None</div>')+'</div>'+
+    '<div class="act-card red"><div class="act-hdr"><div class="act-hdr-title">'+(W>0?('No order in '+W+' days'):'No orders')+'</div><div class="act-count">'+lapsed.length+'</div></div>'+
+      (lapsed.length?lapsed.map(function(s){return '<div class="act-store-row"><div style="font-weight:600;font-size:12px;">'+s.store+'<div style="font-size:10px;color:var(--gt);font-weight:400;">Last: '+(s.last?s.last.date:'—')+'</div></div><button class="nudge-btn" onclick="nudgeStore(\''+s.store+'\')">Follow Up</button></div>';}).join('')
+        :'<div class="act-store-row" style="color:#bbb;font-weight:400;">None</div>')+'</div>'+
+    '<div class="act-card"><div class="act-hdr" style="background:#eceff1;border-bottom:1.5px solid #cfd8dc;"><div class="act-hdr-title" style="color:#546e7a;">Never ordered</div><div class="act-count" style="color:#546e7a;">'+never.length+'</div></div>'+
+      (never.length?never.map(function(s){return '<div class="act-store-row"><div style="font-weight:600;font-size:12px;">'+s.store+'<div style="font-size:10px;color:var(--gt);font-weight:400;">No orders on record</div></div><button class="nudge-btn" onclick="nudgeStore(\''+s.store+'\')">Follow Up</button></div>';}).join('')
+        :'<div class="act-store-row" style="color:#bbb;font-weight:400;">None</div>')+'</div>';
+  renderActivityDetail(document.getElementById('activity-filter')?document.getElementById('activity-filter').value:'all');
 }
-
+function setActivityWindow(w,btn){
+  ACT_WINDOW=w;
+  ['actwin-14','actwin-30','actwin-0'].forEach(function(id){var e=document.getElementById(id);if(e)e.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  renderActivityTab();
+}
 function renderActivityDetail(filter){
-  document.getElementById('activity-filter').value=filter;
-  var slo={};orders.forEach(function(o){if(!slo[o.store]||o.date>slo[o.store].date)slo[o.store]={date:o.date,employee:o.employee,orderId:o.id};});
-  var rows=getStoreList().map(function(store){var last=slo[store];var days=last?daysDiff(last.date):null;var bucket=days===null?'inactive':days<=14?'14':days<=30?'30':'inactive';return{store:store,last:last,days:days,bucket:bucket};}).filter(function(r){return filter==='all'||r.bucket===filter;});
+  var sel=document.getElementById('activity-filter');
+  if(sel)sel.value=filter||'all';
+  var W=ACT_WINDOW,cutoff=W>0?new Date(TODAY.getTime()-W*86400000):null;
+  var stats={};
+  getStoreList().forEach(function(st){stats[st]={last:null,inWin:0,items:0,total:0};});
+  orders.forEach(function(o){
+    if(!stats[o.store])stats[o.store]={last:null,inWin:0,items:0,total:0};
+    var st=stats[o.store];st.total++;
+    if(!st.last||o.date>st.last.date)st.last={date:o.date,employee:o.employee,orderId:o.id};
+    if(!cutoff||(o.date&&new Date(o.date)>=cutoff)){st.inWin++;st.items+=requestedTotal(o);}
+  });
+  var rows=getStoreList().map(function(store){
+    var st=stats[store]||{last:null,inWin:0,items:0,total:0};
+    var days=st.last?daysDiff(st.last.date):null;
+    var bucket=st.total===0?'never':(st.inWin>0?'ordered':'lapsed');
+    return{store:store,last:st.last,days:days,inWin:st.inWin,items:st.items,total:st.total,bucket:bucket};
+  }).filter(function(r){return !filter||filter==='all'||r.bucket===filter;});
   var body=document.getElementById('activity-detail');
   if(!rows.length){body.innerHTML='<div style="padding:16px;color:#aaa;text-align:center;">No stores match this filter</div>';return;}
-  var html='<table class="tbl"><thead><tr><th>Store</th><th>Last Order</th><th>Employee</th><th>Total Orders</th><th>Days Since</th><th>Status</th><th></th></tr></thead><tbody>';
+  var winLbl=W>0?('last '+W+'d'):'all time';
+  var html='<table class="tbl"><thead><tr><th>Store</th><th>Last Order</th><th>Employee</th><th>Orders ('+winLbl+')</th><th>Items ('+winLbl+')</th><th>Total Orders</th><th>Days Since</th><th>Status</th><th></th></tr></thead><tbody>';
   rows.forEach(function(r){
     var days=r.days;
-    var badge=days===null?'<span class="badge" style="background:var(--rd-l);color:var(--rd);border:1px solid #f5a0a0;">No Orders</span>':days<=14?'<span class="badge" style="background:#e8f5e9;color:#1b5e20;border:1px solid #81c784;">Active 14d</span>':days<=30?'<span class="badge" style="background:#fff8e1;color:#e65100;border:1px solid #ffcc02;">Active 30d</span>':'<span class="badge" style="background:var(--rd-l);color:var(--rd);border:1px solid #f5a0a0;">Inactive</span>';
+    var badge=r.bucket==='never'?'<span class="badge" style="background:#eceff1;color:#546e7a;border:1px solid #cfd8dc;">Never Ordered</span>'
+      :r.bucket==='ordered'?'<span class="badge" style="background:#e8f5e9;color:#1b5e20;border:1px solid #81c784;">Ordered</span>'
+      :'<span class="badge" style="background:var(--rd-l);color:var(--rd);border:1px solid #f5a0a0;">No Orders '+(W>0?('in '+W+'d'):'')+'</span>';
     var dText=days===null?'<span style="color:#aaa;">—</span>':days<=14?'<span class="days-ago green">'+days+'d ago</span>':days<=30?'<span class="days-ago amber">'+days+'d ago</span>':'<span class="days-ago red">'+days+'d ago</span>';
-    var total=orders.filter(function(o){return o.store===r.store;}).length;
-    html+='<tr><td style="font-weight:700">'+r.store+'</td><td style="color:var(--gt)">'+(r.last?r.last.date:'—')+'</td><td>'+(r.last?r.last.employee:'—')+'</td><td style="font-family:\'Bebas Neue\',sans-serif;font-size:14px;color:var(--pu)">'+total+'</td><td>'+dText+'</td><td>'+badge+'</td><td style="display:flex;gap:5px;">'+(r.last?'<button class="fulfill-btn" onclick="viewOrder(\''+r.last.orderId+'\')">Last Order</button>':'')+'<button class="nudge-btn" onclick="nudgeStore(\''+r.store+'\')">Follow Up</button></td></tr>';
+    html+='<tr><td style="font-weight:700">'+r.store+'</td><td style="color:var(--gt)">'+(r.last?r.last.date:'—')+'</td><td>'+(r.last?r.last.employee:'—')+'</td>'+
+      '<td style="font-family:\'Bebas Neue\',sans-serif;font-size:14px;color:var(--pu)">'+r.inWin+'</td>'+
+      '<td style="font-family:\'Bebas Neue\',sans-serif;font-size:14px;color:var(--mg)">'+r.items+'</td>'+
+      '<td style="color:var(--gt)">'+r.total+'</td><td>'+dText+'</td><td>'+badge+'</td>'+
+      '<td style="display:flex;gap:5px;">'+(r.last?'<button class="fulfill-btn" onclick="viewOrder(\''+r.last.orderId+'\')">Last Order</button>':'')+'<button class="nudge-btn" onclick="nudgeStore(\''+r.store+'\')">Follow Up</button></td></tr>';
   });
   html+='</tbody></table>';body.innerHTML=html;
 }
@@ -1328,6 +1409,32 @@ function nudgeStore(store){alert('Follow-up flagged for: '+store);}
    Result is units per orderable thing, which is what an inventory team actually stocks. */
 // An order with nothing in a section stores the literal "None" — never count that as an item.
 function tiSkip(l){return !l||/^none$/i.test(l);}
+/* ---- Requested quantities, read back off a stored order ----
+   A handset line is "Model: Glass x10, Male x5 (note)"; an accessory line is
+   "Section: Item x3 (note)". Legacy lines carry no xN, so each selection counts as 1. */
+function reqLineItems(line,isHandset){
+  var l=tiStripNote(line);if(tiSkip(l))return [];
+  if(!isHandset){var nm=tiName(l);return nm?[{label:nm,qty:tiQty(l)}]:[];}
+  var i=l.indexOf(': ');
+  if(i<0){var solo=tiName(l);return solo?[{label:solo,qty:tiQty(l)}]:[];}
+  var model=l.slice(0,i).trim(),rest=l.slice(i+2).trim(),out=[];
+  if(!model||!rest||rest==='note only')return [];
+  rest.split(',').forEach(function(tok){
+    var part=tiName(tok);if(!part)return;
+    out.push({label:model+' — '+part,qty:tiQty(tok)});
+  });
+  return out;
+}
+function reqSection(raw,isHandset){
+  var items=[],total=0;
+  (raw||'').split('|').forEach(function(line){
+    reqLineItems(line,isHandset).forEach(function(it){items.push(it);total+=it.qty;});
+  });
+  return{items:items,total:total};
+}
+function requestedTotal(o){
+  return reqSection(o.handsets,true).total+reqSection(o.cables,false).total+reqSection(o.audio,false).total;
+}
 function tiStripNote(line){return (''+line).replace(/\s*\([^)]*\)\s*$/,'').trim();}
 function tiQty(tok){var m=(''+tok).match(/\s+x(\d+)\s*$/i);return m?parseInt(m[1],10):1;}
 function tiName(tok){return (''+tok).replace(/\s+x\d+\s*$/i,'').replace(/[\s,]+$/,'').trim();}
@@ -1370,6 +1477,42 @@ function renderTopList(cid,cm){
   sorted.forEach(function(entry,i){var name=entry[0],count=entry[1];var pct=Math.round((count/max)*100);var d=document.createElement('div');d.className='top-item';d.innerHTML='<div class="top-rank">'+(i+1)+'</div><div style="flex:1"><div class="top-name">'+name+'</div><div class="top-bar-wrap"><div class="top-bar" style="width:'+pct+'%"></div></div></div><div class="top-count">'+count+'</div>';c.appendChild(d);});
 }
 
+// Requested vs ordered summary above Purchasing Details.
+function qtyStripHtml(o,reqTot){
+  var q=(o.qtyOrdered===''||o.qtyOrdered===null||typeof o.qtyOrdered==='undefined')?null:parseInt(o.qtyOrdered,10);
+  var hasQ=!(q===null||isNaN(q));
+  var diff=hasQ?(q-reqTot):null;
+  return '<div class="qty-strip">'+
+    '<div class="qty-tile req"><div class="l">Items Requested</div><div class="v" id="qt-req-'+o.id+'">'+reqTot+'</div><div class="s">from the rep\'s order</div></div>'+
+    '<div class="qty-tile ord"><div class="l">Qty Ordered</div><div class="v" id="qt-ord-'+o.id+'">'+(hasQ?q:'—')+'</div><div class="s">what HQ purchased</div></div>'+
+    '<div class="qty-tile varr'+(hasQ&&diff<0?' short':'')+'" id="qt-var-tile-'+o.id+'"><div class="l">Difference</div><div class="v" id="qt-var-'+o.id+'">'+(hasQ?((diff>0?'+':'')+diff):'—')+'</div><div class="s" id="qt-var-s-'+o.id+'">'+(hasQ?(diff===0?'matches the request':diff<0?(Math.abs(diff)+' short of request'):(diff+' over request')):'not entered yet')+'</div></div>'+
+  '</div>';
+}
+// Live-update the tiles as HQ types, without a save round-trip.
+function syncQtyTiles(id,reqTot){
+  var el=document.getElementById('edit-qty-'+id);if(!el)return;
+  var raw=el.value,q=parseInt(raw,10),hasQ=(raw!==''&&!isNaN(q)&&q>=0);
+  var ordEl=document.getElementById('qt-ord-'+id),varEl=document.getElementById('qt-var-'+id),
+      sEl=document.getElementById('qt-var-s-'+id),tile=document.getElementById('qt-var-tile-'+id);
+  if(!ordEl)return;
+  ordEl.innerHTML=hasQ?q:'&mdash;';
+  if(!hasQ){varEl.innerHTML='&mdash;';sEl.textContent='not entered yet';tile.classList.remove('short');return;}
+  var diff=q-reqTot;
+  varEl.textContent=(diff>0?'+':'')+diff;
+  sEl.textContent=diff===0?'matches the request':diff<0?(Math.abs(diff)+' short of request'):(diff+' over request');
+  tile.classList.toggle('short',diff<0);
+}
+// One order section, with per-line quantities and a subtotal in the heading.
+function sectionItemsHtml(title,raw,isHandset){
+  if(!raw||/^none$/i.test((''+raw).trim()))return '';
+  var sec=reqSection(raw,isHandset);
+  if(!sec.items.length)return '';
+  var h='<div class="modal-section">'+title+' &mdash; '+sec.total+' requested</div>';
+  sec.items.forEach(function(it){
+    h+='<div class="modal-row" style="display:flex;justify-content:space-between;align-items:center;gap:10px;"><span style="font-weight:500">'+escHtml(it.label)+'</span><span class="it-q">&times;'+it.qty+'</span></div>';
+  });
+  return h;
+}
 function viewOrder(id){
   var o=orders.find(function(x){return x.id===id;});if(!o)return;
   document.getElementById('modal-title').textContent=o.id+' — '+o.store;
@@ -1377,10 +1520,12 @@ function viewOrder(id){
   var lbl='font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#aaa;display:block;margin-bottom:2px;';
   var html='<div class="form-grid-3" style="margin-bottom:10px;"><div><label style="'+lbl+'">Employee</label><div style="font-weight:600">'+o.employee+'</div></div><div><label style="'+lbl+'">NTID</label><div style="font-weight:600">'+o.ntid+'</div></div><div><label style="'+lbl+'">Date</label><div style="font-weight:600">'+o.date+'</div></div></div>';
   html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;"><div><label style="'+lbl+'">Order Status</label><span class="badge badge-'+o.status+'">'+o.status+'</span></div><div><label style="'+lbl+'">Tracking Status</label><span class="badge badge-'+(o.received==='received'?'delivered':o.received==='partial'?'partial':o.received==='in_transit'?'transit':'await')+'">'+recvLabel+'</span>'+trackingModalHtml(o.trackingNo)+'</div></div>';
-  html+='<div class="admin-section"><div class="admin-section-title"><span class="admin-banner">🔒 ADMIN ONLY</span> Purchasing Details</div><div class="admin-fields-grid"><div class="admin-field"><label>Purchase Order #</label><input class="admin-input" type="text" id="edit-po-'+o.id+'" value="'+(o.po||'')+'" placeholder="PO-2026-001"></div><div class="admin-field"><label>Cost ($)</label><input class="admin-input" type="number" id="edit-cost-'+o.id+'" value="'+(o.cost||'')+'" placeholder="0.00" step="0.01"></div><div class="admin-field" style="grid-column:1/-1;"><label>Tracking # <span style="font-weight:400;color:#aaa;">— paste several at once to fill multiple rows</span></label><div id="trk-rows-'+o.id+'"></div><button type="button" class="add-row-btn" onclick="addTrackingRow(\''+o.id+'\')">+ Add tracking #</button></div><div class="admin-field"><label>Tracking Status</label><select class="admin-select" id="edit-recv-'+o.id+'"><option value="pending"'+(o.received!=='received'&&o.received!=='partial'&&o.received!=='in_transit'?' selected':'')+'>Pending</option><option value="in_transit"'+(o.received==='in_transit'?' selected':'')+'>In Transit</option><option value="partial"'+(o.received==='partial'?' selected':'')+'>Partially Delivered</option><option value="received"'+(o.received==='received'?' selected':'')+'>Delivered</option></select></div><div class="admin-field"><label>Order Status</label><select class="admin-select" id="edit-status-'+o.id+'"><option value="pending"'+(o.status==='pending'?' selected':'')+'>Pending</option><option value="fulfilled"'+(o.status==='fulfilled'?' selected':'')+'>Fulfilled</option></select></div></div><button class="save-admin-btn" data-id="'+o.id+'" data-spid="'+o.spId+'" onclick="handleSaveAdmin(this)">Save &amp; Update All Tabs</button></div>';
-  if(o.handsets&&o.handsets!=='None'){html+='<div class="modal-section">Handsets</div>';o.handsets.split('|').map(function(l){return l.trim();}).filter(Boolean).forEach(function(l){html+='<div class="modal-row"><span style="font-weight:500">'+l+'</span></div>';});}
-  if(o.cables&&o.cables!=='None'){html+='<div class="modal-section">Cables &amp; Chargers</div>';o.cables.split('|').map(function(l){return l.trim();}).filter(Boolean).forEach(function(l){html+='<div class="modal-row"><span style="font-weight:500">'+l+'</span></div>';});}
-  if(o.audio&&o.audio!=='None'){html+='<div class="modal-section">Audio &amp; Misc</div>';o.audio.split('|').map(function(l){return l.trim();}).filter(Boolean).forEach(function(l){html+='<div class="modal-row"><span style="font-weight:500">'+l+'</span></div>';});}
+  var reqTot=requestedTotal(o);
+  html+=qtyStripHtml(o,reqTot);
+  html+='<div class="admin-section"><div class="admin-section-title"><span class="admin-banner">🔒 ADMIN ONLY</span> Purchasing Details</div><div class="admin-fields-grid"><div class="admin-field"><label>Purchase Order #</label><input class="admin-input" type="text" id="edit-po-'+o.id+'" value="'+(o.po||'')+'" placeholder="PO-2026-001"></div><div class="admin-field"><label>Cost ($)</label><input class="admin-input" type="number" id="edit-cost-'+o.id+'" value="'+(o.cost||'')+'" placeholder="0.00" step="0.01"></div><div class="admin-field"><label>Qty Ordered</label><input class="admin-input hi" type="number" min="0" step="1" id="edit-qty-'+o.id+'" value="'+(o.qtyOrdered===''||o.qtyOrdered===null||typeof o.qtyOrdered==='undefined'?'':o.qtyOrdered)+'" placeholder="0" oninput="syncQtyTiles(\''+o.id+'\','+reqTot+')"></div><div class="admin-field" style="grid-column:1/-1;"><label>Tracking # <span style="font-weight:400;color:#aaa;">— paste several at once to fill multiple rows</span></label><div id="trk-rows-'+o.id+'"></div><button type="button" class="add-row-btn" onclick="addTrackingRow(\''+o.id+'\')">+ Add tracking #</button></div><div class="admin-field"><label>Tracking Status</label><select class="admin-select" id="edit-recv-'+o.id+'"><option value="pending"'+(o.received!=='received'&&o.received!=='partial'&&o.received!=='in_transit'?' selected':'')+'>Pending</option><option value="in_transit"'+(o.received==='in_transit'?' selected':'')+'>In Transit</option><option value="partial"'+(o.received==='partial'?' selected':'')+'>Partially Delivered</option><option value="received"'+(o.received==='received'?' selected':'')+'>Delivered</option></select></div><div class="admin-field"><label>Order Status</label><select class="admin-select" id="edit-status-'+o.id+'"><option value="pending"'+(o.status==='pending'?' selected':'')+'>Pending</option><option value="fulfilled"'+(o.status==='fulfilled'?' selected':'')+'>Fulfilled</option></select></div></div><button class="save-admin-btn" data-id="'+o.id+'" data-spid="'+o.spId+'" onclick="handleSaveAdmin(this)">Save &amp; Update All Tabs</button></div>';
+  html+=sectionItemsHtml('Handsets',o.handsets,true);
+  html+=sectionItemsHtml('Cables &amp; Chargers',o.cables,false);
+  html+=sectionItemsHtml('Audio &amp; Misc',o.audio,false);
   if(o.notes)html+='<div class="modal-section">Notes</div><div style="font-size:13px;color:var(--gt);padding:8px 0;">'+o.notes+'</div>';
   document.getElementById('modal-body').innerHTML=html;
   renderTrackingRows(o.id,o.trackingNo);
@@ -1392,12 +1537,12 @@ function handleSaveAdmin(btn){saveAdminFields(btn.getAttribute('data-id'),btn.ge
 async function saveAdminFields(id,spId){
   var o=orders.find(function(x){return x.id===id;});if(!o)return;
   var prevRecv=o.received,prevStatus=o.status,prevTracking=o.trackingNo;
-  o.po=document.getElementById('edit-po-'+id).value.trim();o.cost=document.getElementById('edit-cost-'+id).value;var trkRead=readTrackingRows(id);if(trkRead!==null)o.trackingNo=trkRead;o.received=document.getElementById('edit-recv-'+id).value;o.status=document.getElementById('edit-status-'+id).value;
+  o.po=document.getElementById('edit-po-'+id).value.trim();o.cost=document.getElementById('edit-cost-'+id).value;var qEl=document.getElementById('edit-qty-'+id);if(qEl)o.qtyOrdered=(qEl.value===''?'':(parseInt(qEl.value,10)>=0?parseInt(qEl.value,10):''));var trkRead=readTrackingRows(id);if(trkRead!==null)o.trackingNo=trkRead;o.received=document.getElementById('edit-recv-'+id).value;o.status=document.getElementById('edit-status-'+id).value;
   var btn=document.querySelector('[data-id="'+id+'"]');
   if(btn){btn.textContent='Saving...';btn.disabled=true;}
   // Notify store (To) + manager & coach (CC) on a tracking-status change, Fulfilled, or a new tracking number.
   var n=buildNotifyPayload(o,prevRecv,prevStatus,prevTracking);
-  if(spId){try{await fetch(FLOW_UPDATE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sp_id:spId,po:o.po,cost:o.cost,tracking_number:o.trackingNo,received:o.received,status:o.status,notify:n.notify,to_email:n.to_email,cc_email:n.cc_email,email_subject:n.email_subject,email_html:n.email_html})});}catch(e){console.error('Update error:',e);}}
+  if(spId){try{await fetch(FLOW_UPDATE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sp_id:spId,po:o.po,cost:o.cost,qty_ordered:o.qtyOrdered,tracking_number:o.trackingNo,received:o.received,status:o.status,notify:n.notify,to_email:n.to_email,cc_email:n.cc_email,email_subject:n.email_subject,email_html:n.email_html})});}catch(e){console.error('Update error:',e);}}
   updateStats();renderStoreChart();renderRecentOrders();renderAllOrders();renderStoreBreakdown();renderActivityTab();renderTopItems();
   if(btn){btn.textContent='Saved ✓';btn.style.background='linear-gradient(90deg,var(--gn-d),var(--gn))';setTimeout(function(){btn.textContent='Save & Update All Tabs';btn.style.background='';btn.disabled=false;},2500);}
 }
