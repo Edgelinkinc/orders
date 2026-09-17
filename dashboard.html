@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- BUILD 2026-09-17 accnotes+multitrk+qty+lockdate+qtyordered+actwindow+removals rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber(multi CARRIER:NUM per line) -->
+<!-- BUILD 2026-09-17 accnotes+multitrk+qty+lockdate+qtyordered+actwindow+removals+followup+fulog rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber(multi CARRIER:NUM per line) -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edgelink Inc. — Accessory Order System</title>
@@ -276,6 +276,10 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
 .days-ago.green{color:var(--gn-d);}.days-ago.amber{color:var(--am);}.days-ago.red{color:var(--rd);}
 .nudge-btn{background:var(--mg-l);border:1.5px solid var(--mg);color:var(--mg);border-radius:5px;padding:3px 9px;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;cursor:pointer;}
 .nudge-btn:hover{background:var(--mg);color:#fff;}
+.nudge-btn.done{background:var(--gn-l);border-color:var(--gn);color:var(--gn-d);}
+.nudge-btn.done:hover{background:var(--gn);color:#fff;}
+.nudge-btn.stale{background:var(--am-l);border-color:var(--am);color:#8a5200;}
+.nudge-btn.stale:hover{background:var(--am);color:#fff;}
 .top-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f5f5f5;}
 .top-item:last-child{border-bottom:none;}
 .top-rank{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gm);width:22px;flex-shrink:0;}
@@ -516,7 +520,8 @@ var FLOW_GET='https://defaultebc8d7eeee3a4821b739b0b060e735.7f.environment.api.p
 var FLOW_UPDATE='https://defaultebc8d7eeee3a4821b739b0b060e735.7f.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/23/workflows/3f1c1be03c134dc695464ae4d5ef7d3b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Wg8Ix4cDlZK2hpUw-kMauX45fUeeqScK5_jW-nRLUEc';
 var FLOW_CONFIG='https://defaultebc8d7eeee3a4821b739b0b060e735.7f.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/20/workflows/a0103d344ad641a6a0340ec472a82c26/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=BIBbTJVcYAP0-6JWBxcAwhocOEsZu5tLvit4PN4rizU';
 var FLOW_UPDATE_CONFIG='https://defaultebc8d7eeee3a4821b739b0b060e735.7f.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/18/workflows/a88554ae9b0a473fa699f8bff251b256/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=pPJ_E6KcjpfCHgqFp0EmYynCGD224xSeyoZ8DxXGG4U';
-var adminConfigIds={devices:null,announcements:null,settings:null,notifications:null,hqUsers:null};
+var adminConfigIds={devices:null,announcements:null,settings:null,notifications:null,hqUsers:null,followups:null};
+var followUps={}; // store name -> {date:'YYYY-MM-DD', by:'name'} — persisted in the 'followups' config row
 
 // ── Microsoft (Entra) sign-in config ──
 var MSAL_CONFIG={
@@ -656,6 +661,9 @@ async function loadConfig(){
     var devicesItem=config.find(function(c){return c.Title==='devices';});
     var annItem=config.find(function(c){return c.Title==='announcements';});
     var settingsItem=config.find(function(c){return c.Title==='settings';});
+    var fuItem=config.find(function(c){return c.Title==='followups';});
+    adminConfigIds.followups=fuItem?(fuItem.ID||fuItem.Id||null):null;
+    if(fuItem&&fuItem.ConfigValue){try{followUps=JSON.parse(fuItem.ConfigValue)||{};}catch(e){followUps={};}}
     if(devicesItem&&devicesItem.ConfigValue){var dev=JSON.parse(devicesItem.ConfigValue);formData.handsets=dev.handsets||[];formData.cables=dev.cables||[];formData.audio=dev.audio||[];adminData.handsets=formData.handsets;adminData.cables=formData.cables;adminData.audio=formData.audio;}else{loadDefaultConfig();}
     if(annItem&&annItem.ConfigValue){formData.announcements=JSON.parse(annItem.ConfigValue);adminData.announcements=formData.announcements;}
     if(settingsItem&&settingsItem.ConfigValue)adminData.settings=JSON.parse(settingsItem.ConfigValue);
@@ -1358,10 +1366,10 @@ function renderActivityTab(){
       (ordered.length?ordered.map(function(s){return '<div class="act-store-row"><div style="font-weight:600;font-size:12px;">'+s.store+'<div style="font-size:10px;color:var(--gt);font-weight:400;">'+s.inWin+' order'+(s.inWin===1?'':'s')+' &middot; '+s.items+' item'+(s.items===1?'':'s')+'</div></div><span class="days-ago green">'+s.days+'d</span></div>';}).join('')
         :'<div class="act-store-row" style="color:#bbb;font-weight:400;">None</div>')+'</div>'+
     '<div class="act-card red"><div class="act-hdr"><div class="act-hdr-title">'+(W>0?('No order in '+W+' days'):'No orders')+'</div><div class="act-count">'+lapsed.length+'</div></div>'+
-      (lapsed.length?lapsed.map(function(s){return '<div class="act-store-row"><div style="font-weight:600;font-size:12px;">'+s.store+'<div style="font-size:10px;color:var(--gt);font-weight:400;">Last: '+(s.last?s.last.date:'—')+'</div></div><button class="nudge-btn" onclick="nudgeStore(\''+s.store+'\')">Follow Up</button></div>';}).join('')
+      (lapsed.length?lapsed.map(function(s){return '<div class="act-store-row"><div style="font-weight:600;font-size:12px;">'+s.store+'<div style="font-size:10px;color:var(--gt);font-weight:400;">Last: '+(s.last?s.last.date:'—')+'</div></div>'+followUpBtnHtml(s.store)+'</div>';}).join('')
         :'<div class="act-store-row" style="color:#bbb;font-weight:400;">None</div>')+'</div>'+
     '<div class="act-card"><div class="act-hdr" style="background:#eceff1;border-bottom:1.5px solid #cfd8dc;"><div class="act-hdr-title" style="color:#546e7a;">Never ordered</div><div class="act-count" style="color:#546e7a;">'+never.length+'</div></div>'+
-      (never.length?never.map(function(s){return '<div class="act-store-row"><div style="font-weight:600;font-size:12px;">'+s.store+'<div style="font-size:10px;color:var(--gt);font-weight:400;">No orders on record</div></div><button class="nudge-btn" onclick="nudgeStore(\''+s.store+'\')">Follow Up</button></div>';}).join('')
+      (never.length?never.map(function(s){return '<div class="act-store-row"><div style="font-weight:600;font-size:12px;">'+s.store+'<div style="font-size:10px;color:var(--gt);font-weight:400;">No orders on record</div></div>'+followUpBtnHtml(s.store)+'</div>';}).join('')
         :'<div class="act-store-row" style="color:#bbb;font-weight:400;">None</div>')+'</div>';
   renderActivityDetail(document.getElementById('activity-filter')?document.getElementById('activity-filter').value:'all');
 }
@@ -1403,12 +1411,113 @@ function renderActivityDetail(filter){
       '<td style="font-family:\'Bebas Neue\',sans-serif;font-size:14px;color:var(--pu)">'+r.inWin+'</td>'+
       '<td style="font-family:\'Bebas Neue\',sans-serif;font-size:14px;color:var(--mg)">'+r.items+'</td>'+
       '<td style="color:var(--gt)">'+r.total+'</td><td>'+dText+'</td><td>'+badge+'</td>'+
-      '<td style="display:flex;gap:5px;">'+(r.last?'<button class="fulfill-btn" onclick="viewOrder(\''+r.last.orderId+'\')">Last Order</button>':'')+'<button class="nudge-btn" onclick="nudgeStore(\''+r.store+'\')">Follow Up</button></td></tr>';
+      '<td style="display:flex;gap:5px;">'+(r.last?'<button class="fulfill-btn" onclick="viewOrder(\''+r.last.orderId+'\')">Last Order</button>':'')+''+followUpBtnHtml(r.store)+'</td></tr>';
   });
   html+='</tbody></table>';body.innerHTML=html;
 }
 
-function nudgeStore(store){alert('Follow-up flagged for: '+store);}
+/* ---- Follow-up history ----
+   Persisted in the 'followups' row of the Edgelink Order Config list, written through the
+   existing FLOW_UPDATE_CONFIG path. A follow-up counts as stale once it is older than the
+   window currently selected on the tab, so HQ can see when to chase again. */
+function fuStaleDays(){return ACT_WINDOW>0?ACT_WINDOW:14;}
+function fuShortDate(d){
+  if(!d)return '';
+  var p=(''+d).split('-');
+  if(p.length!==3)return d;
+  var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var mi=parseInt(p[1],10)-1;
+  return (M[mi]||p[1])+' '+parseInt(p[2],10);
+}
+// The Follow Up button, coloured by whether a follow-up was already sent and how long ago.
+function followUpBtnHtml(store){
+  var rec=followUps[store];
+  var esc=(''+store).replace(/'/g,"\\'");
+  if(!rec||!rec.date)return '<button class="nudge-btn" onclick="nudgeStore(\''+esc+'\',this)">Follow Up</button>';
+  var age=daysDiff(rec.date);
+  var stale=age>=fuStaleDays();
+  var title='Followed up '+rec.date+(rec.by?' by '+rec.by:'')+' — '+age+' day'+(age===1?'':'s')+' ago'+(stale?'. Due again.':'');
+  return '<button class="nudge-btn '+(stale?'stale':'done')+'" title="'+escHtml(title)+'" onclick="nudgeStore(\''+esc+'\',this)">'+
+    (stale?'&#8635; F/U '+fuShortDate(rec.date):'&#10003; F/U '+fuShortDate(rec.date))+'</button>';
+}
+// Write the follow-up log back to SharePoint. Best-effort: a failure never blocks the email.
+async function saveFollowUps(){
+  if(!adminConfigIds.followups){
+    console.warn('No "followups" row in the Edgelink Order Config list — follow-up dates will not persist.');
+    return false;
+  }
+  try{
+    var r=await fetch(FLOW_UPDATE_CONFIG,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({items:[{id:adminConfigIds.followups,value:JSON.stringify(followUps)}]})});
+    return r.ok||r.status===202;
+  }catch(e){console.error('Follow-up save error:',e);return false;}
+}
+/* ---- Follow-up email from Store Activity ----
+   Store in To, manager + coach in CC. Posts to FLOW_UPDATE with an empty sp_id — the flow
+   must wrap its Update item in a condition on sp_id so a follow-up only sends the email. */
+function buildFollowUpHtml(store,days,lastDate,totalOrders){
+  var line;
+  if(totalOrders===0)line='<b>'+escHtml(store)+' has not submitted a single accessory order.</b> The order form is live and every other location is using it.';
+  else line='<b>'+escHtml(store)+' has not submitted an accessory order in '+days+' days.</b> Last order was '+escHtml(lastDate||'—')+'.';
+  return ''+
+  '<div style="background:#f4f4f6;padding:24px 0;font-family:Arial,Helvetica,sans-serif;">'+
+    '<table role="presentation" width="600" cellpadding="0" cellspacing="0" align="center" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;margin:0 auto;box-shadow:0 2px 8px rgba(0,0,0,.06);">'+
+      '<tr><td style="background:#E20074;padding:20px 24px;">'+
+        '<div style="font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:bold;letter-spacing:2px;color:#ffffff;">EDGELINK INC.</div>'+
+        '<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.85);">Accessory Order Follow-Up</div>'+
+      '</td></tr>'+
+      '<tr><td style="padding:18px 24px 6px;"><div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;line-height:1.7;">'+line+'</div></td></tr>'+
+      '<tr><td style="padding:6px 24px;">'+
+        '<div style="border:1px solid #f6d860;border-left:3px solid #f39c12;border-radius:8px;background:#fff8e1;padding:12px 14px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#222;line-height:1.7;">'+
+          'Submit an accessory order this week, or reply to this email confirming the store is fully stocked and needs nothing.'+
+        '</div></td></tr>'+
+      '<tr><td style="padding:14px 24px 6px;">'+
+        '<a href="https://edgelinkinc.github.io/orders/order-form.html" style="display:inline-block;background:#5C2D91;color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:bold;text-decoration:none;padding:11px 20px;border-radius:6px;">Open the Order Form</a>'+
+      '</td></tr>'+
+      '<tr><td style="padding:14px 24px 22px;">'+
+        '<div style="border-top:1px solid #ececf1;padding-top:12px;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#9aa0a6;">Sent from the Edgelink accessory order system. Reply to this email to reach the inventory team.</div>'+
+      '</td></tr>'+
+    '</table>'+
+  '</div>';
+}
+async function nudgeStore(store,btn){
+  var row=storeRosterRow(store);
+  var toEmail=(row?rStoreEmail(row):'')||'';
+  if(!toEmail){
+    var anyOrder=orders.filter(function(o){return o.store===store&&o.storeEmail;})[0];
+    if(anyOrder)toEmail=anyOrder.storeEmail;
+  }
+  if(!toEmail){alert('No store email on file for '+store+'.\nAdd a Store Email to the EdgeLink Store Roster in SharePoint, then try again.');return;}
+  var cc=[];
+  if(row){var me=rManagerEmail(row);var ce=rCoachEmail(row);if(me)cc.push(me);if(ce)cc.push(ce);}
+  var mine=orders.filter(function(o){return o.store===store;});
+  var last=null;
+  mine.forEach(function(o){if(!last||o.date>last)last=o.date;});
+  var days=last?daysDiff(last):null;
+  if(!confirm('Send follow-up for '+store+'?\n\nTo: '+toEmail+'\nCC: '+(cc.join('; ')||'(none)')+'\n\n'+(mine.length?('Last order '+last+' — '+days+' days ago.'):'No orders on record.'))) return;
+  var subj=mine.length
+    ? 'Action required — '+store+' has not ordered accessories in '+days+' days'
+    : 'Action required — '+store+' has never submitted an accessory order';
+  var payload={sp_id:'',notify:true,to_email:toEmail,cc_email:cc.join(';'),email_subject:subj,
+    email_html:buildFollowUpHtml(store,days,last,mine.length)};
+  if(btn){btn.disabled=true;btn.textContent='Sending...';}
+  try{
+    await fetch(FLOW_UPDATE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    followUps[store]={date:localISO(new Date()),by:(currentUser&&currentUser.name)?currentUser.name:''};
+    var saved=await saveFollowUps();
+    if(btn){
+      btn.disabled=false;btn.className='nudge-btn done';
+      btn.innerHTML='&#10003; F/U '+fuShortDate(followUps[store].date);
+      btn.title='Followed up '+followUps[store].date+(followUps[store].by?' by '+followUps[store].by:'')+' — just now';
+    }else{alert('Follow-up sent to '+toEmail+'.');}
+    if(!saved)console.warn('Follow-up email sent, but the date was not saved to SharePoint.');
+    renderActivityTab();
+  }catch(e){
+    console.error('Follow-up error:',e);
+    if(btn){btn.disabled=false;btn.textContent='Retry';setTimeout(function(){btn.textContent='Follow Up';},3000);}
+    alert('Could not send the follow-up. Check the flow run history.');
+  }
+}
 
 /* ---- Top Items aggregation ----
    Stored lines look like "iPhone 14: Glass x10, Male x5 (black)" or "Cables: USB-C 6FT x3".
@@ -1635,6 +1744,9 @@ async function loadAdminData(){
     adminConfigIds.settings=settingsItem?(settingsItem.ID||settingsItem.Id||null):null;
     adminConfigIds.notifications=notifItem?(notifItem.ID||notifItem.Id||null):null;
     adminConfigIds.hqUsers=hqItem?(hqItem.ID||hqItem.Id||null):null;
+    var fuItem2=config.find(function(c){return c.Title==='followups';});
+    adminConfigIds.followups=fuItem2?(fuItem2.ID||fuItem2.Id||null):null;
+    if(fuItem2&&fuItem2.ConfigValue){try{followUps=JSON.parse(fuItem2.ConfigValue)||{};}catch(e){}}
     if(devicesItem&&devicesItem.ConfigValue){var dev=JSON.parse(devicesItem.ConfigValue);adminData.handsets=dev.handsets||[];adminData.cables=dev.cables||[];adminData.audio=dev.audio||[];}
     if(annItem&&annItem.ConfigValue)adminData.announcements=JSON.parse(annItem.ConfigValue);
     if(settingsItem&&settingsItem.ConfigValue)adminData.settings=JSON.parse(settingsItem.ConfigValue);
