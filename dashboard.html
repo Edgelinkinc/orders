@@ -1272,24 +1272,44 @@ function renderActivityDetail(filter){
 
 function nudgeStore(store){alert('Follow-up flagged for: '+store);}
 
-// Per-item notes (and quantities) are part of the stored line. Strip them before counting,
-// otherwise "USB-C 6FT", "USB-C 6FT (braided)" and "USB-C 6FT x3" each become their own
-// Top Items entry and the tab stops aggregating anything.
-function topItemKey(line){
-  return (''+line).replace(/\s*\([^)]*\)\s*$/,'').replace(/\s+x\d+\b/gi,'').replace(/[\s,]+$/,'').trim();
+/* ---- Top Items aggregation ----
+   Stored lines look like "iPhone 14: Glass x10, Male x5 (black)" or "Cables: USB-C 6FT x3".
+   Counting raw lines fragments everything — a note or a quantity made each line unique, and
+   "iPhone 14: Glass" never merged with "iPhone 14: Glass, Male". So: drop the trailing note,
+   split handsets into model + case type, and total the xN quantities (absent xN counts as 1).
+   Result is units per orderable thing, which is what an inventory team actually stocks. */
+// An order with nothing in a section stores the literal "None" — never count that as an item.
+function tiSkip(l){return !l||/^none$/i.test(l);}
+function tiStripNote(line){return (''+line).replace(/\s*\([^)]*\)\s*$/,'').trim();}
+function tiQty(tok){var m=(''+tok).match(/\s+x(\d+)\s*$/i);return m?parseInt(m[1],10):1;}
+function tiName(tok){return (''+tok).replace(/\s+x\d+\s*$/i,'').replace(/[\s,]+$/,'').trim();}
+function tallyHandsets(bucket,raw){
+  (raw||'').split('|').forEach(function(line){
+    var l=tiStripNote(line);if(tiSkip(l))return;
+    var i=l.indexOf(': ');
+    if(i<0){var solo=tiName(l);if(solo)bucket[solo]=(bucket[solo]||0)+tiQty(l);return;}
+    var model=l.slice(0,i).trim(),rest=l.slice(i+2).trim();
+    if(!model||!rest||rest==='note only')return;
+    rest.split(',').forEach(function(tok){
+      var part=tiName(tok);if(!part)return;
+      var key=model+' — '+part;
+      bucket[key]=(bucket[key]||0)+tiQty(tok);
+    });
+  });
+}
+function tallyAccessories(bucket,raw){
+  (raw||'').split('|').forEach(function(line){
+    var l=tiStripNote(line);if(tiSkip(l))return;
+    var key=tiName(l);if(tiSkip(key))return;
+    bucket[key]=(bucket[key]||0)+tiQty(l);
+  });
 }
 function renderTopItems(){
   var hc={},ac={};
-  function tally(bucket,raw){
-    (raw||'').split('|').forEach(function(l){
-      var k=topItemKey(l);
-      if(k)bucket[k]=(bucket[k]||0)+1;
-    });
-  }
   orders.forEach(function(o){
-    tally(hc,o.handsets);
-    tally(ac,o.cables);
-    tally(ac,o.audio);
+    tallyHandsets(hc,o.handsets);
+    tallyAccessories(ac,o.cables);
+    tallyAccessories(ac,o.audio);
   });
   renderTopList('top-handsets',hc);renderTopList('top-accessories',ac);
 }
