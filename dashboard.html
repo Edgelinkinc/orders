@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- BUILD 2026-09-10 accnotes+multitrk+refreshui rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber(multi CARRIER:NUM per line) -->
+<!-- BUILD 2026-09-17 accnotes+multitrk+refreshui+fixes rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber(multi CARRIER:NUM per line) -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edgelink Inc. — Accessory Order System</title>
@@ -971,7 +971,14 @@ function addTrackingRow(id,carrier,num){
   var sel=document.createElement('select');sel.className='admin-select trk-carrier';
   CARRIERS.forEach(function(k){var op=document.createElement('option');op.value=k;op.textContent=carrierLabel(k);if(k===(carrier||'UPS'))op.selected=true;sel.appendChild(op);});
   var inp=document.createElement('input');inp.type='text';inp.className='admin-input trk-num';inp.value=num||'';inp.placeholder='1Z999AA10123456784';
-  inp.addEventListener('input',function(){var d=detectCarrier(inp.value);if(d!=='OTHER')sel.value=d;});
+  // Auto-detect the carrier as they type, but stop the moment they pick one by hand —
+  // otherwise a deliberate choice gets silently overwritten on the next keystroke.
+  var carrierTouched=false;
+  sel.addEventListener('change',function(){carrierTouched=true;});
+  inp.addEventListener('input',function(){
+    if(carrierTouched)return;
+    var d=detectCarrier(inp.value);if(d!=='OTHER')sel.value=d;
+  });
   inp.addEventListener('paste',function(e){
     var cd=e.clipboardData||window.clipboardData;if(!cd)return;
     var txt=cd.getData('text')||'';
@@ -992,8 +999,10 @@ function renderTrackingRows(id,s){
   if(!list.length){addTrackingRow(id,'UPS','');return;}
   list.forEach(function(t){addTrackingRow(id,t.carrier,t.num);});
 }
+// Returns null (not '') when the rows aren't on screen, so a missing container can never be
+// mistaken for "HQ cleared the tracking numbers" and wipe the stored value.
 function readTrackingRows(id){
-  var c=document.getElementById('trk-rows-'+id);if(!c)return '';
+  var c=document.getElementById('trk-rows-'+id);if(!c)return null;
   var list=[];
   for(var i=0;i<c.children.length;i++){
     var r=c.children[i],sel=r.querySelector('.trk-carrier'),inp=r.querySelector('.trk-num');
@@ -1263,12 +1272,24 @@ function renderActivityDetail(filter){
 
 function nudgeStore(store){alert('Follow-up flagged for: '+store);}
 
+// Per-item notes (and quantities) are part of the stored line. Strip them before counting,
+// otherwise "USB-C 6FT", "USB-C 6FT (braided)" and "USB-C 6FT x3" each become their own
+// Top Items entry and the tab stops aggregating anything.
+function topItemKey(line){
+  return (''+line).replace(/\s*\([^)]*\)\s*$/,'').replace(/\s+x\d+\b/gi,'').replace(/[\s,]+$/,'').trim();
+}
 function renderTopItems(){
   var hc={},ac={};
+  function tally(bucket,raw){
+    (raw||'').split('|').forEach(function(l){
+      var k=topItemKey(l);
+      if(k)bucket[k]=(bucket[k]||0)+1;
+    });
+  }
   orders.forEach(function(o){
-    (o.handsets||'').split('|').map(function(l){return l.trim();}).filter(Boolean).forEach(function(l){hc[l]=(hc[l]||0)+1;});
-    (o.cables||'').split('|').map(function(l){return l.trim();}).filter(Boolean).forEach(function(l){ac[l]=(ac[l]||0)+1;});
-    (o.audio||'').split('|').map(function(l){return l.trim();}).filter(Boolean).forEach(function(l){ac[l]=(ac[l]||0)+1;});
+    tally(hc,o.handsets);
+    tally(ac,o.cables);
+    tally(ac,o.audio);
   });
   renderTopList('top-handsets',hc);renderTopList('top-accessories',ac);
 }
@@ -1303,7 +1324,7 @@ function handleSaveAdmin(btn){saveAdminFields(btn.getAttribute('data-id'),btn.ge
 async function saveAdminFields(id,spId){
   var o=orders.find(function(x){return x.id===id;});if(!o)return;
   var prevRecv=o.received,prevStatus=o.status,prevTracking=o.trackingNo;
-  o.po=document.getElementById('edit-po-'+id).value.trim();o.cost=document.getElementById('edit-cost-'+id).value;o.trackingNo=readTrackingRows(id);o.received=document.getElementById('edit-recv-'+id).value;o.status=document.getElementById('edit-status-'+id).value;
+  o.po=document.getElementById('edit-po-'+id).value.trim();o.cost=document.getElementById('edit-cost-'+id).value;var trkRead=readTrackingRows(id);if(trkRead!==null)o.trackingNo=trkRead;o.received=document.getElementById('edit-recv-'+id).value;o.status=document.getElementById('edit-status-'+id).value;
   var btn=document.querySelector('[data-id="'+id+'"]');
   if(btn){btn.textContent='Saving...';btn.disabled=true;}
   // Notify store (To) + manager & coach (CC) on a tracking-status change, Fulfilled, or a new tracking number.
