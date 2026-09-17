@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- BUILD 2026-09-17 accnotes+multitrk+qty+lockdate+qtyordered+actwindow rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber(multi CARRIER:NUM per line) -->
+<!-- BUILD 2026-09-17 accnotes+multitrk+qty+lockdate+qtyordered+actwindow+removals rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber(multi CARRIER:NUM per line) -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edgelink Inc. — Accessory Order System</title>
@@ -143,6 +143,10 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
 .qty-tile .s{font-size:10px;color:var(--gt);margin-top:2px;}
 .admin-input.hi{border-color:var(--mg);border-width:2px;background:var(--mg-l);font-weight:700;}
 .it-q{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--pu);margin-left:10px;white-space:nowrap;}
+.rm-helper{font-size:11.5px;color:var(--gt);line-height:1.55;background:var(--am-l);border:1px solid #f6d860;border-left:3px solid var(--am);border-radius:6px;padding:9px 12px;margin-bottom:6px;}
+.rm-helper b{color:#8a5200;}
+.modal-section.rm{color:var(--am);}
+.rm-box{background:var(--am-l);border:1px solid #f6d860;border-left:3px solid var(--am);border-radius:6px;padding:10px 12px;font-size:13px;line-height:1.6;color:var(--tx);}
 .acc-qty{width:52px;flex:0 0 52px;background:#fff;border:1.5px solid var(--mg);border-radius:5px;padding:4px 5px;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:700;text-align:center;color:var(--pu);outline:none;}
 .custom-row-wrap{margin-top:12px;border-top:1.5px dashed var(--bd);padding-top:12px;}
 .custom-row{display:flex;gap:8px;margin-bottom:6px;align-items:center;flex-wrap:wrap;}
@@ -358,7 +362,7 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
         </div>
       </div>
       <div id="review-content"></div>
-      <div class="field-group" style="margin-top:8px;"><label>Additional Notes</label><textarea class="field-textarea" id="order-notes" placeholder="Special instructions..."></textarea></div>
+      <div class="field-group" style="margin-top:8px;"><label>Items to Remove from Your Store <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#aaa;">&mdash; optional</span></label><div class="rm-helper"><b>EOL or extra stock you want picked up.</b> List anything sitting in your store you'd like taken back &mdash; discontinued devices, cases for phones you no longer sell, or overstock you'll never move. Leave blank if there's nothing to send back.</div><textarea class="field-textarea" id="order-notes" placeholder="e.g. 12x iPhone 12 glass (EOL)&#10;6x Moto G Power female cases — never sell&#10;3x Power Bank 5K — overstock"></textarea></div>
       <div class="btn-row"><button class="btn btn-ghost" onclick="goFormTo(3)">← Back</button><button class="btn btn-ghost" onclick="window.print()">Print</button><button class="btn btn-primary" id="submit-btn" onclick="submitOrder()">Submit Order ✓</button></div>
     </div>
     <div class="form-page" id="fp-success">
@@ -926,6 +930,8 @@ function buildPlainText(){
 }
 
 function escHtml(s){return (''+(s==null?'':s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+// The removals box is multi-line by design — keep the line breaks in HTML output.
+function nl2br(s){return (''+(s==null?'':s)).replace(/\r\n|\r|\n/g,'<br>');}
 function itemsToHtml(t){if(!t||t==='None')return '<span style="color:#9aa0a6;">None</span>';return escHtml(t).split(' | ').join('<br>');}
 function sectionHtml(title,text){
   return '<tr><td style="padding:0 24px;"><div style="border:1px solid #ececf1;border-radius:8px;margin-bottom:12px;overflow:hidden;">'+
@@ -938,7 +944,10 @@ function detailRow(label,val){
     '<td style="padding:3px 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#111;font-weight:bold;">'+escHtml(val)+'</td></tr>';
 }
 function buildEmailShell(o,opts){
-  var notesBlock=o.notes?('<tr><td style="padding:4px 24px 0;"><div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#777;">Notes</div><div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#222;line-height:1.6;">'+escHtml(o.notes)+'</div></td></tr>'):'';
+  var notesBlock=o.notes?('<tr><td style="padding:6px 24px 0;"><div style="border:1px solid #f6d860;border-left:3px solid #f39c12;border-radius:8px;overflow:hidden;background:#fff8e1;">'+
+    '<div style="padding:7px 12px;font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#8a5200;">&#9888; Requested for Removal</div>'+
+    '<div style="padding:0 12px 10px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#222;line-height:1.6;">'+nl2br(escHtml(o.notes))+'</div>'+
+    '</div></td></tr>'):'';
   var intro=opts.introHtml?('<tr><td style="padding:6px 24px 0;"><div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;line-height:1.6;">'+opts.introHtml+'</div></td></tr>'):'';
   return ''+
   '<div style="background:#f4f4f6;padding:24px 0;font-family:Arial,Helvetica,sans-serif;">'+
@@ -1526,7 +1535,7 @@ function viewOrder(id){
   html+=sectionItemsHtml('Handsets',o.handsets,true);
   html+=sectionItemsHtml('Cables &amp; Chargers',o.cables,false);
   html+=sectionItemsHtml('Audio &amp; Misc',o.audio,false);
-  if(o.notes)html+='<div class="modal-section">Notes</div><div style="font-size:13px;color:var(--gt);padding:8px 0;">'+o.notes+'</div>';
+  if(o.notes)html+='<div class="modal-section rm">&#9888; Requested for Removal</div><div class="rm-box">'+nl2br(escHtml(o.notes))+'</div>';
   document.getElementById('modal-body').innerHTML=html;
   renderTrackingRows(o.id,o.trackingNo);
   document.getElementById('modal-bg').classList.add('open');
