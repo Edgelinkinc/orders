@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- BUILD 2026-09-17 accnotes+multitrk+refreshui+fixes rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber(multi CARRIER:NUM per line) -->
+<!-- BUILD 2026-09-17 accnotes+multitrk+refreshui+qty+lockdate rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber(multi CARRIER:NUM per line) -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edgelink Inc. — Accessory Order System</title>
@@ -120,6 +120,16 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
 .cb.checked::after{content:'✓';color:#fff;font-size:13px;font-weight:800;}
 .spec-input{background:var(--gl);border:1.5px solid var(--bd);border-radius:5px;padding:4px 8px;font-family:'Montserrat',sans-serif;font-size:11px;width:100%;min-width:100px;outline:none;}
 .spec-input:focus{border-color:var(--mg);background:#fff;}
+.field-locked{background:var(--gl);border:1.5px solid var(--bd);border-radius:6px;padding:9px 12px;font-size:13px;font-weight:600;color:var(--gt);display:flex;align-items:center;gap:7px;}
+.field-locked .ic{font-size:12px;opacity:.65;}
+.locknote{font-size:10px;color:#9a9aa8;margin-top:3px;}
+.qty-input{width:46px;flex:0 0 46px;background:#fff;border:1.5px solid var(--mg);border-radius:5px;padding:3px 4px;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:700;text-align:center;color:var(--pu);outline:none;display:none;}
+.qty-input.show{display:block;}
+.qty-input:focus{background:var(--mg-l);}
+.acc-rev{display:none;margin-top:7px;gap:8px;align-items:center;}
+.acc-rev.show{display:flex;}
+.acc-qty-lbl{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#aaa;}
+.acc-qty{width:52px;flex:0 0 52px;background:#fff;border:1.5px solid var(--mg);border-radius:5px;padding:4px 5px;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:700;text-align:center;color:var(--pu);outline:none;}
 .custom-row-wrap{margin-top:12px;border-top:1.5px dashed var(--bd);padding-top:12px;}
 .custom-row{display:flex;gap:8px;margin-bottom:6px;align-items:center;flex-wrap:wrap;}
 .custom-inp{border:1.5px solid var(--bd);border-radius:6px;padding:6px 10px;font-family:'Montserrat',sans-serif;font-size:12px;flex:1;min-width:120px;outline:none;}
@@ -306,7 +316,7 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
       <div class="form-grid-3" style="margin-bottom:16px;">
         <div class="field-group"><label>Employee Full Name *</label><input class="field-input" type="text" id="emp-name" placeholder="First and last name"></div>
         <div class="field-group"><label>NTID *</label><input class="field-input" type="text" id="emp-ntid" placeholder="e.g. jsmith01" style="text-transform:uppercase;"></div>
-        <div class="field-group"><label>Order Date</label><input class="field-input" type="date" id="order-date"></div>
+        <div class="field-group"><label>Order Date</label><div class="field-locked"><span class="ic">&#128197;</span><span id="order-date-text">&mdash;</span></div><input type="hidden" id="order-date"><div class="locknote">Set automatically &mdash; locked</div></div>
       </div>
       <div class="field-group"><label>Store Location *</label><select class="field-select" id="store-select" onchange="onStoreChange()"><option value="">— Select Your Store —</option></select><div class="store-email-hint" id="store-email-hint"></div></div>
       <div id="ann-container"></div>
@@ -508,7 +518,17 @@ var orders=[];
 var formData={handsets:[],cables:[],audio:[],stores:[],announcements:[]};
 var rosterData=[];
 var adminData={handsets:[],cables:[],audio:[],stores:[],announcements:[],notifications:[],hqUsers:[],settings:{inventoryEmail:'INVENTORYHELPTEAM@EVOLUTIONWIRELESS.NET',notifyManager:true,notifyCoach:true,notifyStore:true}};
-var checks={},specials={},customRows={};
+var checks={},specials={},customRows={},qtys={};
+// Local-date string. Never use toISOString() here — after ~8pm Eastern that returns tomorrow.
+function localISO(d){var m=d.getMonth()+1,dy=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dy<10?'0':'')+dy;}
+function qtyOf(key){var v=parseInt(qtys[key],10);return v>0?v:1;}
+// Stamp today's date into the locked Order Date field.
+function stampOrderDate(){
+  var d=new Date();
+  var hid=document.getElementById('order-date');if(hid)hid.value=localISO(d);
+  var txt=document.getElementById('order-date-text');
+  if(txt)txt.textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+}
 var currentStoreName='',currentStoreEmail='',currentManagerEmail='',currentCoachEmail='';
 var currentUser=null;      // {name,email} of the signed-in person
 var isAdminEdit=false;     // whether the signed-in person can edit config
@@ -731,6 +751,22 @@ function makeCheckbox(key,onToggle){
   cb.addEventListener('click',function(){checks[key]=!checks[key];cb.classList.toggle('checked',checks[key]);if(onToggle)onToggle(checks[key]);updateTotals();});
   wrap.appendChild(cb);return wrap;
 }
+// Checkbox with a quantity box that appears once it's ticked, defaulting to 1.
+function makeQtyCheckbox(key){
+  var wrap=document.createElement('div');wrap.className='cb-wrap';
+  var cb=document.createElement('div');cb.className='cb';checks[key]=false;qtys[key]=1;
+  var q=document.createElement('input');q.type='number';q.min='1';q.step='1';q.value='1';q.className='qty-input';q.setAttribute('aria-label','Quantity');
+  cb.addEventListener('click',function(){
+    checks[key]=!checks[key];
+    cb.classList.toggle('checked',checks[key]);
+    q.classList.toggle('show',checks[key]);
+    if(checks[key]&&!(parseInt(q.value,10)>0)){q.value='1';qtys[key]=1;}
+    updateTotals();
+  });
+  q.addEventListener('input',function(){var v=parseInt(q.value,10);qtys[key]=(v>0?v:1);updateTotals();});
+  q.addEventListener('blur',function(){if(!(parseInt(q.value,10)>0)){q.value='1';qtys[key]=1;updateTotals();}});
+  wrap.appendChild(cb);wrap.appendChild(q);return wrap;
+}
 
 function buildHandsets(){
   var container=document.getElementById('handset-sections');container.innerHTML='';
@@ -749,9 +785,9 @@ function buildHandsets(){
       var modelName=typeof m==='object'?m.name:m;var isEol=typeof m==='object'?m.eol:false;
       var tr=document.createElement('tr');
       var nameTd=document.createElement('td');nameTd.className='device-name left';nameTd.innerHTML=modelName+(isEol?'<span class="badge badge-eol">EOL</span>':'');
-      var glassTd=document.createElement('td');glassTd.appendChild(makeCheckbox(modelName+'__glass'));
-      var maleTd=document.createElement('td');maleTd.appendChild(makeCheckbox(modelName+'__male'));
-      var femaleTd=document.createElement('td');femaleTd.appendChild(makeCheckbox(modelName+'__female'));
+      var glassTd=document.createElement('td');glassTd.appendChild(makeQtyCheckbox(modelName+'__glass'));
+      var maleTd=document.createElement('td');maleTd.appendChild(makeQtyCheckbox(modelName+'__male'));
+      var femaleTd=document.createElement('td');femaleTd.appendChild(makeQtyCheckbox(modelName+'__female'));
       var specTd=document.createElement('td');specTd.className='left';
       var sp=document.createElement('input');sp.type='text';sp.className='spec-input';sp.placeholder='Notes...';
       sp.addEventListener('input',function(){specials[modelName]=sp.value;});
@@ -771,7 +807,7 @@ function buildHandsets(){
 }
 
 function addCustomRow(brandName,container){
-  var idx=Date.now();var rowData={device:'',glass:false,male:false,female:false,special:''};
+  var idx=Date.now();var rowData={device:'',glass:false,male:false,female:false,special:'',qty:{glass:1,male:1,female:1}};
   customRows[brandName].push({idx:idx,data:rowData});
   var row=document.createElement('div');row.className='custom-row';
   var di=document.createElement('input');di.type='text';di.className='custom-inp';di.placeholder='Device name';
@@ -779,8 +815,15 @@ function addCustomRow(brandName,container){
   function makeCCb(field,label){
     var w=document.createElement('div');w.className='custom-cb-group';
     var cb=document.createElement('div');cb.className='cb';cb.style.width='22px';cb.style.height='22px';
-    cb.addEventListener('click',function(){rowData[field]=!rowData[field];cb.classList.toggle('checked',rowData[field]);updateTotals();});
-    var l=document.createElement('span');l.textContent=label;w.appendChild(cb);w.appendChild(l);return w;
+    var q=document.createElement('input');q.type='number';q.min='1';q.step='1';q.value='1';q.className='qty-input';q.setAttribute('aria-label','Quantity');
+    cb.addEventListener('click',function(){
+      rowData[field]=!rowData[field];cb.classList.toggle('checked',rowData[field]);
+      q.classList.toggle('show',rowData[field]);
+      if(rowData[field]&&!(parseInt(q.value,10)>0)){q.value='1';rowData.qty[field]=1;}
+      updateTotals();
+    });
+    q.addEventListener('input',function(){var v=parseInt(q.value,10);rowData.qty[field]=(v>0?v:1);updateTotals();});
+    var l=document.createElement('span');l.textContent=label;w.appendChild(cb);w.appendChild(l);w.appendChild(q);return w;
   }
   var si=document.createElement('input');si.type='text';si.className='spec-input';si.placeholder='Notes...';si.style.minWidth='90px';
   si.addEventListener('input',function(){rowData.special=si.value;});
@@ -800,10 +843,15 @@ function buildAccGrid(containerId,data){
       var row=document.createElement('div');row.className='acc-item';
       var top=document.createElement('div');top.className='acc-item-top';
       var name=document.createElement('span');name.className='acc-item-name';name.textContent=item;
-      var noteWrap=document.createElement('div');noteWrap.className='acc-note-wrap';
+      var noteWrap=document.createElement('div');noteWrap.className='acc-rev';
+      var qLbl=document.createElement('span');qLbl.className='acc-qty-lbl';qLbl.textContent='Qty';
+      var qIn=document.createElement('input');qIn.type='number';qIn.min='1';qIn.step='1';qIn.value='1';qIn.className='acc-qty';qIn.setAttribute('aria-label','Quantity');
+      qtys[key]=1;
+      qIn.addEventListener('input',function(){var v=parseInt(qIn.value,10);qtys[key]=(v>0?v:1);updateTotals();});
+      qIn.addEventListener('blur',function(){if(!(parseInt(qIn.value,10)>0)){qIn.value='1';qtys[key]=1;updateTotals();}});
       var note=document.createElement('input');note.type='text';note.className='spec-input acc-note-input';note.placeholder='Notes for '+item+'...';
       note.addEventListener('input',function(){specials[key]=note.value;updateTotals();});
-      noteWrap.appendChild(note);
+      noteWrap.appendChild(qLbl);noteWrap.appendChild(qIn);noteWrap.appendChild(note);
       top.appendChild(name);
       top.appendChild(makeCheckbox(key,function(on){
         if(on)noteWrap.classList.add('show');
@@ -817,8 +865,8 @@ function buildAccGrid(containerId,data){
 
 function updateTotals(){
   var total=0,cats={};
-  for(var k in checks){if(checks[k]||(specials[k]&&(''+specials[k]).trim())){total++;cats[k.split('__')[0]]=1;}}
-  formData.handsets.forEach(function(brand){(customRows[brand.brand]||[]).forEach(function(r){var d=r.data;if(d.device){if(d.glass){total++;cats[brand.brand+'_c']=1;}if(d.male){total++;cats[brand.brand+'_c']=1;}if(d.female){total++;cats[brand.brand+'_c']=1;}}});});
+  for(var k in checks){if(checks[k]){total+=qtyOf(k);cats[k.split('__')[0]]=1;}else if(specials[k]&&(''+specials[k]).trim()){total++;cats[k.split('__')[0]]=1;}}
+  formData.handsets.forEach(function(brand){(customRows[brand.brand]||[]).forEach(function(r){var d=r.data;if(d.device){var cq=d.qty||{};if(d.glass){total+=(cq.glass>0?cq.glass:1);cats[brand.brand+'_c']=1;}if(d.male){total+=(cq.male>0?cq.male:1);cats[brand.brand+'_c']=1;}if(d.female){total+=(cq.female>0?cq.female:1);cats[brand.brand+'_c']=1;}}});});
   document.getElementById('total-items').textContent=total;
   document.getElementById('total-cats').textContent=Object.keys(cats).length;
 }
@@ -834,13 +882,13 @@ function buildReview(){
     brand.models.forEach(function(m){
       var mn=typeof m==='object'?m.name:m;
       var g=checks[mn+'__glass'],ml=checks[mn+'__male'],f=checks[mn+'__female'],sp=specials[mn]||'';
-      if(g||ml||f||sp){var parts=[];if(g)parts.push('<span class="review-check">✓ Glass</span>');if(ml)parts.push('<span class="review-check">✓ Male</span>');if(f)parts.push('<span class="review-check">✓ Female</span>');hRows+='<div class="review-row"><span>'+mn+'</span><span>'+parts.join(' &nbsp;')+(sp?' 📝 '+sp:'')+'</span></div>';}
+      if(g||ml||f||sp){var parts=[];if(g)parts.push('<span class="review-check">Glass &times;'+qtyOf(mn+'__glass')+'</span>');if(ml)parts.push('<span class="review-check">Male &times;'+qtyOf(mn+'__male')+'</span>');if(f)parts.push('<span class="review-check">Female &times;'+qtyOf(mn+'__female')+'</span>');hRows+='<div class="review-row"><span>'+mn+'</span><span>'+parts.join(' &nbsp;')+(sp?' 📝 '+sp:'')+'</span></div>';}
     });
-    (customRows[brand.brand]||[]).forEach(function(r){var d=r.data;if(d.device){var parts=[];if(d.glass)parts.push('<span class="review-check">✓ Glass</span>');if(d.male)parts.push('<span class="review-check">✓ Male</span>');if(d.female)parts.push('<span class="review-check">✓ Female</span>');if(parts.length||d.special)hRows+='<div class="review-row"><span>'+d.device+' <em style="color:#aaa;font-size:10px">(custom)</em></span><span>'+parts.join(' &nbsp;')+(d.special?' 📝 '+d.special:'')+'</span></div>';}});
+    (customRows[brand.brand]||[]).forEach(function(r){var d=r.data;if(d.device){var cq=d.qty||{};var parts=[];if(d.glass)parts.push('<span class="review-check">Glass &times;'+(cq.glass>0?cq.glass:1)+'</span>');if(d.male)parts.push('<span class="review-check">Male &times;'+(cq.male>0?cq.male:1)+'</span>');if(d.female)parts.push('<span class="review-check">Female &times;'+(cq.female>0?cq.female:1)+'</span>');if(parts.length||d.special)hRows+='<div class="review-row"><span>'+d.device+' <em style="color:#aaa;font-size:10px">(custom)</em></span><span>'+parts.join(' &nbsp;')+(d.special?' 📝 '+d.special:'')+'</span></div>';}});
   });
   if(hRows)c.innerHTML+='<div class="review-card"><div class="review-header">Handsets</div><div class="review-body">'+hRows+'</div></div>';
   [{data:formData.cables,title:'Cables & Chargers'},{data:formData.audio,title:'Audio & Misc'}].forEach(function(x){
-    var rows='';x.data.forEach(function(g){g.items.forEach(function(item){var k=g.section+'__'+item;var sp=(specials[k]||'').trim();if(checks[k]||sp)rows+='<div class="review-row"><span>'+g.section+' — '+item+'</span><span>'+(checks[k]?'<span class="review-check">✓</span>':'<span style="color:#aaa;font-size:10px;">note only</span>')+(sp?' 📝 '+sp:'')+'</span></div>';});});
+    var rows='';x.data.forEach(function(g){g.items.forEach(function(item){var k=g.section+'__'+item;var sp=(specials[k]||'').trim();if(checks[k]||sp)rows+='<div class="review-row"><span>'+g.section+' — '+item+'</span><span>'+(checks[k]?'<span class="review-check">&times;'+qtyOf(k)+'</span>':'<span style="color:#aaa;font-size:10px;">note only</span>')+(sp?' 📝 '+sp:'')+'</span></div>';});});
     if(rows)c.innerHTML+='<div class="review-card"><div class="review-header">'+x.title+'</div><div class="review-body">'+rows+'</div></div>';
   });
 }
@@ -848,11 +896,11 @@ function buildReview(){
 function buildPlainText(){
   var hLines=[],cLines=[],aLines=[];
   formData.handsets.forEach(function(brand){
-    brand.models.forEach(function(m){var mn=typeof m==='object'?m.name:m;var g=checks[mn+'__glass'],ml=checks[mn+'__male'],f=checks[mn+'__female'],sp=specials[mn]||'';if(g||ml||f||sp){var parts=[];if(g)parts.push('Glass');if(ml)parts.push('Male');if(f)parts.push('Female');hLines.push(mn+': '+parts.join(', ')+(sp?' ('+sp+')':''));}});
-    (customRows[brand.brand]||[]).forEach(function(r){var d=r.data;if(d.device){var parts=[];if(d.glass)parts.push('Glass');if(d.male)parts.push('Male');if(d.female)parts.push('Female');if(parts.length)hLines.push(d.device+' (custom): '+parts.join(', ')+(d.special?' ('+d.special+')':''));}});
+    brand.models.forEach(function(m){var mn=typeof m==='object'?m.name:m;var g=checks[mn+'__glass'],ml=checks[mn+'__male'],f=checks[mn+'__female'],sp=specials[mn]||'';if(g||ml||f||sp){var parts=[];if(g)parts.push('Glass x'+qtyOf(mn+'__glass'));if(ml)parts.push('Male x'+qtyOf(mn+'__male'));if(f)parts.push('Female x'+qtyOf(mn+'__female'));hLines.push(mn+': '+(parts.join(', ')||'note only')+(sp?' ('+sp+')':''));}});
+    (customRows[brand.brand]||[]).forEach(function(r){var d=r.data;if(d.device){var parts=[];if(d.glass)parts.push('Glass x'+(d.qty&&d.qty.glass>0?d.qty.glass:1));if(d.male)parts.push('Male x'+(d.qty&&d.qty.male>0?d.qty.male:1));if(d.female)parts.push('Female x'+(d.qty&&d.qty.female>0?d.qty.female:1));if(parts.length)hLines.push(d.device+' (custom): '+parts.join(', ')+(d.special?' ('+d.special+')':''));}});
   });
-  formData.cables.forEach(function(g){g.items.forEach(function(item){var k=g.section+'__'+item;var sp=(specials[k]||'').trim();if(checks[k]||sp)cLines.push(g.section+': '+item+(sp?' ('+sp+')':''));});});
-  formData.audio.forEach(function(g){g.items.forEach(function(item){var k=g.section+'__'+item;var sp=(specials[k]||'').trim();if(checks[k]||sp)aLines.push(g.section+': '+item+(sp?' ('+sp+')':''));});});
+  formData.cables.forEach(function(g){g.items.forEach(function(item){var k=g.section+'__'+item;var sp=(specials[k]||'').trim();if(checks[k]||sp)cLines.push(g.section+': '+item+(checks[k]?' x'+qtyOf(k):'')+(sp?' ('+sp+')':''));});});
+  formData.audio.forEach(function(g){g.items.forEach(function(item){var k=g.section+'__'+item;var sp=(specials[k]||'').trim();if(checks[k]||sp)aLines.push(g.section+': '+item+(checks[k]?' x'+qtyOf(k):'')+(sp?' ('+sp+')':''));});});
   return{handsetText:hLines.join(' | ')||'None',cableText:cLines.join(' | ')||'None',audioText:aLines.join(' | ')||'None'};
 }
 
@@ -1122,7 +1170,7 @@ function resetForm(){
   document.getElementById('emp-name').value='';document.getElementById('emp-ntid').value='';document.getElementById('order-notes').value='';document.getElementById('store-select').value='';
   currentStoreName='';currentStoreEmail='';currentManagerEmail='';currentCoachEmail='';
   document.getElementById('store-email-hint').textContent='';
-  checks={};specials={};customRows={};
+  checks={};specials={};customRows={};qtys={};stampOrderDate();
   buildHandsets();buildAccGrid('cables-grid',formData.cables);buildAccGrid('audio-grid',formData.audio);updateTotals();
   document.querySelectorAll('.form-page').forEach(function(p){p.classList.remove('active');});
   document.getElementById('fp-0').classList.add('active');
@@ -1661,7 +1709,7 @@ function addHqUser(){
 }
 
 document.getElementById('form-order-badge').textContent='ORDER #'+formOrderId.split('-')[1];
-document.getElementById('order-date').value=TODAY.toISOString().split('T')[0];
+stampOrderDate();
 loadConfig();
 
 // Restore an existing Microsoft session (if any) without forcing the dashboard open.
