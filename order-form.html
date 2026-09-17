@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- BUILD 2026-09-17 accnotes+multitrk+qty+lockdate+qtyordered+actwindow+removals+followup+fulog rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber(multi CARRIER:NUM per line) -->
+<!-- BUILD 2026-09-17 accnotes+multitrk+qty+lockdate+qtyordered+actwindow+removals+followup+fulog+spidstr rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber(multi CARRIER:NUM per line) -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edgelink Inc. — Accessory Order System</title>
@@ -1660,7 +1660,7 @@ async function saveAdminFields(id,spId){
   if(btn){btn.textContent='Saving...';btn.disabled=true;}
   // Notify store (To) + manager & coach (CC) on a tracking-status change, Fulfilled, or a new tracking number.
   var n=buildNotifyPayload(o,prevRecv,prevStatus,prevTracking);
-  if(spId){try{await fetch(FLOW_UPDATE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sp_id:spId,po:o.po,cost:o.cost,qty_ordered:o.qtyOrdered,tracking_number:o.trackingNo,received:o.received,status:o.status,notify:n.notify,to_email:n.to_email,cc_email:n.cc_email,email_subject:n.email_subject,email_html:n.email_html})});}catch(e){console.error('Update error:',e);}}
+  if(spId){try{await fetch(FLOW_UPDATE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sp_id:''+(spId||''),po:o.po,cost:o.cost,qty_ordered:o.qtyOrdered,tracking_number:o.trackingNo,received:o.received,status:o.status,notify:n.notify,to_email:n.to_email,cc_email:n.cc_email,email_subject:n.email_subject,email_html:n.email_html})});}catch(e){console.error('Update error:',e);}}
   updateStats();renderStoreChart();renderRecentOrders();renderAllOrders();renderStoreBreakdown();renderActivityTab();renderTopItems();
   if(btn){btn.textContent='Saved ✓';btn.style.background='linear-gradient(90deg,var(--gn-d),var(--gn))';setTimeout(function(){btn.textContent='Save & Update All Tabs';btn.style.background='';btn.disabled=false;},2500);}
 }
@@ -1669,7 +1669,7 @@ async function quickFulfill(id){
   var o=orders.find(function(x){return x.id===id;});if(!o)return;
   var prevStatus=o.status;o.status='fulfilled';
   var n=buildNotifyPayload(o,o.received,prevStatus,o.trackingNo);
-  if(o.spId){try{await fetch(FLOW_UPDATE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sp_id:o.spId,status:'fulfilled',notify:n.notify,to_email:n.to_email,cc_email:n.cc_email,email_subject:n.email_subject,email_html:n.email_html})});}catch(e){}}
+  if(o.spId){try{await fetch(FLOW_UPDATE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sp_id:''+(o.spId||''),status:'fulfilled',notify:n.notify,to_email:n.to_email,cc_email:n.cc_email,email_subject:n.email_subject,email_html:n.email_html})});}catch(e){}}
   updateStats();renderRecentOrders();renderAllOrders();renderStoreBreakdown();renderActivityTab();
 }
 
