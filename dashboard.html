@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- BUILD 2026-09-17 accnotes+multitrk+qty+lockdate+qtyordered+actwindow+removals+followup+fulog+spidstr rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber(multi CARRIER:NUM per line) -->
+<!-- BUILD 2026-09-17 accnotes+multitrk+qty+lockdate+qtyordered+actwindow+removals+followup+fulog+spidstr+delete rCoach=CoachEmail rMgr=field_4 trk=TrackingNumber(multi CARRIER:NUM per line) -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edgelink Inc. — Accessory Order System</title>
@@ -280,6 +280,28 @@ body{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--tx);backgrou
 .nudge-btn.done:hover{background:var(--gn);color:#fff;}
 .nudge-btn.stale{background:var(--am-l);border-color:var(--am);color:#8a5200;}
 .nudge-btn.stale:hover{background:var(--am);color:#fff;}
+/* ---- Delete order: danger zone + typed confirmation ---- */
+.danger-zone{margin-top:14px;border:1.5px solid #f3b4ae;border-left:3px solid var(--rd);background:var(--rd-l);border-radius:10px;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+.danger-zone .dz-t{font-size:10px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:#b3271a;margin-bottom:3px;}
+.danger-zone .dz-d{font-size:11.5px;color:#8a3027;line-height:1.5;max-width:360px;}
+.del-btn{background:#fff;border:1.5px solid var(--rd);color:var(--rd);border-radius:6px;padding:8px 16px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer;white-space:nowrap;}
+.del-btn:hover{background:var(--rd);color:#fff;}
+.del-ovl{position:fixed;inset:0;background:rgba(20,10,20,.55);display:none;align-items:center;justify-content:center;z-index:200;padding:18px;}
+.del-ovl.open{display:flex;}
+.del-cfm{background:#fff;border-radius:12px;max-width:450px;width:100%;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.3);}
+.del-hd{background:var(--rd);padding:13px 17px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#fff;}
+.del-bd{padding:17px;font-size:13px;line-height:1.6;}
+.del-sum{background:var(--gl);border:1px solid var(--bd);border-radius:7px;padding:11px 13px;margin:12px 0;font-size:12.5px;line-height:1.7;}
+.del-sum b{color:var(--pu);}
+.del-warn{background:var(--rd-l);border:1px solid #f3b4ae;border-left:3px solid var(--rd);border-radius:7px;padding:10px 12px;font-size:12px;color:#8a3027;line-height:1.55;margin-bottom:12px;}
+.del-bd label{display:block;font-size:9px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--gt);margin-bottom:4px;}
+.del-inp{width:100%;border:1.5px solid var(--bd);border-radius:6px;padding:9px 11px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;outline:none;text-transform:uppercase;}
+.del-inp:focus{border-color:var(--rd);}
+.del-inp.ok{border-color:var(--gn);background:var(--gn-l);}
+.del-ft{display:flex;justify-content:flex-end;gap:9px;padding:0 17px 17px;}
+.del-go{background:var(--rd);border:none;color:#fff;border-radius:6px;padding:9px 18px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer;opacity:.4;pointer-events:none;}
+.del-go.on{opacity:1;pointer-events:auto;}
+.del-hint{font-size:11px;color:var(--gt);margin-top:6px;}
 .top-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f5f5f5;}
 .top-item:last-child{border-bottom:none;}
 .top-rank{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gm);width:22px;flex-shrink:0;}
@@ -1480,6 +1502,58 @@ function buildFollowUpHtml(store,days,lastDate,totalOrders){
     '</table>'+
   '</div>';
 }
+/* ---- Delete an order (hard delete) ----
+   Posts {sp_id, delete_order:true, notify:false} to FLOW_UPDATE. The flow's trailing
+   Condition 2 routes that to a SharePoint Delete item. Update item still runs first as a
+   harmless no-op because every other field is absent (null preserves). */
+var pendingDeleteId=null;
+function openDeleteConfirm(id){
+  var o=orders.find(function(x){return x.id===id;});if(!o)return;
+  if(!o.spId){alert('This order has no SharePoint record to delete.');return;}
+  pendingDeleteId=id;
+  var req=requestedTotal(o);
+  document.getElementById('del-sum').innerHTML=
+    '<b>'+escHtml(o.id)+'</b> &middot; '+escHtml(o.store||'—')+'<br>'+
+    escHtml(o.employee||'—')+' &middot; '+escHtml(o.ntid||'—')+' &middot; '+escHtml(o.date||'—')+'<br>'+
+    req+' item'+(req===1?'':'s')+' requested'+(o.po?' &middot; '+escHtml(o.po):'')+(o.cost?' &middot; $'+escHtml(o.cost):'');
+  var inp=document.getElementById('del-inp');
+  inp.value='';inp.placeholder=o.id;
+  checkDeleteMatch();
+  document.getElementById('del-ovl').classList.add('open');
+  setTimeout(function(){inp.focus();},50);
+}
+function closeDeleteConfirm(){
+  pendingDeleteId=null;
+  document.getElementById('del-ovl').classList.remove('open');
+  document.getElementById('del-inp').value='';
+}
+function checkDeleteMatch(){
+  var inp=document.getElementById('del-inp'),btn=document.getElementById('del-go'),h=document.getElementById('del-hint');
+  var ok=!!pendingDeleteId&&inp.value.trim().toUpperCase()===(''+pendingDeleteId).toUpperCase();
+  inp.classList.toggle('ok',ok);
+  btn.classList.toggle('on',ok);
+  h.textContent=ok?'Match — deletion enabled.':'Must match exactly.';
+}
+async function doDeleteOrder(){
+  var id=pendingDeleteId;if(!id)return;
+  var o=orders.find(function(x){return x.id===id;});if(!o||!o.spId){closeDeleteConfirm();return;}
+  var btn=document.getElementById('del-go');
+  btn.textContent='Deleting...';btn.classList.remove('on');
+  try{
+    await fetch(FLOW_UPDATE,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({sp_id:''+(o.spId||''),delete_order:true,notify:false})});
+    orders=orders.filter(function(x){return x.id!==id;});
+    closeDeleteConfirm();
+    document.getElementById('modal-bg').classList.remove('open');
+    updateStats();renderStoreChart();renderRecentOrders();renderAllOrders();renderStoreBreakdown();renderActivityTab();renderTopItems();
+    if(typeof renderAnalytics==='function'&&document.getElementById('tab-analytics')&&document.getElementById('tab-analytics').classList.contains('active'))renderAnalytics();
+    setSyncStatus('live','Live — '+orders.length+' orders');
+  }catch(e){
+    console.error('Delete error:',e);
+    alert('Could not delete the order. Check the flow run history.');
+  }
+  btn.textContent='Delete Permanently';
+}
 async function nudgeStore(store,btn){
   var row=storeRosterRow(store);
   var toEmail=(row?rStoreEmail(row):'')||'';
@@ -1640,7 +1714,10 @@ function viewOrder(id){
   html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;"><div><label style="'+lbl+'">Order Status</label><span class="badge badge-'+o.status+'">'+o.status+'</span></div><div><label style="'+lbl+'">Tracking Status</label><span class="badge badge-'+(o.received==='received'?'delivered':o.received==='partial'?'partial':o.received==='in_transit'?'transit':'await')+'">'+recvLabel+'</span>'+trackingModalHtml(o.trackingNo)+'</div></div>';
   var reqTot=requestedTotal(o);
   html+=qtyStripHtml(o,reqTot);
-  html+='<div class="admin-section"><div class="admin-section-title"><span class="admin-banner">🔒 ADMIN ONLY</span> Purchasing Details</div><div class="admin-fields-grid"><div class="admin-field"><label>Purchase Order #</label><input class="admin-input" type="text" id="edit-po-'+o.id+'" value="'+(o.po||'')+'" placeholder="PO-2026-001"></div><div class="admin-field"><label>Cost ($)</label><input class="admin-input" type="number" id="edit-cost-'+o.id+'" value="'+(o.cost||'')+'" placeholder="0.00" step="0.01"></div><div class="admin-field"><label>Qty Ordered</label><input class="admin-input hi" type="number" min="0" step="1" id="edit-qty-'+o.id+'" value="'+(o.qtyOrdered===''||o.qtyOrdered===null||typeof o.qtyOrdered==='undefined'?'':o.qtyOrdered)+'" placeholder="0" oninput="syncQtyTiles(\''+o.id+'\','+reqTot+')"></div><div class="admin-field" style="grid-column:1/-1;"><label>Tracking # <span style="font-weight:400;color:#aaa;">— paste several at once to fill multiple rows</span></label><div id="trk-rows-'+o.id+'"></div><button type="button" class="add-row-btn" onclick="addTrackingRow(\''+o.id+'\')">+ Add tracking #</button></div><div class="admin-field"><label>Tracking Status</label><select class="admin-select" id="edit-recv-'+o.id+'"><option value="pending"'+(o.received!=='received'&&o.received!=='partial'&&o.received!=='in_transit'?' selected':'')+'>Pending</option><option value="in_transit"'+(o.received==='in_transit'?' selected':'')+'>In Transit</option><option value="partial"'+(o.received==='partial'?' selected':'')+'>Partially Delivered</option><option value="received"'+(o.received==='received'?' selected':'')+'>Delivered</option></select></div><div class="admin-field"><label>Order Status</label><select class="admin-select" id="edit-status-'+o.id+'"><option value="pending"'+(o.status==='pending'?' selected':'')+'>Pending</option><option value="fulfilled"'+(o.status==='fulfilled'?' selected':'')+'>Fulfilled</option></select></div></div><button class="save-admin-btn" data-id="'+o.id+'" data-spid="'+o.spId+'" onclick="handleSaveAdmin(this)">Save &amp; Update All Tabs</button></div>';
+  html+='<div class="admin-section"><div class="admin-section-title"><span class="admin-banner">🔒 ADMIN ONLY</span> Purchasing Details</div><div class="admin-fields-grid"><div class="admin-field"><label>Purchase Order #</label><input class="admin-input" type="text" id="edit-po-'+o.id+'" value="'+(o.po||'')+'" placeholder="PO-2026-001"></div><div class="admin-field"><label>Cost ($)</label><input class="admin-input" type="number" id="edit-cost-'+o.id+'" value="'+(o.cost||'')+'" placeholder="0.00" step="0.01"></div><div class="admin-field"><label>Qty Ordered</label><input class="admin-input hi" type="number" min="0" step="1" id="edit-qty-'+o.id+'" value="'+(o.qtyOrdered===''||o.qtyOrdered===null||typeof o.qtyOrdered==='undefined'?'':o.qtyOrdered)+'" placeholder="0" oninput="syncQtyTiles(\''+o.id+'\','+reqTot+')"></div><div class="admin-field" style="grid-column:1/-1;"><label>Tracking # <span style="font-weight:400;color:#aaa;">— paste several at once to fill multiple rows</span></label><div id="trk-rows-'+o.id+'"></div><button type="button" class="add-row-btn" onclick="addTrackingRow(\''+o.id+'\')">+ Add tracking #</button></div><div class="admin-field"><label>Tracking Status</label><select class="admin-select" id="edit-recv-'+o.id+'"><option value="pending"'+(o.received!=='received'&&o.received!=='partial'&&o.received!=='in_transit'?' selected':'')+'>Pending</option><option value="in_transit"'+(o.received==='in_transit'?' selected':'')+'>In Transit</option><option value="partial"'+(o.received==='partial'?' selected':'')+'>Partially Delivered</option><option value="received"'+(o.received==='received'?' selected':'')+'>Delivered</option></select></div><div class="admin-field"><label>Order Status</label><select class="admin-select" id="edit-status-'+o.id+'"><option value="pending"'+(o.status==='pending'?' selected':'')+'>Pending</option><option value="fulfilled"'+(o.status==='fulfilled'?' selected':'')+'>Fulfilled</option></select></div></div><button class="save-admin-btn" data-id="'+o.id+'" data-spid="'+o.spId+'" onclick="handleSaveAdmin(this)">Save &amp; Update All Tabs</button>'+
+    '<div class="danger-zone"><div><div class="dz-t">&#9888; Danger Zone</div><div class="dz-d">Permanently removes this order from SharePoint. It will disappear from every tab, every count and all spend history.</div></div>'+
+    '<button type="button" class="del-btn" onclick="openDeleteConfirm(\''+o.id+'\')">Delete Order</button></div>'+
+    '</div>';
   html+=sectionItemsHtml('Handsets',o.handsets,true);
   html+=sectionItemsHtml('Cables &amp; Chargers',o.cables,false);
   html+=sectionItemsHtml('Audio &amp; Misc',o.audio,false);
@@ -1994,5 +2071,21 @@ loadConfig();
   if(p.indexOf('dashboard')>-1||q.indexOf('view=dashboard')>-1){openView('dashboard');}
 })();
 </script>
+<div class="del-ovl" id="del-ovl">
+  <div class="del-cfm">
+    <div class="del-hd">&#9888; Delete Order</div>
+    <div class="del-bd">
+      <div class="del-warn"><b>This cannot be undone.</b> The SharePoint record is removed permanently. Spend totals, Top Items and Store Activity will all recalculate without it.</div>
+      <div class="del-sum" id="del-sum"></div>
+      <label>Type the order ID to confirm</label>
+      <input class="del-inp" id="del-inp" autocomplete="off" oninput="checkDeleteMatch()">
+      <div class="del-hint" id="del-hint">Must match exactly.</div>
+    </div>
+    <div class="del-ft">
+      <button class="btn btn-ghost btn-sm" type="button" onclick="closeDeleteConfirm()">Cancel</button>
+      <button class="del-go" id="del-go" type="button" onclick="doDeleteOrder()">Delete Permanently</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
